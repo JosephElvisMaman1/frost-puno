@@ -71,3 +71,75 @@ La evolucion movil introduce un contrato de proveedores climaticos desacoplado. 
 Nuevos features candidatos: temperatura minima oficial, humedad oficial, velocidad de viento, nubosidad, estacion cercana, distancia a estacion, altitud real, sensacion termica, presion atmosferica y radiacion.
 
 Estos campos se documentan como contrato futuro. No se reentrena automaticamente el modelo hasta contar con dataset validado, etiquetas revisadas y comparacion contra la version activa.
+
+## 10. Mejoras de validacion del modelo
+
+La version `v0.2.0` introduce una evaluacion experimental mas realista sin cambiar el modelo activo en produccion.
+
+### Data leakage identificado
+
+En `v0.1.0`, las etiquetas `riesgo_helada` se generan con reglas basadas en:
+
+- `temperatura_minima_diaria`;
+- `horas_bajo_cero`.
+
+Esas columnas tambien estaban dentro de las features de entrenamiento. Por eso `f1_macro = 1.0` debe interpretarse como una validacion optimista del pipeline, no como prueba de desempeno perfecto en campo.
+
+### Dataset v2
+
+Se crea un dataset nuevo:
+
+- `data/processed/frost_training_dataset_v2.csv`
+
+No se modifica `frost_training_dataset.csv`.
+
+Features v2:
+
+- `latitud`
+- `longitud`
+- `altitud_estimada`
+- `temperature_2m`
+- `relative_humidity_2m`
+- `apparent_temperature`
+- `dew_point_2m`
+- `precipitation`
+- `cloud_cover`
+- `wind_speed_10m`
+- `mes`
+- `hora`
+
+Columnas removidas como features:
+
+- `temperatura_minima_diaria`
+- `horas_bajo_cero`
+
+La etiqueta `riesgo_helada` se mantiene para compatibilidad academica del MVP.
+
+### Splits realistas
+
+`train_models_v2.py` implementa dos estrategias reproducibles:
+
+- `district`: separa distritos completos entre train y test. Es la estrategia preferida para `v0.2.0`.
+- `time`: entrena con fechas iniciales y evalua contra fechas mas recientes.
+
+Comando principal:
+
+```powershell
+python -m ml_pipeline.features.build_features_v2
+python -m ml_pipeline.training.train_models_v2 --version v0.2.0 --split-strategy district --test-size 0.30
+```
+
+### Artefactos v0.2.0
+
+- `ml_pipeline/registry/frost_risk_model_v0_2_0.joblib`
+- `ml_pipeline/registry/model_metadata_v0_2_0.json`
+- `ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv`
+- `ml_pipeline/evaluation/metrics_comparison_v0_2_0.json`
+
+El backend sigue usando `ml_pipeline/registry/frost_risk_model.joblib`, por lo que FastAPI, Supabase y Flutter permanecen compatibles con produccion.
+
+### Impacto en metricas
+
+Las metricas bajan porque el modelo deja de ver variables derivadas de la etiqueta. Este resultado es esperado y deseable para una evaluacion honesta.
+
+`v0.2.0` no debe considerarse automaticamente superior en precision. Su valor esta en mejorar el diseno experimental y mostrar limites reales: falsos positivos, falsos negativos y generalizacion a distritos no vistos.
