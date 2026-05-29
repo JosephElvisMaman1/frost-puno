@@ -585,10 +585,23 @@ Este flujo permite mantener el modelo bajo criterios mínimos de calidad antes d
 FrostPuno está preparado para ejecutarse como sistema distribuido en servicios gratuitos o de bajo costo:
 
 - FastAPI en Render, usando el backend desplegado en `https://frost-puno.onrender.com`;
-- Flutter Web en Vercel, configurando `API_BASE_URL=https://frost-puno.onrender.com`;
+- Flutter Web en Vercel, disponible en `https://frost-puno.vercel.app` y configurado con `API_BASE_URL=https://frost-puno.onrender.com`;
 - Supabase como PostgreSQL administrado para historial, ubicaciones, versiones de modelo y logs;
 - GitHub Actions para pruebas, validación de datos, entrenamiento y quality gates;
 - Android APK para demo móvil con GPS y consumo del backend remoto.
+
+### 18.0 Trazabilidad de ramas y versiones
+
+El despliegue se organiza para no romper producción:
+
+| Componente | Rama / archivo | Estado | Modelo |
+|-----------|----------------|--------|--------|
+| Backend Render productivo | `main` + `render.yaml` | Desplegado en `https://frost-puno.onrender.com` | `v0.1.0` |
+| Frontend Vercel | `app_flutter/vercel.json` | Desplegado en `https://frost-puno.vercel.app` | consume API productiva |
+| ML experimental | `codex/model-v0-2-0` | Rama subida a GitHub | `v0.2.0` |
+| Backend Render experimental | `render.v2.yaml` | Configurado, pendiente de crear servicio | `v0.2.0` |
+
+La versión `v0.2.0` no reemplaza producción. Se despliega como servicio separado recomendado (`frost-puno-api-v2`) para evaluación académica de Aprendizaje de Máquina.
 
 ### 18.1 Render
 
@@ -602,6 +615,15 @@ https://frost-puno.onrender.com/ml/model-info
 https://frost-puno.onrender.com/docs
 ```
 
+Para desplegar la versión experimental `v0.2.0` sin tocar producción se agregó `render.v2.yaml`. Ese archivo configura:
+
+```text
+MODEL_PATH=ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+MODEL_METADATA_PATH=ml_pipeline/registry/model_metadata_v0_2_0.json
+```
+
+La sugerencia operativa es crear en Render un segundo servicio desde la rama `codex/model-v0-2-0`, con nombre `frost-puno-api-v2`, y desactivar `autoDeploy` hasta validar métricas, endpoints y recomendaciones.
+
 ### 18.2 Vercel
 
 Vercel compila Flutter Web desde `app_flutter`, genera `build/web` y publica la experiencia web/PWA. El dominio Vercel debe agregarse en `CORS_ORIGINS` del backend Render. La geolocalización web requiere HTTPS, por lo que Vercel es adecuado para probar el botón `Usar mi ubicación`.
@@ -609,6 +631,8 @@ Vercel compila Flutter Web desde `app_flutter`, genera `build/web` y publica la 
 ### 18.3 Supabase
 
 Supabase queda preparado mediante migraciones, seed y políticas RLS. Flutter no accede directamente a Supabase; todas las escrituras pasan por FastAPI. La clave `service_role` debe residir solo en Render o en secretos seguros de infraestructura.
+
+Durante la generación automática de evidencias, los conectores privados de GitHub, Vercel y Supabase devolvieron `token_expired`. Por ello, las capturas de dashboard privado deben repetirse tras reautenticar los conectores o desde la sesión web del navegador. Las evidencias incluidas muestran el estado público del despliegue y la configuración versionada.
 
 ### 18.4 Android y APK
 
@@ -786,6 +810,84 @@ La captura resume la guía de despliegue con backend FastAPI en Render, frontend
 
 La evidencia muestra los comandos para ejecutar en Android, usar GPS, configurar el backend remoto y generar el APK release.
 
+### Captura 25: GitHub repositorio
+
+![Captura 25. GitHub repositorio](capturas/25_github_repo.png)
+
+La captura muestra el repositorio público `JosephElvisMaman1/frost-puno`, base de trazabilidad para ramas, commits, CI/CD y despliegues.
+
+### Captura 26: GitHub rama v0.2.0
+
+![Captura 26. Rama v0.2.0](capturas/26_github_branch_v0_2_0.png)
+
+La evidencia muestra la rama `codex/model-v0-2-0`, donde se versionó el dataset sin leakage, el modelo experimental y el informe completo.
+
+### Captura 27: GitHub commits v0.2.0
+
+![Captura 27. Commits v0.2.0](capturas/27_github_commits_v0_2_0.png)
+
+La captura documenta los commits principales de la rama: configuración Android, modelo experimental `v0.2.0` e informe/evidencias de despliegue.
+
+### Captura 28: GitHub Actions
+
+![Captura 28. GitHub Actions](capturas/28_github_actions.png)
+
+La evidencia muestra la sección Actions del repositorio, donde se ubican los workflows de backend, datos, ML, quality gate y Flutter Web.
+
+### Captura 29: Render health remoto
+
+![Captura 29. Render health](capturas/29_render_health.png)
+
+La captura muestra `GET /health` del backend desplegado en Render, confirmando que FastAPI responde y que el modelo productivo está disponible.
+
+### Captura 30: Render model-info remoto
+
+![Captura 30. Render model-info](capturas/30_render_model_info.png)
+
+La evidencia muestra `GET /ml/model-info` desde Render. Permite verificar qué versión de modelo está activa en producción.
+
+### Captura 31: Render Swagger remoto
+
+![Captura 31. Render Swagger](capturas/31_render_swagger.png)
+
+La captura muestra Swagger UI en Render, evidencia de documentación interactiva de endpoints en el backend desplegado.
+
+### Captura 32: Vercel Flutter móvil
+
+![Captura 32. Vercel Flutter móvil](capturas/32_vercel_flutter_mobile.png)
+
+La evidencia muestra la app Flutter servida desde Vercel en viewport móvil, útil para validar que la interfaz sea usable en pantalla pequeña.
+
+### Captura 33: Vercel Flutter desktop
+
+![Captura 33. Vercel Flutter desktop](capturas/33_vercel_flutter_desktop.png)
+
+La captura muestra la misma app publicada en Vercel en viewport desktop, confirmando despliegue web/PWA.
+
+### Captura 34: Headers Render y Vercel
+
+![Captura 34. Headers de despliegue](capturas/34_despliegue_headers.png)
+
+La evidencia registra headers HTTP: Render responde desde `uvicorn` y Vercel sirve el frontend con infraestructura propia.
+
+### Captura 35: Ramas y versiones
+
+![Captura 35. Ramas y versiones](capturas/35_ramas_y_versiones.png)
+
+La captura consolida ramas remotas, commits recientes y metadata de modelos `v0.1.0` y `v0.2.0`.
+
+### Captura 36: Supabase estado y esquema
+
+![Captura 36. Supabase estado](capturas/36_supabase_estado.png)
+
+La evidencia muestra que el esquema Supabase está versionado mediante SQL, junto con la nota técnica de que el conector privado requería reautenticación para capturar el dashboard real.
+
+### Captura 37: Vercel estado y configuración
+
+![Captura 37. Vercel estado](capturas/37_vercel_estado.png)
+
+La captura registra la URL pública de Vercel, headers de despliegue y `app_flutter/vercel.json`.
+
 ---
 
 ## 20. Resultados obtenidos
@@ -814,10 +916,24 @@ Los resultados del MVP son:
 - Modelo experimental `v0.2.0` entrenado y registrado sin modificar producción.
 - Evaluación realista por distrito con F1 macro `0.4790`.
 - Comparación formal `v0.1.0` vs `v0.2.0` documentada.
+- Capturas remotas de GitHub, Render y Vercel generadas.
+- Configuración de despliegue separada para `v0.2.0` mediante `render.v2.yaml`.
 
 ---
 
-## 21. Limitaciones
+## 21. Recomendaciones de mejora
+
+1. Reautenticar conectores GitHub, Vercel y Supabase para capturar dashboards privados directamente desde el navegador o MCP.
+2. Crear un servicio Render separado `frost-puno-api-v2` usando `render.v2.yaml`, rama `codex/model-v0-2-0` y `autoDeploy=false`.
+3. Agregar un selector interno o endpoint `/ml/model-info-v2` solo para demo académica, sin cambiar la predicción productiva.
+4. Validar `v0.2.0` con datos independientes de SENAMHI o reportes de campo antes de promoverlo.
+5. Configurar Supabase real con `ENABLE_SUPABASE=true` solo después de verificar RLS, service role en Render y que Flutter no tenga claves privadas.
+6. Conectar Vercel a la rama `main` para producción y a `codex/model-v0-2-0` como preview, documentando ambas URLs.
+7. Agregar monitoreo básico: latencia de Render, errores de `/predict/frost-risk`, tasa de permisos GPS denegados y registros de predicción.
+
+---
+
+## 22. Limitaciones
 
 1. INEI se usa mediante una semilla curada MVP, no mediante extracción oficial completa automática.
 2. SENAMHI aún no está integrado como validación oficial completa.
@@ -830,7 +946,7 @@ Los resultados del MVP son:
 
 ---
 
-## 22. Trabajos futuros
+## 23. Trabajos futuros
 
 1. Integrar datos SENAMHI de estaciones y avisos de helada.
 2. Reemplazar la semilla INEI por exportaciones oficiales completas.
@@ -843,7 +959,7 @@ Los resultados del MVP son:
 9. Validar predicciones con productores locales y especialistas.
 10. Incorporar monitoreo de deriva de datos y comparación automática con modelo activo anterior.
 
-### 22.1 Evolución móvil y climática planificada
+### 23.1 Evolución móvil y climática planificada
 
 La versión evolucionada de FrostPuno incorpora preparación para uso móvil mediante geolocalización, permisos Android, PWA y generación de APK. El sistema añade un contrato de proveedores climáticos donde SENAMHI se considera fuente oficial peruana prioritaria, mientras Open-Meteo permanece como fuente de respaldo cuando no hay acceso operativo estable a datos oficiales en tiempo real.
 
@@ -851,7 +967,7 @@ Esta mejora no cambia la limitación central del MVP: la validación oficial com
 
 ---
 
-## 23. Conclusiones
+## 24. Conclusiones
 
 1. FrostPuno demuestra la viabilidad de integrar datos abiertos, aprendizaje supervisado y arquitectura distribuida para estimar riesgo de heladas en un contexto regional altoandino.
 2. Desde Aprendizaje de Máquina, el proyecto implementa un ciclo completo: dataset, features, entrenamiento, evaluación, registro de modelo y quality gate.
@@ -865,7 +981,7 @@ Esta mejora no cambia la limitación central del MVP: la validación oficial com
 
 ---
 
-## 24. Bibliografía
+## 25. Bibliografía
 
 FastAPI. (2026). *FastAPI documentation*. https://fastapi.tiangolo.com/
 
@@ -892,9 +1008,9 @@ Supabase. (2026). *Securing your API*. https://supabase.com/docs/guides/api/secu
 
 ---
 
-## 25. Anexos
+## 26. Anexos
 
-### 25.1 Comandos de ejecución
+### 26.1 Comandos de ejecución
 
 #### Backend FastAPI
 
@@ -923,7 +1039,7 @@ python -m ml_pipeline.evaluation.evaluate_model
 python -m ml_pipeline.registry.check_model_quality --metadata ml_pipeline\registry\model_metadata.json --min-f1-macro 0.70
 ```
 
-### 25.2 Estructura de carpetas
+### 26.2 Estructura de carpetas
 
 ```text
 FrostPuno/
@@ -936,7 +1052,7 @@ FrostPuno/
   .github/workflows/
 ```
 
-### 25.3 Ejemplo JSON de predicción
+### 26.3 Ejemplo JSON de predicción
 
 ```json
 {
@@ -963,7 +1079,7 @@ FrostPuno/
 }
 ```
 
-### 25.4 Comandos del modelo experimental v0.2.0
+### 26.4 Comandos del modelo experimental v0.2.0
 
 ```powershell
 python -m ml_pipeline.features.build_features_v2
@@ -981,7 +1097,7 @@ ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv
 ml_pipeline/evaluation/metrics_comparison_v0_2_0.json
 ```
 
-### 25.5 Checklist de despliegue futuro
+### 26.5 Checklist de despliegue futuro
 
 - [ ] Crear proyecto Supabase.
 - [ ] Ejecutar migraciones SQL.

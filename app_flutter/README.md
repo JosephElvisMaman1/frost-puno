@@ -36,7 +36,7 @@ El proyecto incluye `app_flutter/vercel.json`. Al importar en Vercel, configura:
 - **Root Directory:** `app_flutter`
 - **Build Command:** `flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL`
 - **Output Directory:** `build/web`
-- **Environment Variable:** `API_BASE_URL=https://TU-BACKEND.onrender.com`
+- **Environment Variable:** `API_BASE_URL=https://frost-puno.onrender.com`
 
 El `vercel.json` instala Flutter estable durante el build porque Vercel no trae Flutter preinstalado. El primer build puede tardar mas que una app JavaScript simple.
 
@@ -75,14 +75,14 @@ flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:8000
 Para probar en telefono fisico, usa una API accesible desde la red del telefono:
 
 ```powershell
-flutter run -d android --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter run -d android --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 ## Generar APK
 
 ```powershell
 flutter pub get
-flutter build apk --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 El APK queda en `build\app\outputs\flutter-apk\app-release.apk`.

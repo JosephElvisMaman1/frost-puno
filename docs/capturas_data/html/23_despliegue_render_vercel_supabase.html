@@ -55,7 +55,17 @@ Nunca colocar `SUPABASE_SERVICE_ROLE_KEY` en Flutter, Vercel, `dart-define`, Jav
 
 ## 2. Render Free - FastAPI
 
-### Opcion A: Blueprint
+### Estado actual verificado
+
+- Backend productivo: `https://frost-puno.onrender.com`
+- Endpoint de salud: `https://frost-puno.onrender.com/health`
+- Documentacion Swagger: `https://frost-puno.onrender.com/docs`
+- Modelo activo: `v0.1.0`
+- Rama productiva usada por Render: `main`
+
+La rama `codex/model-v0-2-0` contiene la evaluacion academica `v0.2.0`, pero no reemplaza el modelo activo del backend productivo.
+
+### Opcion A: Blueprint v0.1.0 productivo
 
 El repositorio incluye `render.yaml`. En Render:
 
@@ -65,7 +75,23 @@ El repositorio incluye `render.yaml`. En Render:
 4. Configura las variables faltantes.
 5. Despliega.
 
-### Opcion B: Web Service manual
+### Opcion B: Blueprint v0.2.0 experimental
+
+El repositorio incluye `render.v2.yaml` para levantar un servicio separado:
+
+- **Nombre sugerido:** `frost-puno-api-v2`
+- **Rama sugerida:** `codex/model-v0-2-0`
+- **Modelo:** `ml_pipeline/registry/frost_risk_model_v0_2_0.joblib`
+- **Metadata:** `ml_pipeline/registry/model_metadata_v0_2_0.json`
+- **AutoDeploy:** desactivado para evitar promover cambios experimentales sin revision.
+
+Esta opcion permite exponer `v0.2.0` como endpoint academico sin romper el backend actual. La URL esperada, una vez creado el servicio en Render, seria similar a:
+
+```text
+https://frost-puno-api-v2.onrender.com
+```
+
+### Opcion C: Web Service manual
 
 Configuracion recomendada:
 
@@ -97,6 +123,13 @@ MODEL_PATH=ml_pipeline/registry/frost_risk_model.joblib
 MODEL_METADATA_PATH=ml_pipeline/registry/model_metadata.json
 ```
 
+Para el servicio experimental `v0.2.0`, cambiar solo:
+
+```env
+MODEL_PATH=ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+MODEL_METADATA_PATH=ml_pipeline/registry/model_metadata_v0_2_0.json
+```
+
 Para probar primero sin base de datos, deja `ENABLE_SUPABASE=false`. Cuando Supabase este listo y verificado, cambia a `ENABLE_SUPABASE=true`.
 
 ### Pruebas Render
@@ -110,6 +143,12 @@ https://frost-puno.onrender.com/docs
 Render Free puede dormir tras inactividad; la primera peticion puede tardar mientras despierta el servicio.
 
 ## 3. Vercel Hobby - Flutter Web
+
+El frontend publico esta disponible en:
+
+```text
+https://frost-puno.vercel.app
+```
 
 El frontend se despliega desde `app_flutter`.
 
@@ -157,7 +196,7 @@ Estos workflows no requieren credenciales reales para ejecutarse en CI.
 
 1. Abrir `https://TU-BACKEND.onrender.com/health`.
 2. Confirmar `status = ok` y `model_available = true`.
-3. Abrir `https://TU-FRONTEND.vercel.app`.
+3. Abrir `https://frost-puno.vercel.app`.
 4. Verificar que la pantalla principal muestre el estado del sistema.
 5. Ir a consulta de riesgo.
 6. Enviar los valores demo.
@@ -194,6 +233,26 @@ Estos workflows no requieren credenciales reales para ejecutarse en CI.
 - [ ] `API_BASE_URL` en Vercel apunta a Render.
 - [ ] Flutter Web consulta y muestra prediccion.
 - [ ] Si Supabase esta activo, `frost_predictions` recibe registros.
+
+## 9. Evidencias capturadas
+
+Las capturas remotas del despliegue se encuentran en:
+
+- `docs/capturas/25_github_repo.png`
+- `docs/capturas/26_github_branch_v0_2_0.png`
+- `docs/capturas/27_github_commits_v0_2_0.png`
+- `docs/capturas/28_github_actions.png`
+- `docs/capturas/29_render_health.png`
+- `docs/capturas/30_render_model_info.png`
+- `docs/capturas/31_render_swagger.png`
+- `docs/capturas/32_vercel_flutter_mobile.png`
+- `docs/capturas/33_vercel_flutter_desktop.png`
+- `docs/capturas/34_despliegue_headers.png`
+- `docs/capturas/35_ramas_y_versiones.png`
+- `docs/capturas/36_supabase_estado.png`
+- `docs/capturas/37_vercel_estado.png`
+
+Los conectores privados de GitHub, Vercel y Supabase devolvieron `token_expired` durante la captura automatica. Por ello, las capturas de dashboard privado deben repetirse tras reautenticar conectores o desde la sesion web del navegador.
 </pre>
 </body>
 </html>

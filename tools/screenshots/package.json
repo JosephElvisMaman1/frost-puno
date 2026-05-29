@@ -6,6 +6,7 @@
   "scripts": {
     "capture:flutter": "node capture_web_screenshots.js",
     "capture:api": "node capture_fastapi_screenshots.js",
+    "capture:deploy": "node capture_deployment_evidence.js",
     "capture:static": "node capture_static_evidence.js",
     "checklist": "node update_checklist.js"
   },

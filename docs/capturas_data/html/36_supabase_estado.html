@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase: esquema preparado y pendiente de reautenticacion</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">FrostPuno - evidencia de despliegue</span>
+  <h1>Supabase: esquema preparado y pendiente de reautenticacion</h1>
+  <p>Las credenciales del conector Supabase expiraron; se documenta el esquema SQL versionado y el paso necesario para capturar el dashboard real.</p>
+  <pre># Estado del conector
+El conector Supabase devolvio token_expired durante la verificacion automatica.
+
+# SQL versionado
+create extension if not exists pgcrypto;
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+create table if not exists public.users_profile (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid unique references auth.users(id) on delete cascade,
+  full_name text,
+  role text not null default 'producer' check (role in ('producer', 'student', 'admin', 'researcher')),
+  department text not null default 'Puno',
+  province text,
+  district text,
+  community text,
+  source text not null default 'app',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.inei_locations (
+  id uuid primary key default gen_random_uuid(),
+  ubigeo text not null unique check (ubigeo ~ '^[0-9]{6}$'),
+  department text not null,
+  province text not null,
+  district text not null,
+  latitude numeric(9,6) not null check (latitude between -18.5 and -13.0),
+  longitude numeric(9,6) not null check (longitude between -71.5 and -68.0),
+  estimated_altitude numeric(8,2) check (estimated_altitude between 0 and 7000),
+  total_population integer check (total_population &gt;= 0),
+  rural_population integer check (rural_population &gt;= 0),
+  rural_percentage numeric(5,2) check (rural_percentage between 0 and 100),
+  source text not null default 'INEI',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint rural_population_lte_total check (
+    total_population is null
+    or rural_population is null
+    or rural_population &lt;= total_population
+  )
+);
+
+create table if not exists public.populated_centers (
+  id uuid primary key default gen_random_uuid(),
+  location_id uuid references public.inei_locations(id) on delete set null,
+  ubigeo text references public.inei_locations(ubigeo) on update cascade on delete set null,
+  name text not null,
+  category text,
+  latitude numeric(9,6) check (latitude between -18.5 and -13.0),
+  longitude numeric(9,6) check (longitude between -71.5 and -68.0),
+  altitude numeric(8,2) check (altitude between 0 and 7000),
+  population integer check (population &gt;= 0),
+  source text not null default 'INEI Sistema de Centros Poblados',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.agricultural_context (
+  id uuid primary key default gen_random_uuid(),
+  location_id uuid references public.inei_locations(id) on delete cascade,
+  ubigeo text references public.inei_locations(ubigeo) on update cascade on delete cascade,
+  crop text not null,
+  agricultural_activity boolean not null default true,
+  cultivated_area_ha numeric(12,2) check (cultivated_area_ha is null or cultivated_area_ha &gt;= 0),
+  production_tons numeric(12,2) check (production_tons is null or production_tons &gt;= 0),
+  yield_ton_ha numeric(12,4) check (yield_ton_ha is null or yield_ton_ha &gt;= 0),
+  reference_year integer check (reference_year between 1900 and 2100),
+  source text not null default 'INEI/MIDAGRI-SIEA',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.weather_records (
+  id uuid primary key default gen_random_uuid(),
+  location_id uuid references public.inei_locations(id) on delete set null,
+  ubigeo text references public.inei_locations(ubigeo) on update cascade on delete set null,
+  observed_at timestamptz not null,
+  latitude numeric(9,6) not null check (latitude between -18.5 and -13.0),
+  longitude numeric(9,6) not null check (longitude between -71.5 and -68.0),
+  temperature_2m numeric(6,2),
+  relative_humidity_2m numeric(5,2) check (relative_humidity_2m between 0 and 100),
+  apparent_temperature numeric(6,2),
+  dew_point_2m numeric(6,2),
+  precipitation numeric(8,2) check (precipitation is null or precipitation &gt;= 0),
+  cloud_cover numeric(5,2) check (cloud_cover between 0 and 100),
+  wind_speed_10m numeric(7,2) check (wind_speed_10m is null or wind_speed_10m &gt;= 0),
+  source text not null default 'Open-Meteo',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.model_versions (
+  id uuid primary key default gen_random_uuid(),
+  version text not null unique,
+  model_name text not null,
+  algorithm text not null,
+  artifact_path text not null,
+  accuracy numeric(8,6) check (accuracy between 0 and 1),
+  precision_macro numeric(8,6) check (precision_macro between 0 and 1),
+  recall_macro numeric(8,6) check (recall_macro between 0 and 1),
+  f1_macro numeric(8,6) check (f1_macro between 0 and 1),
+  dataset_size integer not null check (dataset_size &gt;= 0),
+  status text not null default 'candidate' check (status in ('candidate', 'active', 'rejected', 'archived')),
+  source text not null default 'ml_pipeline',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  deployed_at timestamptz
+);
+
+create table if not exists public.training_runs (
+  id uuid primary key default gen_random_uuid(),
+  model_version_id uuid references public.model_versions(id) on delete set null,
+  run_name text,
+  dataset_path text,
+  dataset_hash text,
+  git_commit text,
+  accuracy numeric(8,6) check (accuracy between 0 and 1),
+  precision_macro numeric(8,6) check (precision_macro between 0 and 1),
+  recall_macro numeric(8,6) check (recall_macro between 0 and 1),
+  f1_macro numeric(8,6) check (f1_macro between 0 and 1),
+  status text not null default 'completed' check (status in ('started', 'completed', 'failed', 'promoted', 'rejected')),
+  source text not null default 'github_actions_or_local',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.frost_predictions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  location_id uuid references public.inei_locations(id) on delete set null,
+  model_version_id uuid references public.model_versions(id) on delete set null,
+  district text not null,
+  province text not null,
+  populated_center text,
+  latitude numeric(9,6) not null check (latitude between -18.5 and -13.0),
+  longitude numeric(9,6) not null check (longitude between -71.5 and -68.0),
+  altitude numeric(8,2) check (altitude between 0 and 7000),
+  input_payload jsonb not null,
+  risk_level text not null check (risk_level in ('bajo', 'medio', 'alto')),
+  confidence numeric(6,5) not null check (confidence between 0 and 1),
+  chuno_conditions text not null check (chuno_conditions in ('favorables', 'posibles', 'no_favorables')),
+  recommendation text not null,
+  model_version text not null,
+  data_sources jsonb not null default '[]'::jsonb,
+  source text not null default 'backend_fastapi',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.alerts (
+  id uuid primary key default gen_random_uuid(),
+  location_id uuid references public.inei_locations(id) on delete set null,
+  prediction_id uuid references public.frost_predictions(id) on delete set null,
+  title text not null,
+  message text not null,
+  risk_level text not null check (risk_level in ('bajo', 'medio', 'alto')),
+  channel text not null default 'app' check (channel in ('app', 'email', 'push', 'sms', 'whatsapp')),
+  status text not null default 'draft' check (status in ('draft', 'sent', 'cancelled', 'failed')),
+  starts_at timestamptz,
+  ends_at timestamptz,
+  source text not null default 'backend_fastapi',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.data_sources_log (
+  id uuid primary key default gen_random_uuid(),
+  source_name text not null,
+  source_type text not null check (source_type in ('INEI', 'SENAMHI', 'Open-Meteo', 'MIDAGRI-SIEA', 'manual', 'other')),
+  resource_url text,
+  file_path text,
+  rows_processed integer check (rows_processed is null or rows_processed &gt;= 0),
+  status text not null default 'completed' check (status in ('started', 'completed', 'failed')),
+  checksum text,
+  error_message text,
+  source text not null default 'pipeline',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_inei_locations_ubigeo on public.inei_locations(ubigeo);
+create index if not exists idx_populated_centers_ubigeo on public.populated_centers(ubigeo);
+create index if not exists idx_agricultural_context_ubigeo_crop on public.agricultural_context(ubigeo, crop);
+create index if not exists idx_weather_records_ubigeo_observed_at on public.weather_records(ubigeo, observed_at desc);
+create index if not exists idx_frost_predictions_created_at on public.frost_predictions(created_at desc);
+create index if not exists idx_frost_predictions_user_id on public.frost_predictions(user_id);
+create index if not exists idx_model_versions_status on public.model_versions(status);
+
+drop trigger if exists set_users_profile_updated_at on public.users_profile;
+create trigger set_users_profile_updated_at
+before update on public.users_profile
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_inei_locations_updated_at on public.inei_locations;
+create trigger set_inei_locations_updated_at
+before update on public.inei_locations
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_populated_centers_updated_at on public.populated_centers;
+create trigger set_populated_centers_updated_at
+before update on public.populated_centers
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_agricultural_context_updated_at on public.agricultural_context;
+create trigger set_agricultural_context_updated_at
+before update on public.agricultural_context
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_training_runs_updated_at on public.training_runs;
+create trigger set_training_runs_updated_at
+before update on public.training_runs
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_alerts_updated_at on public.alerts;
+create trigger set_alerts_updated_at
+before update on public.alerts
+for each row execute function public.set_updated_at();
+
+
+
+# RLS
+alter table public.users_profile enable row level security;
+alter table public.inei_locations enable row level security;
+alter table public.populated_centers enable row level security;
+alter table public.agricultural_context enable row level security;
+alter table public.weather_records enable row level security;
+alter table public.frost_predictions enable row level security;
+alter table public.alerts enable row level security;
+alter table public.model_versions enable row level security;
+alter table public.training_runs enable row level security;
+alter table public.data_sources_log enable row level security;
+
+grant usage on schema public to anon, authenticated, service_role;
+
+grant select on public.inei_locations to anon, authenticated;
+grant select on public.populated_centers to anon, authenticated;
+grant select on public.agricultural_context to anon, authenticated;
+grant select on public.model_versions to anon, authenticated;
+grant select on public.frost_predictions to authenticated;
+
+grant select, insert, update, delete on public.users_profile to authenticated, service_role;
+grant select, insert, update, delete on public.inei_locations to service_role;
+grant select, insert, update, delete on public.populated_centers to service_role;
+grant select, insert, update, delete on public.agricultural_context to service_role;
+grant select, insert, update, delete on public.weather_records to service_role;
+grant select, insert, update, delete on public.frost_predictions to service_role;
+grant select, insert, update, delete on public.alerts to service_role;
+grant select, insert, update, delete on public.model_versions to service_role;
+grant select, insert, update, delete on public.training_runs to service_role;
+grant select, insert, update, delete on public.data_sources_log to service_role;
+
+drop policy if exists &quot;Users can read own profile&quot; on public.users_profile;
+create policy &quot;Users can read own profile&quot;
+on public.users_profile
+for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+drop policy if exists &quot;Users can update own profile&quot; on public.users_profile;
+create policy &quot;Users can update own profile&quot;
+on public.users_profile
+for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+drop policy if exists &quot;Users can insert own profile&quot; on public.users_profile;
+create policy &quot;Users can insert own profile&quot;
+on public.users_profile
+for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+drop policy if exists &quot;Public can read INEI locations&quot; on public.inei_locations;
+create policy &quot;Public can read INEI locations&quot;
+on public.inei_locations
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists &quot;Public can read populated centers&quot; on public.populated_centers;
+create policy &quot;Public can read populated centers&quot;
+on public.populated_centers
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists &quot;Public can read agricultural context&quot; on public.agricultural_context;
+create policy &quot;Public can read agricultural context&quot;
+on public.agricultural_context
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists &quot;Users can read own frost predictions&quot; on public.frost_predictions;
+create policy &quot;Users can read own frost predictions&quot;
+on public.frost_predictions
+for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+drop policy if exists &quot;Public can read active model versions&quot; on public.model_versions;
+create policy &quot;Public can read active model versions&quot;
+on public.model_versions
+for select
+to anon, authenticated
+using (status = 'active');
+
+-- No anon/authenticated insert policy is defined for frost_predictions in this MVP.
+-- FastAPI writes predictions with the server-side service role key, which bypasses RLS.
+-- Never expose the service role key in Flutter, Flutter Web, Vercel client code, or logs.
+
+
+
+# Seed
+insert into public.inei_locations (
+  ubigeo,
+  department,
+  province,
+  district,
+  latitude,
+  longitude,
+  estimated_altitude,
+  total_population,
+  rural_population,
+  rural_percentage,
+  source,
+  metadata
+) values
+  ('210101', 'Puno', 'Puno', 'Puno', -15.840200, -70.021900, 3827, 128637, 21868, 16.99, 'INEI-compatible MVP seed', '{&quot;note&quot;:&quot;Replace with official INEI EstaDist/CPV 2017 export before production.&quot;}'::jsonb),
+  ('210201', 'Puno', 'Azangaro', 'Azangaro', -14.908400, -70.196200, 3859, 28137, 15194, 54.00, 'INEI-compatible MVP seed', '{&quot;note&quot;:&quot;Replace with official INEI EstaDist/CPV 2017 export before production.&quot;}'::jsonb),
+  ('210301', 'Puno', 'Carabaya', 'Macusani', -14.069700, -70.431100, 4315, 12240, 4651, 38.00, 'INEI-compatible MVP seed', '{&quot;note&quot;:&quot;Replace with official INEI EstaDist/CPV 2017 export before production.&quot;}'::jsonb),
+  ('210401', 'Puno', 'Chucuito', 'Juli', -16.212200, -69.459600, 3869, 22310, 12717, 57.00, 'INEI-compatible MVP seed', '{&quot;note&quot;:&quot;Replace with official INEI EstaDist/CPV 2017 export before production.&quot;}'::jsonb),
+  ('210501', 'Puno', 'El Collao', 'Ilave', -16.083300, -69.638900, 3850, 50239, 34163, 68.00, 'INEI-compatible MVP seed', '{&quot;note&quot;:&quot;Replace with official INEI EstaDist/CPV 2017 export before production.&quot;}'::jsonb),
+  ('211101', 'Puno', 'San Roman', 'Juliaca', -15.499700, -70.133300, 3825, 276110, 22089, 8.00, 'INEI-compatible MVP seed', '{&quot;note&quot;:&quot;Replace with official INEI EstaDist/CPV 2017 export before production.&quot;}'::jsonb)
+on conflict (ubigeo) do update set
+  department = excluded.department,
+  province = excluded.province,
+  district = excluded.district,
+  latitude = excluded.latitude,
+  longitude = excluded.longitude,
+  estimated_altitude = excluded.estimated_altitude,
+  total_population = excluded.total_population,
+  rural_population = excluded.rural_population,
+  rural_percentage = excluded.rural_percentage,
+  source = excluded.source,
+  metadata = excluded.metadata;
+
+insert into public.model_versions (
+  version,
+  model_name,
+  algorithm,
+  artifact_path,
+  accuracy,
+  precision_macro,
+  recall_macro,
+  f1_macro,
+  dataset_size,
+  status,
+  deployed_at,
+  metadata
+) values (
+  'v0.1.0',
+  'RandomForestClassifier',
+  'RandomForestClassifier',
+  'ml_pipeline/registry/frost_risk_model.joblib',
+  1.000000,
+  1.000000,
+  1.000000,
+  1.000000,
+  4368,
+  'active',
+  now(),
+  '{&quot;limitations&quot;:[&quot;Initial labels are rule-based.&quot;,&quot;Metrics are optimistic because label-derived features are included.&quot;],&quot;sources&quot;:[&quot;Open-Meteo&quot;,&quot;INEI-compatible MVP seed&quot;]}'::jsonb
+)
+on conflict (version) do update set
+  model_name = excluded.model_name,
+  algorithm = excluded.algorithm,
+  artifact_path = excluded.artifact_path,
+  accuracy = excluded.accuracy,
+  precision_macro = excluded.precision_macro,
+  recall_macro = excluded.recall_macro,
+  f1_macro = excluded.f1_macro,
+  dataset_size = excluded.dataset_size,
+  status = excluded.status,
+  deployed_at = excluded.deployed_at,
+  metadata = excluded.metadata;
+
+</pre>
+</body>
+</html>

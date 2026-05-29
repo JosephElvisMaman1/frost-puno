@@ -112,7 +112,7 @@ Local:
 Produccion esperada:
 
 - Backend Render: `https://frost-puno.onrender.com`
-- Flutter Vercel: `https://TU-FRONTEND.vercel.app`
+- Flutter Vercel: `https://frost-puno.vercel.app`
 - Supabase: `https://TU-PROYECTO.supabase.co`
 
 ## CI/CD
@@ -130,6 +130,7 @@ Workflows principales:
 Archivos preparados:
 
 - `render.yaml`: Render Free para FastAPI.
+- `render.v2.yaml`: Render Free separado para FastAPI experimental con modelo `v0.2.0`.
 - `app_flutter/vercel.json`: Vercel Hobby para Flutter Web.
 - `supabase/`: migraciones, RLS y seed.
 - `docs/deployment.md`: guia paso a paso.
@@ -176,3 +177,4 @@ No se suben credenciales. `SUPABASE_SERVICE_ROLE_KEY` debe existir solo en Rende
 - Informe Word generado: `docs/informe_frost_puno_completo.docx`.
 - Checklist de capturas: `docs/capturas_checklist.md`.
 - Capturas: `docs/capturas/01_estructura_proyecto.png` hasta `docs/capturas/24_android_apk_mobile.png`.
+- Capturas remotas de GitHub, Render y Vercel: `docs/capturas/25_github_repo.png` hasta `docs/capturas/37_vercel_estado.png`.

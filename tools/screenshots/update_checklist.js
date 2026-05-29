@@ -30,6 +30,19 @@ const items = [
   ['22', 'Comparacion v0.1.0 vs v0.2.0', '22_comparacion_modelos.png', 'Automatica', 'npm run capture:static'],
   ['23', 'Despliegue Render/Vercel/Supabase', '23_despliegue_render_vercel_supabase.png', 'Automatica', 'npm run capture:static'],
   ['24', 'Android APK y prueba movil', '24_android_apk_mobile.png', 'Automatica', 'npm run capture:static'],
+  ['25', 'GitHub repositorio', '25_github_repo.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['26', 'GitHub rama v0.2.0', '26_github_branch_v0_2_0.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['27', 'GitHub commits v0.2.0', '27_github_commits_v0_2_0.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['28', 'GitHub Actions', '28_github_actions.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['29', 'Render health remoto', '29_render_health.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['30', 'Render model-info remoto', '30_render_model_info.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['31', 'Render Swagger remoto', '31_render_swagger.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['32', 'Vercel Flutter movil', '32_vercel_flutter_mobile.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['33', 'Vercel Flutter desktop', '33_vercel_flutter_desktop.png', 'Automatica web publica', 'npm run capture:deploy'],
+  ['34', 'Headers Render/Vercel', '34_despliegue_headers.png', 'Automatica', 'npm run capture:deploy'],
+  ['35', 'Ramas y versiones', '35_ramas_y_versiones.png', 'Automatica', 'npm run capture:deploy'],
+  ['36', 'Supabase estado/esquema', '36_supabase_estado.png', 'Automatica con SQL versionado', 'npm run capture:deploy'],
+  ['37', 'Vercel estado/configuracion', '37_vercel_estado.png', 'Automatica', 'npm run capture:deploy'],
 ];
 
 function exists(fileName) {
