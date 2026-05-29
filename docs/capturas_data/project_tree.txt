@@ -148,8 +148,10 @@ Raiz: frost-puno
 |   |   \-- locations_puno.csv
 |   |-- raw
 |   |   \-- weather_open_meteo.csv
-|   \-- samples
-|       \-- README.md
+|   |-- samples
+|   |   \-- README.md
+|   \-- validation
+|       \-- senamhi_frost_observations_sample.csv
 |-- docs
 |   |-- capturas
 |   |   |-- 01_estructura_proyecto.png
@@ -242,9 +244,11 @@ Raiz: frost-puno
 |   |   |-- confusion_matrix.csv
 |   |   |-- confusion_matrix_v0_2_0.csv
 |   |   |-- evaluate_model.py
+|   |   |-- evaluate_observed_events.py
 |   |   |-- evaluation_report.json
 |   |   |-- metrics_comparison.json
-|   |   \-- metrics_comparison_v0_2_0.json
+|   |   |-- metrics_comparison_v0_2_0.json
+|   |   \-- senamhi_observation_evaluation_v0_2_0.json
 |   |-- features
 |   |   |-- build_features.py
 |   |   \-- build_features_v2.py
@@ -289,7 +293,8 @@ Raiz: frost-puno
 |       \-- screen.png
 |-- supabase
 |   |-- migrations
-|   |   \-- 001_create_core_tables.sql
+|   |   |-- 001_create_core_tables.sql
+|   |   \-- 002_add_feedback_and_observations.sql
 |   |-- policies
 |   |   \-- rls_policies.sql
 |   |-- seed

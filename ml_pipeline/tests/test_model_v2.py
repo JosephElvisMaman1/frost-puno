@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from ml_pipeline.config import LEAKAGE_FEATURES, NUMERIC_FEATURES_V2, TARGET_COLUMN
+from ml_pipeline.evaluation.evaluate_observed_events import load_observations
 from ml_pipeline.features.build_features_v2 import build_dataset_v2
 from ml_pipeline.training.train_models_v2 import split_dataset_v2
 
@@ -76,3 +77,33 @@ def test_time_split_uses_recent_dates_for_test() -> None:
     assert not y_test.empty
     assert metadata["strategy"] == "time"
     assert metadata["train_end"] < metadata["test_start"]
+
+
+def test_observation_validation_adds_time_features(tmp_path) -> None:
+    observations_path = tmp_path / "observations.csv"
+    pd.DataFrame(
+        [
+            {
+                "observed_at": "2024-06-01T03:00:00",
+                "distrito": "Puno",
+                "latitud": -15.8402,
+                "longitud": -70.0219,
+                "altitud_estimada": 3827,
+                "temperature_2m": -2.1,
+                "relative_humidity_2m": 71,
+                "apparent_temperature": -3.8,
+                "dew_point_2m": -4.0,
+                "precipitation": 0,
+                "cloud_cover": 18,
+                "wind_speed_10m": 8,
+                "riesgo_helada_observado": "alto",
+                "fuente_observacion": "SENAMHI_sample",
+            }
+        ]
+    ).to_csv(observations_path, index=False)
+
+    observations = load_observations(observations_path)
+
+    assert set(NUMERIC_FEATURES_V2).issubset(observations.columns)
+    assert observations.loc[0, "mes"] == 6
+    assert observations.loc[0, "hora"] == 3

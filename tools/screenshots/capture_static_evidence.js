@@ -160,6 +160,7 @@ async function render(page, outputFile, title, subtitle, body) {
     'Migraciones, politicas RLS y datos semilla preparados para el MVP.',
     readMany([
       'supabase/migrations/001_create_core_tables.sql',
+      'supabase/migrations/002_add_feedback_and_observations.sql',
       'supabase/policies/rls_policies.sql',
       'supabase/seed/seed_locations.sql',
     ]),

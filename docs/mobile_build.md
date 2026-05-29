@@ -28,6 +28,21 @@ El `AndroidManifest.xml` declara `INTERNET`, `ACCESS_COARSE_LOCATION` y `ACCESS_
 
 La app solicita permiso de ubicacion en tiempo de ejecucion mediante `permission_handler` y obtiene coordenadas con `geolocator`.
 
+## Icono APK
+
+El launcher icon ya fue reemplazado por un icono propio de FrostPuno en:
+
+```text
+app_flutter/android/app/src/main/res/mipmap-*/ic_launcher.png
+```
+
+La PWA usa la misma identidad visual en:
+
+```text
+app_flutter/web/icons/
+app_flutter/web/favicon.png
+```
+
 ## Ejecutar en Android
 
 ```powershell

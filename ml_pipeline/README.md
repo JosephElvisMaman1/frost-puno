@@ -46,6 +46,21 @@ Artefactos:
 
 El backend sigue usando `ml_pipeline/registry/frost_risk_model.joblib`.
 
+## Validacion con observaciones SENAMHI/campo
+
+El pipeline incluye un contrato para evaluar modelos contra observaciones externas. El archivo de muestra debe reemplazarse por datos oficiales o verificados en campo antes de usarlo como evidencia final.
+
+```powershell
+python -m ml_pipeline.evaluation.evaluate_observed_events
+```
+
+Entradas y salidas:
+
+- `data/validation/senamhi_frost_observations_sample.csv`
+- `ml_pipeline/evaluation/senamhi_observation_evaluation_v0_2_0.json`
+
+Esta etapa permite detectar falsos positivos/falsos negativos frente a eventos observados y decidir si una nueva version debe reentrenarse o rechazarse.
+
 Para una prueba corta:
 
 ```powershell
@@ -57,4 +72,4 @@ python -m ml_pipeline.data_ingestion.ingest_weather_open_meteo --start-date 2024
 - El dataset territorial inicial es una semilla MVP y debe reemplazarse por exportaciones oficiales completas de INEI EstaDist/CPV 2017 antes de usar el sistema fuera de una demo.
 - Las etiquetas iniciales son reglas basadas en temperatura minima y horas bajo cero; no son observaciones oficiales de dano agricola.
 - `v0.1.0` incluye features derivadas de la etiqueta y sus metricas son optimistas. `v0.2.0` elimina esas features y evalua con split por distrito.
-- SENAMHI queda priorizado para validacion oficial en fase 2.
+- SENAMHI queda priorizado para validacion oficial; el contrato de evaluacion ya existe, pero el archivo de muestra debe reemplazarse por datos oficiales completos.

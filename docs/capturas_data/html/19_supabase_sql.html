@@ -250,6 +250,49 @@ for each row execute function public.set_updated_at();
 
 
 
+# supabase/migrations/002_add_feedback_and_observations.sql
+
+create table if not exists public.prediction_feedback (
+  id uuid primary key default gen_random_uuid(),
+  prediction_id uuid references public.frost_predictions(id) on delete set null,
+  district text not null,
+  latitude numeric(9,6) check (latitude between -18.5 and -13.0),
+  longitude numeric(9,6) check (longitude between -71.5 and -68.0),
+  observed_risk_level text check (observed_risk_level in ('bajo', 'medio', 'alto')),
+  user_observed_frost boolean,
+  crop_damage_observed boolean,
+  notes text,
+  source text not null default 'app_feedback',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.official_frost_observations (
+  id uuid primary key default gen_random_uuid(),
+  observed_at timestamptz not null,
+  district text not null,
+  latitude numeric(9,6) not null check (latitude between -18.5 and -13.0),
+  longitude numeric(9,6) not null check (longitude between -71.5 and -68.0),
+  altitude numeric(8,2) check (altitude between 0 and 7000),
+  temperature_2m numeric(6,2),
+  relative_humidity_2m numeric(5,2) check (relative_humidity_2m between 0 and 100),
+  apparent_temperature numeric(6,2),
+  dew_point_2m numeric(6,2),
+  precipitation numeric(8,2) check (precipitation is null or precipitation &gt;= 0),
+  cloud_cover numeric(5,2) check (cloud_cover between 0 and 100),
+  wind_speed_10m numeric(7,2) check (wind_speed_10m is null or wind_speed_10m &gt;= 0),
+  observed_risk_level text not null check (observed_risk_level in ('bajo', 'medio', 'alto')),
+  source_name text not null default 'SENAMHI',
+  source_url text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_prediction_feedback_created_at on public.prediction_feedback(created_at desc);
+create index if not exists idx_official_frost_observations_district_time
+  on public.official_frost_observations(district, observed_at desc);
+
+
 # supabase/policies/rls_policies.sql
 
 alter table public.users_profile enable row level security;
@@ -262,6 +305,8 @@ alter table public.alerts enable row level security;
 alter table public.model_versions enable row level security;
 alter table public.training_runs enable row level security;
 alter table public.data_sources_log enable row level security;
+alter table public.prediction_feedback enable row level security;
+alter table public.official_frost_observations enable row level security;
 
 grant usage on schema public to anon, authenticated, service_role;
 
@@ -281,6 +326,8 @@ grant select, insert, update, delete on public.alerts to service_role;
 grant select, insert, update, delete on public.model_versions to service_role;
 grant select, insert, update, delete on public.training_runs to service_role;
 grant select, insert, update, delete on public.data_sources_log to service_role;
+grant select, insert, update, delete on public.prediction_feedback to service_role;
+grant select, insert, update, delete on public.official_frost_observations to service_role;
 
 drop policy if exists &quot;Users can read own profile&quot; on public.users_profile;
 create policy &quot;Users can read own profile&quot;
@@ -340,9 +387,10 @@ to anon, authenticated
 using (status = 'active');
 
 -- No anon/authenticated insert policy is defined for frost_predictions in this MVP.
--- FastAPI writes predictions with the server-side service role key, which bypasses RLS.
+-- No anon/authenticated insert policy is defined for frost_predictions,
+-- prediction_feedback or official_frost_observations in this MVP.
+-- FastAPI/ML operators write with the server-side service role key, which bypasses RLS.
 -- Never expose the service role key in Flutter, Flutter Web, Vercel client code, or logs.
-
 
 
 # supabase/seed/seed_locations.sql

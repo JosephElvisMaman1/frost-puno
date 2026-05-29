@@ -8,6 +8,8 @@ alter table public.alerts enable row level security;
 alter table public.model_versions enable row level security;
 alter table public.training_runs enable row level security;
 alter table public.data_sources_log enable row level security;
+alter table public.prediction_feedback enable row level security;
+alter table public.official_frost_observations enable row level security;
 
 grant usage on schema public to anon, authenticated, service_role;
 
@@ -27,6 +29,8 @@ grant select, insert, update, delete on public.alerts to service_role;
 grant select, insert, update, delete on public.model_versions to service_role;
 grant select, insert, update, delete on public.training_runs to service_role;
 grant select, insert, update, delete on public.data_sources_log to service_role;
+grant select, insert, update, delete on public.prediction_feedback to service_role;
+grant select, insert, update, delete on public.official_frost_observations to service_role;
 
 drop policy if exists "Users can read own profile" on public.users_profile;
 create policy "Users can read own profile"
@@ -86,6 +90,7 @@ to anon, authenticated
 using (status = 'active');
 
 -- No anon/authenticated insert policy is defined for frost_predictions in this MVP.
--- FastAPI writes predictions with the server-side service role key, which bypasses RLS.
+-- No anon/authenticated insert policy is defined for frost_predictions,
+-- prediction_feedback or official_frost_observations in this MVP.
+-- FastAPI/ML operators write with the server-side service role key, which bypasses RLS.
 -- Never expose the service role key in Flutter, Flutter Web, Vercel client code, or logs.
-

@@ -8,6 +8,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 EXTERNAL_DIR = DATA_DIR / "external"
+VALIDATION_DIR = DATA_DIR / "validation"
 
 LOCATIONS_EXTERNAL_PATH = EXTERNAL_DIR / "inei_puno_districts.csv"
 LOCATIONS_PROCESSED_PATH = PROCESSED_DIR / "locations_puno.csv"
@@ -27,6 +28,8 @@ EVALUATION_REPORT_PATH = EVALUATION_DIR / "evaluation_report.json"
 CONFUSION_MATRIX_PATH = EVALUATION_DIR / "confusion_matrix.csv"
 CONFUSION_MATRIX_V2_PATH = EVALUATION_DIR / "confusion_matrix_v0_2_0.csv"
 METRICS_COMPARISON_V2_PATH = EVALUATION_DIR / "metrics_comparison_v0_2_0.json"
+SENAMHI_OBSERVATIONS_PATH = VALIDATION_DIR / "senamhi_frost_observations_sample.csv"
+OBSERVATION_EVALUATION_PATH = EVALUATION_DIR / "senamhi_observation_evaluation_v0_2_0.json"
 
 REQUIRED_LOCATION_COLUMNS = [
     "ubigeo",
@@ -92,3 +95,20 @@ NUMERIC_FEATURES_V2 = [
 ]
 
 TARGET_COLUMN = "riesgo_helada"
+
+OBSERVATION_REQUIRED_COLUMNS = [
+    "observed_at",
+    "distrito",
+    "latitud",
+    "longitud",
+    "altitud_estimada",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "apparent_temperature",
+    "dew_point_2m",
+    "precipitation",
+    "cloud_cover",
+    "wind_speed_10m",
+    "riesgo_helada_observado",
+    "fuente_observacion",
+]

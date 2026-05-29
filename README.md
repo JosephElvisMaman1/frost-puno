@@ -23,6 +23,7 @@ Sistema inteligente distribuido para prediccion de heladas y apoyo a la producci
 - Despliegue: backend Render disponible en `https://frost-puno.onrender.com`; Vercel y Supabase documentados para ejecucion manual.
 - Movil: flujo GPS + clima automatico, modo oscuro, permisos Android, PWA y build APK preparados.
 - ML v0.2.0: version experimental sin data leakage, con split por distrito y evaluacion realista.
+- Mejora supervisada: validacion contra observaciones tipo SENAMHI/campo y tablas Supabase para feedback.
 
 ## Ejecucion local rapida
 
@@ -75,6 +76,8 @@ Android APK:
 Set-Location .\app_flutter
 flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
+
+El APK ya usa icono propio de FrostPuno en `android/app/src/main/res/mipmap-*` y la PWA usa los mismos assets en `web/icons`.
 
 ## Flujo movil actual
 
@@ -148,6 +151,8 @@ Para Aprendizaje de Maquina:
 - Modelo experimental `v0.2.0` en `ml_pipeline/registry/`, sin reemplazar produccion.
 - Dataset `data/processed/frost_training_dataset_v2.csv` sin `temperatura_minima_diaria` ni `horas_bajo_cero` como features.
 - Comparacion formal en `docs/model_comparison_v1_vs_v2.md`.
+- Validacion externa incremental con `data/validation/senamhi_frost_observations_sample.csv` y `python -m ml_pipeline.evaluation.evaluate_observed_events`.
+- Supabase preparado para `prediction_feedback` y `official_frost_observations` mediante `supabase/migrations/002_add_feedback_and_observations.sql`.
 
 Para Computacion Paralela y Distribuida:
 
@@ -166,6 +171,7 @@ Para Computacion Paralela y Distribuida:
 - PWA con manifest FrostPuno y fallback offline basico.
 - UX movil simplificada sin inputs climaticos manuales.
 - Dark/light mode con `ThemeMode.system`.
+- Tarjeta de mejora supervisada para explicar que el modelo se evalua y versiona antes de promover cambios.
 
 ## Seguridad
 

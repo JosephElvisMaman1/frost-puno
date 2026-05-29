@@ -1,0 +1,6 @@
+observed_at,distrito,latitud,longitud,altitud_estimada,temperature_2m,relative_humidity_2m,apparent_temperature,dew_point_2m,precipitation,cloud_cover,wind_speed_10m,riesgo_helada_observado,fuente_observacion,observacion
+2024-06-01T03:00:00,Puno,-15.8402,-70.0219,3827,-2.1,71,-3.8,-4.0,0,18,8,alto,SENAMHI_sample,Evento frio nocturno usado como ejemplo de validacion.
+2024-06-02T05:00:00,Juliaca,-15.4997,-70.1333,3825,0.6,66,-0.8,-2.2,0,32,10,medio,SENAMHI_sample,Condicion fria sin confirmacion de dano agricola.
+2024-06-03T14:00:00,Ilave,-16.0833,-69.6667,3850,9.4,52,8.3,0.4,0,40,12,bajo,SENAMHI_sample,Condicion diurna sin helada.
+2024-06-04T04:00:00,Macusani,-14.0692,-70.4317,4315,-4.8,60,-7.1,-8.0,0,8,14,alto,SENAMHI_sample,Ejemplo altoandino para contrastar falsos negativos.
+2024-06-05T06:00:00,Lampa,-15.3617,-70.3667,3892,1.5,75,0.4,-0.8,0,65,6,medio,SENAMHI_sample,Condicion intermedia para calibracion.

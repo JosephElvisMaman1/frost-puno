@@ -516,6 +516,21 @@ Se habilita Row Level Security en tablas del esquema público. Las tablas territ
 
 La clave `service_role` solo debe existir en el backend o en secretos seguros de infraestructura. No debe exponerse en Flutter, Flutter Web, repositorios ni variables públicas.
 
+### 15.4 Feedback y observaciones para mejora supervisada
+
+Se agregó una migración incremental:
+
+```text
+supabase/migrations/002_add_feedback_and_observations.sql
+```
+
+Esta migración prepara dos tablas:
+
+- `prediction_feedback`: registra correcciones o confirmaciones de usuarios/productores sobre una predicción.
+- `official_frost_observations`: registra observaciones oficiales o verificadas en campo, por ejemplo SENAMHI o campañas de validación.
+
+Estas tablas no hacen que el modelo se entrene solo. Su objetivo es almacenar evidencia revisable para evaluar modelos candidatos, detectar falsos positivos/falsos negativos y decidir manualmente si una versión debe promoverse.
+
 ---
 
 ## 16. Aplicación Flutter
@@ -549,6 +564,18 @@ El diseño toma como referencia el concepto visual `stitch_frost_puno_predictor`
 ### 16.4 Preparación para Web y móvil
 
 La app fue creada para Android y Web. Usa `--dart-define=API_BASE_URL` para configurar el backend según entorno.
+
+### 16.5 Icono y acabado móvil
+
+El APK y la PWA usan un icono propio de FrostPuno con identidad visual altoandina/fría. Los assets se actualizaron en:
+
+```text
+app_flutter/android/app/src/main/res/mipmap-*/ic_launcher.png
+app_flutter/web/icons/
+app_flutter/web/favicon.png
+```
+
+La pantalla inicial también muestra una tarjeta de “mejora supervisada”, explicando que el sistema registra evidencia, evalúa contra observaciones y versiona modelos antes de promover cambios.
 
 ---
 
@@ -631,6 +658,8 @@ Vercel compila Flutter Web desde `app_flutter`, genera `build/web` y publica la 
 ### 18.3 Supabase
 
 Supabase queda preparado mediante migraciones, seed y políticas RLS. Flutter no accede directamente a Supabase; todas las escrituras pasan por FastAPI. La clave `service_role` debe residir solo en Render o en secretos seguros de infraestructura.
+
+La mejora supervisada usa las tablas `prediction_feedback` y `official_frost_observations` para almacenar observaciones verificables que luego pueden alimentar evaluaciones ML.
 
 Durante la generación automática de evidencias, los conectores privados de GitHub, Vercel y Supabase devolvieron `token_expired`. Por ello, las capturas de dashboard privado deben repetirse tras reautenticar los conectores o desde la sesión web del navegador. Las evidencias incluidas muestran el estado público del despliegue y la configuración versionada.
 
@@ -918,6 +947,9 @@ Los resultados del MVP son:
 - Comparación formal `v0.1.0` vs `v0.2.0` documentada.
 - Capturas remotas de GitHub, Render y Vercel generadas.
 - Configuración de despliegue separada para `v0.2.0` mediante `render.v2.yaml`.
+- Icono propio de APK/PWA agregado.
+- Flujo de mejora supervisada con observaciones tipo SENAMHI/campo agregado.
+- Supabase preparado para feedback y observaciones oficiales.
 
 ---
 
@@ -930,19 +962,29 @@ Los resultados del MVP son:
 5. Configurar Supabase real con `ENABLE_SUPABASE=true` solo después de verificar RLS, service role en Render y que Flutter no tenga claves privadas.
 6. Conectar Vercel a la rama `main` para producción y a `codex/model-v0-2-0` como preview, documentando ambas URLs.
 7. Agregar monitoreo básico: latencia de Render, errores de `/predict/frost-risk`, tasa de permisos GPS denegados y registros de predicción.
+8. Reemplazar el archivo de muestra SENAMHI por observaciones oficiales completas y recalcular `senamhi_observation_evaluation_v0_2_0.json`.
 
 ---
 
 ## 22. Limitaciones
 
 1. INEI se usa mediante una semilla curada MVP, no mediante extracción oficial completa automática.
-2. SENAMHI aún no está integrado como validación oficial completa.
-3. Las etiquetas iniciales se generan con reglas térmicas, no con observaciones de daño agrícola.
+2. SENAMHI aún no está integrado como extracción oficial automática completa; sin embargo, ya existe un contrato de observaciones y un script de evaluación externa.
+3. Las etiquetas iniciales se generan con reglas térmicas, no con observaciones de daño agrícola; la nueva ruta de feedback/observaciones permite reemplazar progresivamente esa limitación.
 4. El dataset inicial tiene cobertura temporal y territorial limitada.
 5. Las métricas `v0.1.0` son optimistas por el uso de variables derivadas de la regla de etiquetado.
 6. Render, Vercel y Supabase free tier tienen límites de disponibilidad, almacenamiento y ejecución.
 7. El MVP no reemplaza sistemas oficiales de alerta meteorológica ni recomendaciones técnicas institucionales.
 8. La versión `v0.2.0` mejora la evaluación, pero aún usa una etiqueta rule-based; falta validación con eventos reales.
+
+### 22.1 Limitaciones mitigadas en esta iteración
+
+- Métrica perfecta `v0.1.0`: mitigada con `v0.2.0`, eliminación de leakage y split por distrito.
+- SENAMHI: mitigada parcialmente con `data/validation/senamhi_frost_observations_sample.csv` y `evaluate_observed_events.py`.
+- Daño agrícola observado: mitigado parcialmente con tablas Supabase para feedback y observaciones.
+- App móvil: mejorada con icono APK/PWA propio y tarjeta de mejora supervisada.
+
+La mitigación no significa que el problema esté cerrado para producción. Significa que el proyecto ya tiene una ruta técnica clara para resolverlo con datos oficiales.
 
 ---
 
@@ -1097,7 +1139,32 @@ ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv
 ml_pipeline/evaluation/metrics_comparison_v0_2_0.json
 ```
 
-### 26.5 Checklist de despliegue futuro
+### 26.5 Comandos de mejora supervisada
+
+```powershell
+python -m ml_pipeline.evaluation.evaluate_observed_events
+```
+
+Archivos relacionados:
+
+```text
+data/validation/senamhi_frost_observations_sample.csv
+ml_pipeline/evaluation/senamhi_observation_evaluation_v0_2_0.json
+supabase/migrations/002_add_feedback_and_observations.sql
+```
+
+Metricas de muestra:
+
+```text
+accuracy = 0.6000
+precision_macro = 0.3889
+recall_macro = 0.5000
+f1_macro = 0.4333
+```
+
+Estas metricas son demostrativas porque el archivo de observaciones es pequeño. El objetivo es probar el mecanismo de mejora supervisada.
+
+### 26.6 Checklist de despliegue futuro
 
 - [ ] Crear proyecto Supabase.
 - [ ] Ejecutar migraciones SQL.

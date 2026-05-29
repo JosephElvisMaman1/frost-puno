@@ -44,15 +44,19 @@ El metadata incluye version, fecha, features, target, metricas, tamano del datas
 
 ## 7. Mejora continua
 
-Flujo automatizado MVP:
+Flujo supervisado MVP:
 
 1. recolectar predicciones y clima nuevo;
-2. validar calidad de datos;
-3. reentrenar por GitHub Actions;
-4. evaluar el modelo candidato;
-5. ejecutar `model-quality-gate.yml`;
-6. versionar artefactos y metadata;
-7. promover manualmente solo si cumple calidad.
+2. recolectar observaciones externas SENAMHI/campo o feedback de productores;
+3. validar calidad de datos;
+4. evaluar el modelo activo/candidato contra observaciones;
+5. reentrenar por GitHub Actions o local controlado;
+6. evaluar el modelo candidato;
+7. ejecutar `model-quality-gate.yml`;
+8. versionar artefactos y metadata;
+9. promover manualmente solo si cumple calidad.
+
+El sistema no se autoentrena directamente con cualquier dato nuevo. La mejora es supervisada para evitar contaminar el modelo con datos incorrectos o etiquetas no verificadas.
 
 ## 8. CI/CD ML
 
@@ -143,3 +147,28 @@ El backend sigue usando `ml_pipeline/registry/frost_risk_model.joblib`, por lo q
 Las metricas bajan porque el modelo deja de ver variables derivadas de la etiqueta. Este resultado es esperado y deseable para una evaluacion honesta.
 
 `v0.2.0` no debe considerarse automaticamente superior en precision. Su valor esta en mejorar el diseno experimental y mostrar limites reales: falsos positivos, falsos negativos y generalizacion a distritos no vistos.
+
+## 11. Validacion con observaciones SENAMHI/campo
+
+Se agrego un contrato incremental para validar contra observaciones externas:
+
+- `data/validation/senamhi_frost_observations_sample.csv`
+- `ml_pipeline/evaluation/evaluate_observed_events.py`
+- `ml_pipeline/evaluation/senamhi_observation_evaluation_v0_2_0.json`
+
+Comando:
+
+```powershell
+python -m ml_pipeline.evaluation.evaluate_observed_events
+```
+
+El archivo de muestra define el formato requerido para reemplazarlo por datos oficiales: fecha observada, distrito, coordenadas, variables climaticas actuales, etiqueta observada y fuente. Esta etapa ayuda a decidir si una version candidata debe reentrenarse, rechazarse o promoverse.
+
+Metricas de muestra generadas para `v0.2.0`:
+
+- accuracy: `0.6000`
+- precision macro: `0.3889`
+- recall macro: `0.5000`
+- f1 macro: `0.4333`
+
+Estas metricas no son definitivas porque el archivo es pequeno y demostrativo. Su valor es dejar el pipeline listo para evidencia oficial.

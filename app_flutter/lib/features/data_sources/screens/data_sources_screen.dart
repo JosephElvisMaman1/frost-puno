@@ -83,6 +83,8 @@ class DataSourcesScreen extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 18),
+        const _ValidationPipelineCard(),
       ],
     );
 
@@ -90,6 +92,95 @@ class DataSourcesScreen extends StatelessWidget {
       return SafeArea(child: ResponsiveContent(child: body));
     }
     return PageScaffold(child: body);
+  }
+}
+
+class _ValidationPipelineCard extends StatelessWidget {
+  const _ValidationPipelineCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final steps = [
+      ('1', 'Clima actual', 'Open-Meteo alimenta la app en tiempo real.'),
+      ('2', 'SENAMHI', 'Observaciones oficiales validan eventos reales.'),
+      ('3', 'Feedback', 'Supabase guarda correcciones y evidencia de campo.'),
+      ('4', 'Nuevo modelo', 'ML compara versiones antes de promover.'),
+    ];
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.timeline, color: AppColors.warmAmber),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Ciclo de mejora del modelo',
+                  style: textTheme.headlineMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          for (final step in steps) ...[
+            _PipelineStep(
+              number: step.$1,
+              title: step.$2,
+              description: step.$3,
+            ),
+            if (step != steps.last) const SizedBox(height: 12),
+          ],
+          const SizedBox(height: 16),
+          Text(
+            'Este flujo evita entrenar automaticamente con datos dudosos y mantiene trazabilidad academica.',
+            style: textTheme.bodyMedium?.copyWith(
+              color: onSurface.withValues(alpha: 0.66),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PipelineStep extends StatelessWidget {
+  const _PipelineStep({
+    required this.number,
+    required this.title,
+    required this.description,
+  });
+
+  final String number;
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 14,
+          backgroundColor: AppColors.mutedTeal,
+          child: Text(number, style: textTheme.labelSmall),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: textTheme.titleMedium),
+              Text(description, style: textTheme.bodyMedium),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

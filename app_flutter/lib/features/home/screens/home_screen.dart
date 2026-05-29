@@ -127,6 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 18),
+            const _LearningCycleCard(),
           ],
         ),
       ),
@@ -201,6 +203,44 @@ class _CurrentRiskCard extends StatelessWidget {
               StatusChip(icon: Icons.water_drop_outlined, label: 'Hum 42%'),
               StatusChip(icon: Icons.air, label: '12 km/h'),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LearningCycleCard extends StatelessWidget {
+  const _LearningCycleCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return GlassCard(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.model_training, color: AppColors.warmAmber),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Mejora supervisada',
+                  style: textTheme.titleMedium,
+                ),
+              ),
+              const StatusChip(label: 'ML v0.2'),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'El modelo no se actualiza solo: registra evidencia, compara contra observaciones oficiales y versiona una nueva evaluacion antes de promover cambios.',
+            style: textTheme.bodyMedium?.copyWith(
+              color: onSurface.withValues(alpha: 0.72),
+            ),
           ),
         ],
       ),
