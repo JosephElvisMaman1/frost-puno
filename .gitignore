@@ -7,6 +7,12 @@ venv/
 *.err
 .env
 .env.local
+
+# Local Android SDK/tool downloads
+android-sdk/
+platform-tools-latest-windows/
+cmdline-tools-extract/
+commandlinetools-win-*_latest.zip
 .env.*.local
 .vercel/
 node_modules/
