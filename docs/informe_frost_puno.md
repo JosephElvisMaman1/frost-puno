@@ -1177,3 +1177,51 @@ Estas metricas son demostrativas porque el archivo de observaciones es pequeño.
 - [ ] Validar Swagger en entorno remoto.
 - [ ] Validar predicción desde Flutter Web.
 - [ ] Verificar que no existan claves Supabase en frontend.
+
+---
+
+## 27. Material final para exposicion y actualizacion de diapositivas
+
+Ademas del informe principal, se prepararon dos materiales de apoyo para la exposicion:
+
+```text
+docs/guion_exposicion_frost_puno.docx
+docs/guia_codigo_frost_puno.txt
+docs/actualizacion_canva_frost_puno.md
+```
+
+### 27.1 Guion para tres expositores
+
+El archivo `docs/guion_exposicion_frost_puno.docx` divide la exposicion en tres partes:
+
+- Expositor 1: problema regional, usuario objetivo y experiencia movil.
+- Expositor 2: arquitectura distribuida, FastAPI, Supabase, Render, Vercel y GitHub Actions.
+- Expositor 3: codigo, pipeline ML, data leakage, modelo v0.2.0 y mejora supervisada.
+
+El guion incluye tiempos sugeridos, frases de transicion, preguntas probables del jurado y respuestas cortas.
+
+### 27.2 Guia tecnica para explicar codigo
+
+El archivo `docs/guia_codigo_frost_puno.txt` explica la distribucion del codigo por carpetas y archivos principales. Esta pensado para que el expositor pueda responder donde vive cada parte:
+
+- App Flutter: `app_flutter/lib`.
+- Backend FastAPI: `backend_fastapi/app`.
+- Pipeline ML: `ml_pipeline`.
+- Datasets: `data`.
+- Supabase: `supabase`.
+- CI/CD: `.github/workflows`.
+
+Tambien aclara que el sistema no aprende automaticamente en produccion. La mejora continua se maneja como un ciclo supervisado: feedback, observaciones, entrenamiento, evaluacion, comparacion y promocion manual.
+
+### 27.3 Actualizacion de Canva
+
+El archivo `docs/actualizacion_canva_frost_puno.md` contiene una propuesta slide-by-slide para actualizar la presentacion de Canva con los cambios recientes:
+
+- Nueva experiencia movil con GPS y clima automatico.
+- App lista para Android con icono propio.
+- Despliegue Render + Vercel + GitHub + Supabase.
+- Comparacion v0.1.0 vs v0.2.0.
+- Explicacion de data leakage.
+- Limitaciones honestas y mejoras pendientes.
+
+Durante esta actualizacion, los conectores de Canva, Vercel y Supabase respondieron con `token_expired`. Por ese motivo no se guardaron cambios remotos directamente desde el plugin en esta sesion; el material queda versionado en el repositorio para aplicarlo apenas se reconecten los servicios.

@@ -1,0 +1,450 @@
+GUIA PARA EXPLICAR EL CODIGO DE FROSTPUNO
+Actualizado: 2026-05-29
+
+1. IDEA GENERAL DEL SISTEMA
+
+FrostPuno es una aplicacion distribuida para estimar riesgo de helada en Puno.
+La app tiene cuatro partes principales:
+
+1. Flutter: interfaz movil/web que usa GPS, clima automatico, historial y resultados visuales.
+2. FastAPI: backend que expone endpoints REST para clima, prediccion, historial y salud.
+3. ML pipeline: scripts Python que construyen datasets, entrenan modelos y guardan versiones.
+4. Supabase: base de datos preparada para predicciones, feedback y observaciones oficiales.
+
+El sistema desplegado mantiene el modelo de produccion v0.1.0 intacto. La version v0.2.0 queda como version experimental academica para demostrar mejora de validacion y eliminacion de data leakage.
+
+2. ESTRUCTURA DEL REPOSITORIO
+
+app_flutter/
+  Codigo Flutter de la app movil y web.
+
+backend_fastapi/
+  API en FastAPI. Recibe datos, consulta clima, carga el modelo y devuelve predicciones.
+
+ml_pipeline/
+  Pipeline de aprendizaje de maquina: ingesta, features, entrenamiento, evaluacion y registry.
+
+data/
+  Datasets procesados y archivos de validacion.
+
+supabase/
+  Migraciones SQL, politicas RLS y semillas.
+
+docs/
+  Informe, capturas, comparacion de modelos, ciclo de vida ML y guiones.
+
+.github/workflows/
+  Automatizaciones de CI/CD para pruebas, validacion, entrenamiento y build Flutter.
+
+3. FLUJO DE LA APP MOVIL
+
+Archivo principal:
+app_flutter/lib/main.dart
+
+Este archivo arranca Flutter y carga la aplicacion principal.
+
+Configuracion de app:
+app_flutter/lib/app.dart
+
+Aqui se configura MaterialApp, tema claro/oscuro, rutas visuales y ThemeMode.system. El modo oscuro ya queda integrado con un toggle desde el alcance de tema.
+
+Pantalla contenedora:
+app_flutter/lib/features/shell/app_shell.dart
+
+Esta pantalla organiza la navegacion inferior. Desde aqui el usuario entra a inicio, prediccion, historial, fuentes de datos y modelo.
+
+Pantalla de prediccion:
+app_flutter/lib/features/prediction/screens/prediction_form_screen.dart
+
+Antes esta pantalla parecia un formulario tecnico con muchos inputs manuales. Ahora la experiencia es mas movil:
+- Boton "Usar mi ubicacion".
+- Boton "Obtener clima".
+- Boton "Predecir".
+- Muestra ubicacion detectada.
+- Muestra clima actual.
+- Rellena internamente temperatura, humedad, viento, nubosidad y demas variables.
+
+Lo importante para explicar:
+El usuario ya no tiene que saber variables meteorologicas. La app obtiene GPS, llama al backend /weather/current y arma el request de prediccion.
+
+Servicio de ubicacion:
+app_flutter/lib/features/location/services/location_service.dart
+
+Este servicio maneja:
+- Permisos de ubicacion.
+- Coordenadas latitud/longitud.
+- Estado de error si el permiso falla.
+- Fallback manual si no se puede usar GPS.
+
+Modelos del frontend:
+app_flutter/lib/features/prediction/models/frost_risk_request.dart
+app_flutter/lib/features/prediction/models/frost_risk_response.dart
+app_flutter/lib/core/models/current_weather.dart
+
+Estos archivos definen la forma de los datos que viajan entre Flutter y FastAPI.
+
+Cliente API:
+app_flutter/lib/core/api/api_client.dart
+app_flutter/lib/core/api/frost_api_service.dart
+
+Aqui se centralizan las llamadas HTTP:
+- /health
+- /weather/current
+- /predict
+- /predictions/history
+- /ml/model-info
+
+Pantalla de resultado:
+app_flutter/lib/features/prediction/screens/result_screen.dart
+
+Muestra:
+- Riesgo grande: ALTO, MEDIO o BAJO.
+- Color segun riesgo.
+- Confianza.
+- Icono.
+- Recomendacion breve.
+
+Pantalla de historial:
+app_flutter/lib/features/history/screens/history_screen.dart
+
+Muestra predicciones anteriores en cards con:
+- Distrito.
+- Riesgo.
+- Fecha.
+- Confianza.
+
+Pantalla de fuentes de datos:
+app_flutter/lib/features/data_sources/screens/data_sources_screen.dart
+
+Explica las fuentes:
+- Open-Meteo para clima.
+- INEI como semilla curada MVP.
+- SENAMHI como validacion oficial progresiva.
+- Feedback y observaciones como mejora supervisada.
+
+Pantalla de modelo:
+app_flutter/lib/features/model_info/screens/model_info_screen.dart
+
+Muestra informacion del modelo activo y ayuda a explicar que produccion sigue usando v0.1.0.
+
+4. FLUJO DEL BACKEND FASTAPI
+
+Entrada principal:
+backend_fastapi/app/main.py
+
+Aqui se crea la aplicacion FastAPI y se registran los routers. Es el punto de arranque del backend.
+
+Configuracion:
+backend_fastapi/app/core/config.py
+
+Contiene variables como:
+- MODEL_PATH
+- MODEL_METADATA_PATH
+- Supabase URL y keys, si estan configuradas.
+- Opciones de entorno.
+
+Importante:
+No se cambio el MODEL_PATH de produccion. El backend desplegado sigue usando v0.1.0.
+
+Ruta de salud:
+backend_fastapi/app/api/routes/health.py
+
+Endpoint:
+GET /health
+
+Sirve para verificar que el backend esta vivo y que el modelo se puede cargar.
+
+Ruta de clima:
+backend_fastapi/app/api/routes/weather.py
+
+Endpoint:
+GET /weather/current
+
+Recibe latitud y longitud. Llama a Open-Meteo mediante los servicios de clima y devuelve variables meteorologicas actuales.
+
+Servicio de clima:
+backend_fastapi/app/services/weather_providers.py
+
+Aqui esta la integracion con Open-Meteo. Su funcion es traer clima por coordenadas y transformarlo en un formato estable para la app.
+
+Ruta de prediccion:
+backend_fastapi/app/api/routes/predict.py
+
+Endpoint:
+POST /predict
+
+Recibe las variables del clima y territorio, llama al servicio de prediccion y responde riesgo, confianza y recomendacion.
+
+Servicio de prediccion:
+backend_fastapi/app/services/prediction_service.py
+
+Aqui ocurre la prediccion:
+1. Recibe el request.
+2. Ordena las features como espera el modelo.
+3. Llama al modelo cargado.
+4. Calcula confianza.
+5. Pide recomendacion breve.
+6. Devuelve respuesta para Flutter.
+
+Registry del modelo:
+backend_fastapi/app/services/model_registry.py
+
+Este archivo carga el modelo .joblib y metadata. Permite separar la API de los detalles del archivo de modelo.
+
+Recomendaciones:
+backend_fastapi/app/services/recommendation_service.py
+
+Genera mensajes simples segun el nivel de riesgo. Ejemplo:
+- Riesgo alto: proteger cultivos y revisar pronostico.
+- Riesgo medio: monitorear temperatura.
+- Riesgo bajo: condiciones normales.
+
+Historial:
+backend_fastapi/app/api/routes/predictions.py
+backend_fastapi/app/repositories/predictions.py
+backend_fastapi/app/repositories/supabase_prediction_repository.py
+
+Permite registrar y listar predicciones. Si Supabase esta configurado, usa Supabase; si no, el sistema puede seguir funcionando para demo sin romper prediccion.
+
+5. DONDE ESTA EL MODELO
+
+Modelo de produccion:
+ml_pipeline/registry/frost_risk_model.joblib
+ml_pipeline/registry/model_metadata.json
+
+Este es v0.1.0. Es el que usa el backend actual.
+
+Modelo experimental:
+ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+ml_pipeline/registry/model_metadata_v0_2_0.json
+
+Este es v0.2.0. No reemplaza produccion. Sirve para demostrar evaluacion realista.
+
+6. COMO APRENDE EL MODELO
+
+El modelo no aprende automaticamente dentro de la app en tiempo real. Eso seria riesgoso para produccion.
+
+El aprendizaje ocurre en el pipeline:
+1. Se reunen datos climaticos y territoriales.
+2. Se construye un dataset tabular.
+3. Se crean features.
+4. Se genera o recibe una etiqueta.
+5. Se entrena el modelo.
+6. Se evalua.
+7. Se guarda una version en registry.
+8. Solo despues de revisar metricas se decide si se promueve.
+
+La mejora continua esta planteada como mejora supervisada:
+- La app y Supabase pueden almacenar feedback de predicciones.
+- Se pueden cargar observaciones oficiales de helada.
+- El pipeline evalua el modelo contra esas observaciones.
+- Una nueva version se entrena y se compara.
+- Produccion solo cambia si una persona revisa y aprueba.
+
+7. DIFERENCIA ENTRE v0.1.0 Y v0.2.0
+
+v0.1.0:
+- Tenia metricas perfectas o casi perfectas.
+- Usaba variables derivadas de la propia regla de etiquetado:
+  - temperatura_minima_diaria
+  - horas_bajo_cero
+- Eso produce data leakage.
+
+Data leakage significa que el modelo recibe pistas demasiado cercanas a la respuesta. Por eso puede obtener f1_macro = 1.00 sin necesariamente generalizar bien.
+
+v0.2.0:
+- Elimina esas variables filtradas.
+- Usa variables disponibles al momento de prediccion:
+  - temperature_2m
+  - relative_humidity_2m
+  - apparent_temperature
+  - dew_point_2m
+  - wind_speed_10m
+  - cloud_cover
+  - precipitation
+  - latitud
+  - longitud
+  - altitud
+  - mes
+  - hora
+- Usa split por distrito.
+- Prueba con distritos no vistos.
+- Baja metricas, pero se vuelve mas honesto.
+
+Metricas v0.2.0:
+- accuracy: 0.5097
+- precision_macro: 0.4697
+- recall_macro: 0.4954
+- f1_macro: 0.4790
+
+Esto no es peor en sentido academico. Es mas realista, porque simula mejor que el sistema se use en distritos nuevos.
+
+8. ARCHIVOS DEL PIPELINE ML
+
+Configuracion:
+ml_pipeline/config.py
+
+Centraliza rutas, columnas, features, version y paths de salida.
+
+Ingesta de ubicaciones:
+ml_pipeline/data_ingestion/ingest_locations.py
+
+Construye o carga datos territoriales. INEI se usa como semilla curada MVP, no como extraccion oficial completa automatica.
+
+Ingesta de clima:
+ml_pipeline/data_ingestion/ingest_weather_open_meteo.py
+
+Descarga datos de Open-Meteo. Aqui se evidencia computacion paralela porque se consultan multiples distritos de manera concurrente.
+
+Features v1:
+ml_pipeline/features/build_features.py
+
+Construye dataset original.
+
+Features v2:
+ml_pipeline/features/build_features_v2.py
+
+Crea:
+data/processed/frost_training_dataset_v2.csv
+
+Elimina leakage:
+- temperatura_minima_diaria
+- horas_bajo_cero
+
+Entrenamiento v1:
+ml_pipeline/training/train_models.py
+
+Entrena la version original.
+
+Entrenamiento v2:
+ml_pipeline/training/train_models_v2.py
+
+Entrena modelos v0.2.0 con split por distrito:
+- LogisticRegression para comparacion.
+- RandomForestClassifier como baseline registrado.
+
+Evaluacion de observaciones:
+ml_pipeline/evaluation/evaluate_observed_events.py
+
+Permite comparar predicciones contra observaciones externas. Hoy usa una muestra SENAMHI curada para demostrar el flujo, no una integracion oficial completa.
+
+Quality gate:
+ml_pipeline/registry/check_model_quality.py
+
+Revisa que el modelo cumpla condiciones minimas antes de considerarlo valido.
+
+Tests:
+ml_pipeline/tests/test_model_v2.py
+
+Verifican que el dataset v2 no tenga leakage, que el split por distrito no mezcle distritos y que la evaluacion con observaciones agregue features de tiempo.
+
+9. SUPABASE
+
+Migraciones:
+supabase/migrations/001_create_core_tables.sql
+supabase/migrations/002_add_feedback_and_observations.sql
+
+La primera migracion crea tablas base. La segunda agrega:
+- prediction_feedback
+- official_frost_observations
+
+Politicas:
+supabase/policies/rls_policies.sql
+
+Activa RLS y deja acceso controlado. Esto evita exponer datos sensibles sin reglas.
+
+Explicacion simple:
+Supabase queda preparado para almacenar historial, feedback del usuario y observaciones oficiales. Ese material alimenta futuras versiones del modelo, pero no cambia el modelo de produccion automaticamente.
+
+10. DESPLIEGUE
+
+Backend:
+https://frost-puno.onrender.com
+
+Se despliega con Render. El archivo base es:
+render.yaml
+
+Existe tambien:
+render.v2.yaml
+
+Ese archivo permite desplegar una version experimental separada con v0.2.0 sin romper produccion.
+
+Frontend:
+https://frost-puno.vercel.app
+
+Flutter web se despliega en Vercel. La app movil Android se genera como APK.
+
+GitHub:
+.github/workflows/
+
+Workflows importantes:
+- backend-tests.yml: pruebas del backend.
+- flutter-build.yml: build/analyze/test de Flutter.
+- data-validation.yml: valida dataset.
+- ml-training.yml: entrena pipeline.
+- model-quality-gate.yml: revisa calidad del modelo.
+
+11. COMANDOS PARA DEMO
+
+Backend local:
+cd D:\Dev\02_UNIVERSIDAD\FrostPuno
+python -m uvicorn backend_fastapi.app.main:app --reload --host 0.0.0.0 --port 8000
+
+Flutter web local:
+cd D:\Dev\02_UNIVERSIDAD\FrostPuno\app_flutter
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
+
+Flutter Android con emulador:
+cd D:\Dev\02_UNIVERSIDAD\FrostPuno\app_flutter
+flutter run -d <ID_DEL_DISPOSITIVO> --dart-define=API_BASE_URL=http://10.0.2.2:8000
+
+Build APK produccion:
+cd D:\Dev\02_UNIVERSIDAD\FrostPuno\app_flutter
+$env:JAVA_HOME='C:\Program Files\Microsoft\jdk-17.0.19.10-hotspot'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+$env:ANDROID_HOME='D:\Dev\02_UNIVERSIDAD\FrostPuno\android-sdk'
+$env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
+
+APK generado:
+app_flutter/build/app/outputs/flutter-apk/app-release.apk
+
+Entrenar v0.2.0:
+cd D:\Dev\02_UNIVERSIDAD\FrostPuno
+python -m ml_pipeline.features.build_features_v2
+python -m ml_pipeline.training.train_models_v2
+
+Evaluar observaciones:
+python -m ml_pipeline.evaluation.evaluate_observed_events
+
+Pruebas:
+pytest ml_pipeline\tests backend_fastapi\tests -q
+cd app_flutter
+flutter analyze
+flutter test
+
+12. RESPUESTA PARA PREGUNTAS DEL JURADO
+
+Pregunta: Por que v0.1.0 tiene F1 macro perfecto?
+Respuesta: Porque usaba variables derivadas de la regla de etiquetado. Eso genera data leakage. El modelo tenia informacion demasiado cercana a la respuesta.
+
+Pregunta: Entonces el modelo estaba mal?
+Respuesta: No necesariamente mal para un MVP inicial, pero su evaluacion era optimista. Por eso se creo v0.2.0 para una evaluacion mas realista.
+
+Pregunta: Por que v0.2.0 baja metricas?
+Respuesta: Porque se eliminaron features filtradas y se evaluo con distritos no vistos. Eso simula mejor el uso real.
+
+Pregunta: SENAMHI ya esta integrado oficialmente?
+Respuesta: No como integracion oficial completa. Ahora existe una muestra curada y una ruta de validacion preparada. La integracion completa queda como mejora futura.
+
+Pregunta: El sistema aprende solo?
+Respuesta: No cambia automaticamente en produccion. Aprende mediante un ciclo supervisado: datos, feedback, observaciones, entrenamiento, evaluacion, comparacion y promocion manual.
+
+Pregunta: Que pasa si falla GPS?
+Respuesta: La app maneja permisos y permite fallback manual para no bloquear el flujo.
+
+Pregunta: Que se desplego?
+Respuesta: Backend en Render, frontend Flutter web en Vercel, repo y CI/CD en GitHub, Supabase preparado con migraciones y RLS.
+
+Pregunta: Que queda pendiente?
+Respuesta: Integracion oficial completa con SENAMHI, recoleccion de observaciones de campo, mas cobertura temporal y territorial, calibracion de probabilidades y promocion controlada de v0.2.0 si supera criterios.
