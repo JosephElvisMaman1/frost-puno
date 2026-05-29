@@ -94,8 +94,50 @@ async function render(page, outputFile, title, subtitle, body) {
     page,
     '03_model_metadata.png',
     'Model metadata',
-    'Registro del mejor modelo entrenado y sus metricas de evaluacion.',
+    'Registro del modelo productivo v0.1.0 usado actualmente por FastAPI.',
     metadata ? JSON.stringify(JSON.parse(metadata), null, 2) : null,
+  );
+
+  const datasetV2 = readText('data/processed/frost_training_dataset_v2.csv');
+  await render(
+    page,
+    '20_dataset_v2_sin_leakage.png',
+    'Dataset v2 sin data leakage',
+    'Primeras filas del dataset experimental sin temperatura_minima_diaria ni horas_bajo_cero como features.',
+    datasetV2 ? datasetV2.split(/\r?\n/).slice(0, 24).join('\n') : null,
+  );
+
+  const metadataV2 = readText('ml_pipeline/registry/model_metadata_v0_2_0.json');
+  await render(
+    page,
+    '21_model_metadata_v0_2_0.png',
+    'Model metadata v0.2.0',
+    'Registro experimental con split por distrito, metricas realistas y matriz de confusion.',
+    metadataV2 ? JSON.stringify(JSON.parse(metadataV2), null, 2) : null,
+  );
+
+  await render(
+    page,
+    '22_comparacion_modelos.png',
+    'Comparacion v0.1.0 vs v0.2.0',
+    'Documento academico que explica data leakage, falsos positivos/falsos negativos y evaluacion realista.',
+    readText('docs/model_comparison_v1_vs_v2.md'),
+  );
+
+  await render(
+    page,
+    '23_despliegue_render_vercel_supabase.png',
+    'Despliegue Render + Vercel + Supabase',
+    'Guia de despliegue gratuito con backend FastAPI, Flutter Web, Supabase y GitHub Actions.',
+    readText('docs/deployment.md'),
+  );
+
+  await render(
+    page,
+    '24_android_apk_mobile.png',
+    'Android APK y prueba movil',
+    'Guia para correr FrostPuno en Android, configurar SDK local, probar GPS y generar APK.',
+    readText('docs/mobile_build.md'),
   );
 
   await render(

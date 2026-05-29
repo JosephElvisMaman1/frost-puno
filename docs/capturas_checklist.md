@@ -1,4 +1,4 @@
-﻿# Checklist de capturas - FrostPuno
+# Checklist de capturas - FrostPuno
 
 Este documento se actualiza con `node tools/screenshots/update_checklist.js` o desde `tools/screenshots/run_all_screenshots.ps1`.
 
@@ -25,6 +25,11 @@ Este documento se actualiza con `node tools/screenshots/update_checklist.js` o d
 | 17 | Flutter build web | `docs/capturas/17_flutter_build_web.png` | Automatica | Generada |
 | 18 | GitHub workflows | `docs/capturas/18_github_workflows.png` | Automatica | Generada |
 | 19 | Supabase SQL | `docs/capturas/19_supabase_sql.png` | Automatica | Generada |
+| 20 | Dataset v2 sin leakage | `docs/capturas/20_dataset_v2_sin_leakage.png` | Automatica | Generada |
+| 21 | Model metadata v0.2.0 | `docs/capturas/21_model_metadata_v0_2_0.png` | Automatica | Generada |
+| 22 | Comparacion v0.1.0 vs v0.2.0 | `docs/capturas/22_comparacion_modelos.png` | Automatica | Generada |
+| 23 | Despliegue Render/Vercel/Supabase | `docs/capturas/23_despliegue_render_vercel_supabase.png` | Automatica | Generada |
+| 24 | Android APK y prueba movil | `docs/capturas/24_android_apk_mobile.png` | Automatica | Generada |
 
 ## Comandos principales
 

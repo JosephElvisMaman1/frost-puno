@@ -1,4 +1,22 @@
-﻿# FrostPuno - guia de despliegue gratuito
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Despliegue Render + Vercel + Supabase</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">FrostPuno - evidencia local</span>
+  <h1>Despliegue Render + Vercel + Supabase</h1>
+  <p>Guia de despliegue gratuito con backend FastAPI, Flutter Web, Supabase y GitHub Actions.</p>
+  <pre>﻿# FrostPuno - guia de despliegue gratuito
 
 Esta guia prepara el despliegue manual end-to-end del MVP:
 
@@ -28,7 +46,7 @@ Ejecuta en este orden:
 
 ### Copiar credenciales
 
-En `Project Settings > API` copia:
+En `Project Settings &gt; API` copia:
 
 - `Project URL`: se usara como `SUPABASE_URL`.
 - `service_role key`: se usara solo en Render como `SUPABASE_SERVICE_ROLE_KEY`.
@@ -56,7 +74,7 @@ Configuracion recomendada:
 - **Build Command:**
 
 ```bash
-pip install --upgrade pip && pip install -r backend_fastapi/requirements.txt
+pip install --upgrade pip &amp;&amp; pip install -r backend_fastapi/requirements.txt
 ```
 
 - **Start Command:**
@@ -176,3 +194,6 @@ Estos workflows no requieren credenciales reales para ejecutarse en CI.
 - [ ] `API_BASE_URL` en Vercel apunta a Render.
 - [ ] Flutter Web consulta y muestra prediccion.
 - [ ] Si Supabase esta activo, `frost_predictions` recibe registros.
+</pre>
+</body>
+</html>

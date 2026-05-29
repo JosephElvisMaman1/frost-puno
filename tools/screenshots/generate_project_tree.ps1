@@ -7,6 +7,9 @@ New-Item -ItemType Directory -Force $DataDir | Out-Null
 
 $ExcludeNames = @(
     ".git",
+    ".gradle",
+    ".idea",
+    ".kotlin",
     ".dart_tool",
     "build",
     "node_modules",
@@ -14,7 +17,11 @@ $ExcludeNames = @(
     ".pytest_cache",
     ".venv",
     "venv",
-    "_render_informe_frost_puno"
+    "_render_informe_frost_puno",
+    "android-sdk",
+    "platform-tools-latest-windows",
+    "cmdline-tools-extract",
+    "docx_render_informe"
 )
 
 function Write-Tree {

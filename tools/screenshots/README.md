@@ -98,6 +98,11 @@ Set-Location ..\..
 - `docs/capturas/17_flutter_build_web.png`
 - `docs/capturas/18_github_workflows.png`
 - `docs/capturas/19_supabase_sql.png`
+- `docs/capturas/20_dataset_v2_sin_leakage.png`
+- `docs/capturas/21_model_metadata_v0_2_0.png`
+- `docs/capturas/22_comparacion_modelos.png`
+- `docs/capturas/23_despliegue_render_vercel_supabase.png`
+- `docs/capturas/24_android_apk_mobile.png`
 
 ## Datos auxiliares generados
 

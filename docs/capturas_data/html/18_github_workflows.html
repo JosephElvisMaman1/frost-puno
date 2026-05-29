@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -42,17 +42,17 @@ jobs:
           cache: &quot;pip&quot;
           cache-dependency-path: |
             backend_fastapi/requirements.txt
+            backend_fastapi/requirements-dev.txt
             ml_pipeline/requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend_fastapi/requirements.txt
+          pip install -r backend_fastapi/requirements-dev.txt
           pip install -r ml_pipeline/requirements.txt
 
       - name: Run backend tests
         run: pytest backend_fastapi/tests -q
-
 
 
 # .github/workflows/data-validation.yml

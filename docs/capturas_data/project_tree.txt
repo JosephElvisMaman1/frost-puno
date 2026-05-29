@@ -6,17 +6,10 @@ Raiz: frost-puno
 |   \-- workflows
 |       |-- backend-tests.yml
 |       |-- data-validation.yml
+|       |-- flutter-build.yml
 |       |-- ml-training.yml
 |       \-- model-quality-gate.yml
 |-- app_flutter
-|   |-- .idea
-|   |   |-- libraries
-|   |   |   |-- Dart_SDK.xml
-|   |   |   \-- KotlinJavaRuntime.xml
-|   |   |-- runConfigurations
-|   |   |   \-- main_dart.xml
-|   |   |-- modules.xml
-|   |   \-- workspace.xml
 |   |-- android
 |   |   |-- app
 |   |   |   |-- src
@@ -44,10 +37,12 @@ Raiz: frost-puno
 |   |   |   |-- config
 |   |   |   |   \-- app_config.dart
 |   |   |   |-- models
+|   |   |   |   |-- current_weather.dart
 |   |   |   |   \-- health_status.dart
 |   |   |   \-- theme
 |   |   |       |-- app_colors.dart
-|   |   |       \-- app_theme.dart
+|   |   |       |-- app_theme.dart
+|   |   |       \-- theme_mode_scope.dart
 |   |   |-- features
 |   |   |   |-- data_sources
 |   |   |   |   |-- models
@@ -57,6 +52,9 @@ Raiz: frost-puno
 |   |   |   |   \-- screens
 |   |   |   |-- home
 |   |   |   |   \-- screens
+|   |   |   |-- location
+|   |   |   |   |-- models
+|   |   |   |   \-- services
 |   |   |   |-- model_info
 |   |   |   |   |-- models
 |   |   |   |   \-- screens
@@ -86,7 +84,9 @@ Raiz: frost-puno
 |   |   |   \-- Icon-maskable-512.png
 |   |   |-- favicon.png
 |   |   |-- index.html
-|   |   \-- manifest.json
+|   |   |-- manifest.json
+|   |   \-- offline.html
+|   |-- .flutter-plugins-dependencies
 |   |-- .gitignore
 |   |-- .metadata
 |   |-- analysis_options.yaml
@@ -95,7 +95,8 @@ Raiz: frost-puno
 |   |-- pubspec.yaml
 |   |-- README.md
 |   |-- static_web.err
-|   \-- static_web.log
+|   |-- static_web.log
+|   \-- vercel.json
 |-- backend_fastapi
 |   |-- app
 |   |   |-- api
@@ -104,7 +105,8 @@ Raiz: frost-puno
 |   |   |   |   |-- health.py
 |   |   |   |   |-- ml.py
 |   |   |   |   |-- predict.py
-|   |   |   |   \-- predictions.py
+|   |   |   |   |-- predictions.py
+|   |   |   |   \-- weather.py
 |   |   |   \-- __init__.py
 |   |   |-- core
 |   |   |   |-- __init__.py
@@ -118,12 +120,14 @@ Raiz: frost-puno
 |   |   |   |-- __init__.py
 |   |   |   |-- health.py
 |   |   |   |-- ml.py
-|   |   |   \-- prediction.py
+|   |   |   |-- prediction.py
+|   |   |   \-- weather.py
 |   |   |-- services
 |   |   |   |-- __init__.py
 |   |   |   |-- model_registry.py
 |   |   |   |-- prediction_service.py
-|   |   |   \-- recommendation_service.py
+|   |   |   |-- recommendation_service.py
+|   |   |   \-- weather_providers.py
 |   |   |-- __init__.py
 |   |   \-- main.py
 |   |-- tests
@@ -131,6 +135,7 @@ Raiz: frost-puno
 |   |-- .env.example
 |   |-- README.md
 |   |-- requirements.txt
+|   |-- requirements-dev.txt
 |   |-- uvicorn.err
 |   \-- uvicorn.log
 |-- data
@@ -139,6 +144,7 @@ Raiz: frost-puno
 |   |   \-- README.md
 |   |-- processed
 |   |   |-- frost_training_dataset.csv
+|   |   |-- frost_training_dataset_v2.csv
 |   |   \-- locations_puno.csv
 |   |-- raw
 |   |   \-- weather_open_meteo.csv
@@ -146,36 +152,98 @@ Raiz: frost-puno
 |       \-- README.md
 |-- docs
 |   |-- capturas
+|   |   |-- 01_estructura_proyecto.png
+|   |   |-- 02_dataset_generado.png
+|   |   |-- 03_model_metadata.png
+|   |   |-- 04_quality_gate.png
+|   |   |-- 05_fastapi_swagger.png
+|   |   |-- 06_endpoint_health.png
+|   |   |-- 07_endpoint_model_info.png
+|   |   |-- 08_endpoint_predict.png
+|   |   |-- 09_tests_backend.png
+|   |   |-- 10_flutter_home.png
+|   |   |-- 11_flutter_formulario.png
+|   |   |-- 12_flutter_resultado.png
+|   |   |-- 13_flutter_historial.png
+|   |   |-- 14_flutter_fuentes_datos.png
+|   |   |-- 15_flutter_model_info.png
+|   |   |-- 16_flutter_analyze_test.png
+|   |   |-- 17_flutter_build_web.png
+|   |   |-- 18_github_workflows.png
+|   |   |-- 19_supabase_sql.png
+|   |   |-- 20_dataset_v2_sin_leakage.png
+|   |   |-- 21_model_metadata_v0_2_0.png
+|   |   |-- 22_comparacion_modelos.png
+|   |   |-- 23_despliegue_render_vercel_supabase.png
+|   |   \-- 24_android_apk_mobile.png
 |   |-- capturas_data
-|   |   \-- project_tree.txt
+|   |   |-- html
+|   |   |   |-- 01_estructura_proyecto.html
+|   |   |   |-- 02_dataset_generado.html
+|   |   |   |-- 03_model_metadata.html
+|   |   |   |-- 04_quality_gate.html
+|   |   |   |-- 09_tests_backend.html
+|   |   |   |-- 16_flutter_analyze_test.html
+|   |   |   |-- 17_flutter_build_web.html
+|   |   |   |-- 18_github_workflows.html
+|   |   |   |-- 19_supabase_sql.html
+|   |   |   |-- 20_dataset_v2_sin_leakage.html
+|   |   |   |-- 21_model_metadata_v0_2_0.html
+|   |   |   |-- 22_comparacion_modelos.html
+|   |   |   |-- 23_despliegue_render_vercel_supabase.html
+|   |   |   |-- 24_android_apk_mobile.html
+|   |   |   \-- predict_response.html
+|   |   |-- backend_tests_output.txt
+|   |   |-- flutter_analyze_output.txt
+|   |   |-- flutter_build_output.txt
+|   |   |-- flutter_test_output.txt
+|   |   |-- manual_flutter_screenshots.md
+|   |   |-- predict_response.json
+|   |   |-- project_tree.txt
+|   |   \-- quality_gate_output.txt
 |   |-- capturas_checklist.md
 |   |-- ci_cd.md
 |   |-- data_sources.md
+|   |-- demo_script.md
+|   |-- deployment.md
 |   |-- informe_frost_puno.md
+|   |-- informe_frost_puno_completo.docx
 |   |-- informe_frost_puno_sin_caratula.docx
+|   |-- informe_frost_puno_sin_caratula.pdf
 |   |-- limitations.md
 |   |-- ml_lifecycle.md
+|   |-- mobile_build.md
 |   |-- model_card.md
-|   \-- model_governance.md
+|   |-- model_comparison_v1_vs_v2.md
+|   |-- model_governance.md
+|   \-- weather_providers.md
 |-- ml_pipeline
 |   |-- data_ingestion
 |   |   |-- ingest_locations.py
 |   |   \-- ingest_weather_open_meteo.py
 |   |-- evaluation
 |   |   |-- confusion_matrix.csv
+|   |   |-- confusion_matrix_v0_2_0.csv
 |   |   |-- evaluate_model.py
 |   |   |-- evaluation_report.json
-|   |   \-- metrics_comparison.json
+|   |   |-- metrics_comparison.json
+|   |   \-- metrics_comparison_v0_2_0.json
 |   |-- features
-|   |   \-- build_features.py
+|   |   |-- build_features.py
+|   |   \-- build_features_v2.py
 |   |-- preprocessing
 |   |   \-- validate_dataset.py
 |   |-- registry
 |   |   |-- check_model_quality.py
 |   |   |-- frost_risk_model.joblib
-|   |   \-- model_metadata.json
+|   |   |-- frost_risk_model_v0_2_0.joblib
+|   |   |-- model_metadata.json
+|   |   \-- model_metadata_v0_2_0.json
+|   |-- tests
+|   |   \-- test_model_v2.py
 |   |-- training
-|   |   \-- train_models.py
+|   |   |-- train_models.py
+|   |   \-- train_models_v2.py
 |   |-- __init__.py
 |   |-- config.py
 |   |-- README.md
@@ -211,6 +279,8 @@ Raiz: frost-puno
 |   |   \-- seed_locations.sql
 |   \-- README.md
 |-- tools
+|   |-- docs
+|   |   \-- build_informe_docx.py
 |   \-- screenshots
 |       |-- capture_fastapi_screenshots.js
 |       |-- capture_static_evidence.js
@@ -224,4 +294,6 @@ Raiz: frost-puno
 |       \-- update_checklist.js
 |-- .env.example
 |-- .gitignore
-\-- README.md
+|-- README.md
+|-- render.yaml
+\-- titulo.pdf

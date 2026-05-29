@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dataset v2 sin data leakage</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">FrostPuno - evidencia local</span>
+  <h1>Dataset v2 sin data leakage</h1>
+  <p>Primeras filas del dataset experimental sin temperatura_minima_diaria ni horas_bajo_cero como features.</p>
+  <pre>fecha,time,distrito,ubigeo,latitud,longitud,altitud_estimada,temperature_2m,relative_humidity_2m,apparent_temperature,dew_point_2m,precipitation,cloud_cover,wind_speed_10m,mes,hora,riesgo_helada
+2024-06-01,2024-06-01T00:00,Puno,210101,-15.8402,-70.0219,3827,3.8,38,-1.1,-9.2,0.0,0,11.8,6,0,medio
+2024-06-01,2024-06-01T01:00,Puno,210101,-15.8402,-70.0219,3827,2.7,36,-2.3,-10.8,0.0,0,11.8,6,1,medio
+2024-06-01,2024-06-01T02:00,Puno,210101,-15.8402,-70.0219,3827,2.1,36,-3.1,-11.5,0.0,0,12.4,6,2,medio
+2024-06-01,2024-06-01T03:00,Puno,210101,-15.8402,-70.0219,3827,1.9,35,-3.3,-11.9,0.0,0,12.3,6,3,medio
+2024-06-01,2024-06-01T04:00,Puno,210101,-15.8402,-70.0219,3827,1.7,36,-3.4,-11.7,0.0,0,11.3,6,4,medio
+2024-06-01,2024-06-01T05:00,Puno,210101,-15.8402,-70.0219,3827,2.2,36,-2.4,-11.5,0.0,0,8.4,6,5,medio
+2024-06-01,2024-06-01T06:00,Puno,210101,-15.8402,-70.0219,3827,6.5,22,2.1,-14.0,0.0,0,5.9,6,6,medio
+2024-06-01,2024-06-01T07:00,Puno,210101,-15.8402,-70.0219,3827,5.0,40,1.2,-7.4,0.0,0,5.4,6,7,medio
+2024-06-01,2024-06-01T08:00,Puno,210101,-15.8402,-70.0219,3827,7.2,29,3.3,-9.5,0.0,0,4.9,6,8,medio
+2024-06-01,2024-06-01T09:00,Puno,210101,-15.8402,-70.0219,3827,10.0,19,6.0,-12.4,0.0,0,4.0,6,9,medio
+2024-06-01,2024-06-01T10:00,Puno,210101,-15.8402,-70.0219,3827,11.8,18,8.4,-11.6,0.0,0,7.4,6,10,medio
+2024-06-01,2024-06-01T11:00,Puno,210101,-15.8402,-70.0219,3827,13.2,19,10.3,-10.1,0.0,0,9.0,6,11,medio
+2024-06-01,2024-06-01T12:00,Puno,210101,-15.8402,-70.0219,3827,14.4,17,11.6,-10.5,0.0,0,10.0,6,12,medio
+2024-06-01,2024-06-01T13:00,Puno,210101,-15.8402,-70.0219,3827,15.2,15,12.3,-11.4,0.0,0,9.5,6,13,medio
+2024-06-01,2024-06-01T14:00,Puno,210101,-15.8402,-70.0219,3827,15.8,14,12.4,-12.1,0.0,0,8.7,6,14,medio
+2024-06-01,2024-06-01T15:00,Puno,210101,-15.8402,-70.0219,3827,15.8,15,11.1,-11.2,0.0,0,10.8,6,15,medio
+2024-06-01,2024-06-01T16:00,Puno,210101,-15.8402,-70.0219,3827,14.8,21,9.7,-7.3,0.0,0,13.8,6,16,medio
+2024-06-01,2024-06-01T17:00,Puno,210101,-15.8402,-70.0219,3827,13.0,29,8.2,-4.7,0.0,0,14.1,6,17,medio
+2024-06-01,2024-06-01T18:00,Puno,210101,-15.8402,-70.0219,3827,11.6,39,8.0,-1.9,0.0,0,8.5,6,18,medio
+2024-06-01,2024-06-01T19:00,Puno,210101,-15.8402,-70.0219,3827,10.5,47,7.5,-0.2,0.0,0,5.2,6,19,medio
+2024-06-01,2024-06-01T20:00,Puno,210101,-15.8402,-70.0219,3827,10.6,40,7.9,-2.4,0.0,0,1.5,6,20,medio
+2024-06-01,2024-06-01T21:00,Puno,210101,-15.8402,-70.0219,3827,7.3,58,4.1,-0.4,0.0,0,6.9,6,21,medio
+2024-06-01,2024-06-01T22:00,Puno,210101,-15.8402,-70.0219,3827,6.1,59,2.5,-1.4,0.0,0,8.6,6,22,medio</pre>
+</body>
+</html>

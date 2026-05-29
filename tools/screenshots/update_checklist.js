@@ -25,6 +25,11 @@ const items = [
   ['17', 'Flutter build web', '17_flutter_build_web.png', 'Automatica', 'tools/screenshots/generate_terminal_evidence.ps1'],
   ['18', 'GitHub workflows', '18_github_workflows.png', 'Automatica', 'npm run capture:static'],
   ['19', 'Supabase SQL', '19_supabase_sql.png', 'Automatica', 'npm run capture:static'],
+  ['20', 'Dataset v2 sin leakage', '20_dataset_v2_sin_leakage.png', 'Automatica', 'npm run capture:static'],
+  ['21', 'Model metadata v0.2.0', '21_model_metadata_v0_2_0.png', 'Automatica', 'npm run capture:static'],
+  ['22', 'Comparacion v0.1.0 vs v0.2.0', '22_comparacion_modelos.png', 'Automatica', 'npm run capture:static'],
+  ['23', 'Despliegue Render/Vercel/Supabase', '23_despliegue_render_vercel_supabase.png', 'Automatica', 'npm run capture:static'],
+  ['24', 'Android APK y prueba movil', '24_android_apk_mobile.png', 'Automatica', 'npm run capture:static'],
 ];
 
 function exists(fileName) {

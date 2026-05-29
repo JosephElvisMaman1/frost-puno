@@ -20,8 +20,9 @@ Sistema inteligente distribuido para prediccion de heladas y apoyo a la producci
 - Flutter build web: funcionando.
 - Quality gate ML: aprobado.
 - Capturas del informe: generadas localmente.
-- Despliegue: preparado, pendiente de ejecucion manual en Render, Vercel y Supabase.
+- Despliegue: backend Render disponible en `https://frost-puno.onrender.com`; Vercel y Supabase documentados para ejecucion manual.
 - Movil: flujo GPS + clima automatico, modo oscuro, permisos Android, PWA y build APK preparados.
+- ML v0.2.0: version experimental sin data leakage, con split por distrito y evaluacion realista.
 
 ## Ejecucion local rapida
 
@@ -72,7 +73,7 @@ Android APK:
 
 ```powershell
 Set-Location .\app_flutter
-flutter build apk --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 ## Flujo movil actual
@@ -97,7 +98,7 @@ flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:8000
 En un telefono fisico, usa una URL accesible desde el dispositivo, por ejemplo el backend desplegado en Render:
 
 ```powershell
-flutter run -d android --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter run -d android --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 ## URLs esperadas
@@ -110,7 +111,7 @@ Local:
 
 Produccion esperada:
 
-- Backend Render: `https://TU-BACKEND.onrender.com`
+- Backend Render: `https://frost-puno.onrender.com`
 - Flutter Vercel: `https://TU-FRONTEND.vercel.app`
 - Supabase: `https://TU-PROYECTO.supabase.co`
 
@@ -142,6 +143,10 @@ Para Aprendizaje de Maquina:
 - Metrica principal `f1-score macro`.
 - Registry, metadata y quality gate.
 - Limitaciones explicitas por etiquetas basadas en reglas.
+- Modelo productivo `v0.1.0` intacto en FastAPI.
+- Modelo experimental `v0.2.0` en `ml_pipeline/registry/`, sin reemplazar produccion.
+- Dataset `data/processed/frost_training_dataset_v2.csv` sin `temperatura_minima_diaria` ni `horas_bajo_cero` como features.
+- Comparacion formal en `docs/model_comparison_v1_vs_v2.md`.
 
 Para Computacion Paralela y Distribuida:
 
@@ -164,3 +169,10 @@ Para Computacion Paralela y Distribuida:
 ## Seguridad
 
 No se suben credenciales. `SUPABASE_SERVICE_ROLE_KEY` debe existir solo en Render/backend. Flutter Web y Vercel solo reciben `API_BASE_URL`.
+
+## Informe y capturas
+
+- Informe Markdown completo: `docs/informe_frost_puno.md`.
+- Informe Word generado: `docs/informe_frost_puno_completo.docx`.
+- Checklist de capturas: `docs/capturas_checklist.md`.
+- Capturas: `docs/capturas/01_estructura_proyecto.png` hasta `docs/capturas/24_android_apk_mobile.png`.
