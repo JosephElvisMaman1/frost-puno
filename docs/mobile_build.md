@@ -28,6 +28,21 @@ El `AndroidManifest.xml` declara `INTERNET`, `ACCESS_COARSE_LOCATION` y `ACCESS_
 
 La app solicita permiso de ubicacion en tiempo de ejecucion mediante `permission_handler` y obtiene coordenadas con `geolocator`.
 
+## Icono APK
+
+El launcher icon ya fue reemplazado por un icono propio de FrostPuno en:
+
+```text
+app_flutter/android/app/src/main/res/mipmap-*/ic_launcher.png
+```
+
+La PWA usa la misma identidad visual en:
+
+```text
+app_flutter/web/icons/
+app_flutter/web/favicon.png
+```
+
 ## Ejecutar en Android
 
 ```powershell
@@ -38,14 +53,14 @@ flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:8000
 Para dispositivo fisico con backend desplegado:
 
 ```powershell
-flutter run -d android --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter run -d android --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 ## Generar APK
 
 ```powershell
 Set-Location app_flutter
-flutter build apk --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 Salida esperada:
@@ -57,7 +72,7 @@ app_flutter/build/app/outputs/flutter-apk/app-release.apk
 ## Generar App Bundle
 
 ```powershell
-flutter build appbundle --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter build appbundle --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 ## Probar GPS
@@ -75,7 +90,7 @@ flutter build appbundle --release --dart-define=API_BASE_URL=https://TU-BACKEND.
 El proyecto incluye `web/manifest.json`, `web/offline.html` y service worker generado por Flutter durante `flutter build web`.
 
 ```powershell
-flutter build web --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+flutter build web --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
 ```
 
 ## Limitaciones actuales

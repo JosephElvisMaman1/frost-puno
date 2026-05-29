@@ -73,6 +73,7 @@ Set-Location tools\screenshots
 npm run capture:api
 npm run capture:flutter
 npm run capture:static
+npm run capture:deploy
 npm run checklist
 Set-Location ..\..
 ```
@@ -98,6 +99,24 @@ Set-Location ..\..
 - `docs/capturas/17_flutter_build_web.png`
 - `docs/capturas/18_github_workflows.png`
 - `docs/capturas/19_supabase_sql.png`
+- `docs/capturas/20_dataset_v2_sin_leakage.png`
+- `docs/capturas/21_model_metadata_v0_2_0.png`
+- `docs/capturas/22_comparacion_modelos.png`
+- `docs/capturas/23_despliegue_render_vercel_supabase.png`
+- `docs/capturas/24_android_apk_mobile.png`
+- `docs/capturas/25_github_repo.png`
+- `docs/capturas/26_github_branch_v0_2_0.png`
+- `docs/capturas/27_github_commits_v0_2_0.png`
+- `docs/capturas/28_github_actions.png`
+- `docs/capturas/29_render_health.png`
+- `docs/capturas/30_render_model_info.png`
+- `docs/capturas/31_render_swagger.png`
+- `docs/capturas/32_vercel_flutter_mobile.png`
+- `docs/capturas/33_vercel_flutter_desktop.png`
+- `docs/capturas/34_despliegue_headers.png`
+- `docs/capturas/35_ramas_y_versiones.png`
+- `docs/capturas/36_supabase_estado.png`
+- `docs/capturas/37_vercel_estado.png`
 
 ## Datos auxiliares generados
 

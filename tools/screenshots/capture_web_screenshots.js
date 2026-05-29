@@ -48,7 +48,11 @@ async function clickTextOrPoint(page, labels, point, timeout = 5000) {
 }
 
 async function scrollDown(page, amount = 900) {
+  await page.mouse.move(195, 520);
   await page.mouse.wheel(0, amount);
+  await page.mouse.down();
+  await page.mouse.move(195, 180, { steps: 8 });
+  await page.mouse.up();
   await page.waitForTimeout(500);
 }
 
@@ -133,13 +137,9 @@ async function safeStep(name, fn) {
 
   await safeStep('ModelInfo', async () => {
     await goHome(page);
-    await scrollDown(page, 520);
-    const clicked = await clickTextOrPoint(
-      page,
-      ['Informacion del modelo', 'Información del modelo'],
-      { x: 195, y: 742 },
-    );
-    if (!clicked) throw new Error('No se encontro acceso a Informacion del modelo.');
+    await scrollDown(page, 900);
+    await page.mouse.click(195, 690);
+    await waitForFlutter(page);
     await screenshot(page, '15_flutter_model_info.png');
   });
 

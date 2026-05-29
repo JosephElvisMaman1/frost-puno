@@ -1,0 +1,91 @@
+{
+  "model_name": "RandomForestClassifier",
+  "version": "v0.2.0",
+  "created_at": "2026-05-29T07:26:59+00:00",
+  "status": "experimental",
+  "production_model_unchanged": true,
+  "production_model_path": "ml_pipeline/registry/frost_risk_model.joblib",
+  "production_metadata_path": "ml_pipeline/registry/model_metadata.json",
+  "model_path": "ml_pipeline/registry/frost_risk_model_v0_2_0.joblib",
+  "dataset_path": "data/processed/frost_training_dataset_v2.csv",
+  "features": [
+    "latitud",
+    "longitud",
+    "altitud_estimada",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "apparent_temperature",
+    "dew_point_2m",
+    "precipitation",
+    "cloud_cover",
+    "wind_speed_10m",
+    "mes",
+    "hora"
+  ],
+  "removed_leakage_features": [
+    "temperatura_minima_diaria",
+    "horas_bajo_cero"
+  ],
+  "target": "riesgo_helada",
+  "split": {
+    "strategy": "district",
+    "test_size": 0.3,
+    "train_districts": [
+      "Azangaro",
+      "Huancane",
+      "Ilave",
+      "Macusani",
+      "Moho",
+      "Puno",
+      "Putina",
+      "Sandia",
+      "Yunguyo"
+    ],
+    "test_districts": [
+      "Ayaviri",
+      "Juli",
+      "Juliaca",
+      "Lampa"
+    ],
+    "train_rows": 3024,
+    "test_rows": 1344
+  },
+  "metrics": {
+    "accuracy": 0.5096726190476191,
+    "precision_macro": 0.46973344651942206,
+    "recall_macro": 0.4954282407407408,
+    "f1_macro": 0.47899073277650545
+  },
+  "all_model_metrics": {
+    "LogisticRegression": {
+      "accuracy": 0.6130952380952381,
+      "precision_macro": 0.4844589481026825,
+      "recall_macro": 0.5428356481481481,
+      "f1_macro": 0.48884315253997107
+    },
+    "RandomForestClassifier": {
+      "accuracy": 0.5096726190476191,
+      "precision_macro": 0.46973344651942206,
+      "recall_macro": 0.4954282407407408,
+      "f1_macro": 0.47899073277650545
+    }
+  },
+  "selection_reason": "RandomForestClassifier is kept as the v0.2.0 baseline model; LogisticRegression is reported only for comparison.",
+  "label_order": [
+    "bajo",
+    "medio",
+    "alto"
+  ],
+  "confusion_matrix_path": "ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv",
+  "dataset_size": 4368,
+  "data_sources": [
+    "Open-Meteo Historical API",
+    "INEI-compatible curated district seed for Puno MVP"
+  ],
+  "limitations": [
+    "Labels remain rule-based and are not official observed frost events.",
+    "Leakage-derived features were removed from model inputs.",
+    "District split estimates generalization to unseen districts, but still requires SENAMHI/campo ground truth.",
+    "This model is experimental and is not used by FastAPI production endpoints."
+  ]
+}

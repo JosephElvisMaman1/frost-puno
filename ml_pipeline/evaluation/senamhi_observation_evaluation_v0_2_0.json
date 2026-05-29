@@ -1,0 +1,72 @@
+{
+  "created_at": "2026-05-29T18:29:40+00:00",
+  "status": "sample_validation",
+  "model_path": "ml_pipeline/registry/frost_risk_model_v0_2_0.joblib",
+  "model_metadata_path": "ml_pipeline/registry/model_metadata_v0_2_0.json",
+  "observations_path": "data/validation/senamhi_frost_observations_sample.csv",
+  "rows": 5,
+  "features": [
+    "latitud",
+    "longitud",
+    "altitud_estimada",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "apparent_temperature",
+    "dew_point_2m",
+    "precipitation",
+    "cloud_cover",
+    "wind_speed_10m",
+    "mes",
+    "hora"
+  ],
+  "target": "riesgo_helada_observado",
+  "metrics": {
+    "accuracy": 0.6,
+    "precision_macro": 0.38888888888888884,
+    "recall_macro": 0.5,
+    "f1_macro": 0.43333333333333335
+  },
+  "label_order": [
+    "bajo",
+    "medio",
+    "alto"
+  ],
+  "confusion_matrix": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      2,
+      0
+    ],
+    [
+      0,
+      1,
+      1
+    ]
+  ],
+  "mismatches": [
+    {
+      "observed_at": "2024-06-01T03:00:00",
+      "distrito": "Puno",
+      "riesgo_helada_observado": "alto",
+      "prediccion": "medio",
+      "fuente_observacion": "SENAMHI_sample"
+    },
+    {
+      "observed_at": "2024-06-03T14:00:00",
+      "distrito": "Ilave",
+      "riesgo_helada_observado": "bajo",
+      "prediccion": "alto",
+      "fuente_observacion": "SENAMHI_sample"
+    }
+  ],
+  "limitations": [
+    "This file is a schema/sample for official observation validation, not a complete SENAMHI extraction.",
+    "Observed frost labels must be replaced with official SENAMHI/campo data before academic promotion.",
+    "The result is used to decide whether a future model version should be retrained or rejected."
+  ]
+}

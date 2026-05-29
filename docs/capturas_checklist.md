@@ -1,4 +1,4 @@
-﻿# Checklist de capturas - FrostPuno
+# Checklist de capturas - FrostPuno
 
 Este documento se actualiza con `node tools/screenshots/update_checklist.js` o desde `tools/screenshots/run_all_screenshots.ps1`.
 
@@ -25,6 +25,24 @@ Este documento se actualiza con `node tools/screenshots/update_checklist.js` o d
 | 17 | Flutter build web | `docs/capturas/17_flutter_build_web.png` | Automatica | Generada |
 | 18 | GitHub workflows | `docs/capturas/18_github_workflows.png` | Automatica | Generada |
 | 19 | Supabase SQL | `docs/capturas/19_supabase_sql.png` | Automatica | Generada |
+| 20 | Dataset v2 sin leakage | `docs/capturas/20_dataset_v2_sin_leakage.png` | Automatica | Generada |
+| 21 | Model metadata v0.2.0 | `docs/capturas/21_model_metadata_v0_2_0.png` | Automatica | Generada |
+| 22 | Comparacion v0.1.0 vs v0.2.0 | `docs/capturas/22_comparacion_modelos.png` | Automatica | Generada |
+| 23 | Despliegue Render/Vercel/Supabase | `docs/capturas/23_despliegue_render_vercel_supabase.png` | Automatica | Generada |
+| 24 | Android APK y prueba movil | `docs/capturas/24_android_apk_mobile.png` | Automatica | Generada |
+| 25 | GitHub repositorio | `docs/capturas/25_github_repo.png` | Automatica web publica | Generada |
+| 26 | GitHub rama v0.2.0 | `docs/capturas/26_github_branch_v0_2_0.png` | Automatica web publica | Generada |
+| 27 | GitHub commits v0.2.0 | `docs/capturas/27_github_commits_v0_2_0.png` | Automatica web publica | Generada |
+| 28 | GitHub Actions | `docs/capturas/28_github_actions.png` | Automatica web publica | Generada |
+| 29 | Render health remoto | `docs/capturas/29_render_health.png` | Automatica web publica | Generada |
+| 30 | Render model-info remoto | `docs/capturas/30_render_model_info.png` | Automatica web publica | Generada |
+| 31 | Render Swagger remoto | `docs/capturas/31_render_swagger.png` | Automatica web publica | Generada |
+| 32 | Vercel Flutter movil | `docs/capturas/32_vercel_flutter_mobile.png` | Automatica web publica | Generada |
+| 33 | Vercel Flutter desktop | `docs/capturas/33_vercel_flutter_desktop.png` | Automatica web publica | Generada |
+| 34 | Headers Render/Vercel | `docs/capturas/34_despliegue_headers.png` | Automatica | Generada |
+| 35 | Ramas y versiones | `docs/capturas/35_ramas_y_versiones.png` | Automatica | Generada |
+| 36 | Supabase estado/esquema | `docs/capturas/36_supabase_estado.png` | Automatica con SQL versionado | Generada |
+| 37 | Vercel estado/configuracion | `docs/capturas/37_vercel_estado.png` | Automatica | Generada |
 
 ## Comandos principales
 

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Headers de despliegue Render y Vercel</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">FrostPuno - evidencia de despliegue</span>
+  <h1>Headers de despliegue Render y Vercel</h1>
+  <p>Evidencia tecnica: Render responde con uvicorn y Vercel sirve Flutter Web con cache HIT.</p>
+  <pre># Render /health
+HTTP/1.1 200 OK
+Date: Fri, 29 May 2026 18:00:58 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+rndr-id: 03750900-8dde-4cfe
+Server: cloudflare
+vary: Accept-Encoding
+x-render-origin-server: uvicorn
+cf-cache-status: DYNAMIC
+CF-RAY: a03766d1ae0aa9ea-LIM
+alt-svc: h3=&quot;:443&quot;; ma=86400
+
+{&quot;status&quot;:&quot;ok&quot;,&quot;app_name&quot;:&quot;FrostPuno API&quot;,&quot;version&quot;:&quot;0.1.0&quot;,&quot;model_available&quot;:true}
+
+# Vercel frontend
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Age: 39447
+Cache-Control: public, max-age=0, must-revalidate
+Content-Disposition: inline
+Content-Length: 1552
+Content-Type: text/html; charset=utf-8
+Date: Fri, 29 May 2026 18:00:58 GMT
+Etag: &quot;929524cbe642553f4104e47f7197c80c&quot;
+Last-Modified: Fri, 29 May 2026 07:03:31 GMT
+Server: Vercel
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Vercel-Cache: HIT
+X-Vercel-Id: gru1::9fshh-1780077658352-1cc6204fec8e</pre>
+</body>
+</html>

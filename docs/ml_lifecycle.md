@@ -44,15 +44,19 @@ El metadata incluye version, fecha, features, target, metricas, tamano del datas
 
 ## 7. Mejora continua
 
-Flujo automatizado MVP:
+Flujo supervisado MVP:
 
 1. recolectar predicciones y clima nuevo;
-2. validar calidad de datos;
-3. reentrenar por GitHub Actions;
-4. evaluar el modelo candidato;
-5. ejecutar `model-quality-gate.yml`;
-6. versionar artefactos y metadata;
-7. promover manualmente solo si cumple calidad.
+2. recolectar observaciones externas SENAMHI/campo o feedback de productores;
+3. validar calidad de datos;
+4. evaluar el modelo activo/candidato contra observaciones;
+5. reentrenar por GitHub Actions o local controlado;
+6. evaluar el modelo candidato;
+7. ejecutar `model-quality-gate.yml`;
+8. versionar artefactos y metadata;
+9. promover manualmente solo si cumple calidad.
+
+El sistema no se autoentrena directamente con cualquier dato nuevo. La mejora es supervisada para evitar contaminar el modelo con datos incorrectos o etiquetas no verificadas.
 
 ## 8. CI/CD ML
 
@@ -71,3 +75,100 @@ La evolucion movil introduce un contrato de proveedores climaticos desacoplado. 
 Nuevos features candidatos: temperatura minima oficial, humedad oficial, velocidad de viento, nubosidad, estacion cercana, distancia a estacion, altitud real, sensacion termica, presion atmosferica y radiacion.
 
 Estos campos se documentan como contrato futuro. No se reentrena automaticamente el modelo hasta contar con dataset validado, etiquetas revisadas y comparacion contra la version activa.
+
+## 10. Mejoras de validacion del modelo
+
+La version `v0.2.0` introduce una evaluacion experimental mas realista sin cambiar el modelo activo en produccion.
+
+### Data leakage identificado
+
+En `v0.1.0`, las etiquetas `riesgo_helada` se generan con reglas basadas en:
+
+- `temperatura_minima_diaria`;
+- `horas_bajo_cero`.
+
+Esas columnas tambien estaban dentro de las features de entrenamiento. Por eso `f1_macro = 1.0` debe interpretarse como una validacion optimista del pipeline, no como prueba de desempeno perfecto en campo.
+
+### Dataset v2
+
+Se crea un dataset nuevo:
+
+- `data/processed/frost_training_dataset_v2.csv`
+
+No se modifica `frost_training_dataset.csv`.
+
+Features v2:
+
+- `latitud`
+- `longitud`
+- `altitud_estimada`
+- `temperature_2m`
+- `relative_humidity_2m`
+- `apparent_temperature`
+- `dew_point_2m`
+- `precipitation`
+- `cloud_cover`
+- `wind_speed_10m`
+- `mes`
+- `hora`
+
+Columnas removidas como features:
+
+- `temperatura_minima_diaria`
+- `horas_bajo_cero`
+
+La etiqueta `riesgo_helada` se mantiene para compatibilidad academica del MVP.
+
+### Splits realistas
+
+`train_models_v2.py` implementa dos estrategias reproducibles:
+
+- `district`: separa distritos completos entre train y test. Es la estrategia preferida para `v0.2.0`.
+- `time`: entrena con fechas iniciales y evalua contra fechas mas recientes.
+
+Comando principal:
+
+```powershell
+python -m ml_pipeline.features.build_features_v2
+python -m ml_pipeline.training.train_models_v2 --version v0.2.0 --split-strategy district --test-size 0.30
+```
+
+### Artefactos v0.2.0
+
+- `ml_pipeline/registry/frost_risk_model_v0_2_0.joblib`
+- `ml_pipeline/registry/model_metadata_v0_2_0.json`
+- `ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv`
+- `ml_pipeline/evaluation/metrics_comparison_v0_2_0.json`
+
+El backend sigue usando `ml_pipeline/registry/frost_risk_model.joblib`, por lo que FastAPI, Supabase y Flutter permanecen compatibles con produccion.
+
+### Impacto en metricas
+
+Las metricas bajan porque el modelo deja de ver variables derivadas de la etiqueta. Este resultado es esperado y deseable para una evaluacion honesta.
+
+`v0.2.0` no debe considerarse automaticamente superior en precision. Su valor esta en mejorar el diseno experimental y mostrar limites reales: falsos positivos, falsos negativos y generalizacion a distritos no vistos.
+
+## 11. Validacion con observaciones SENAMHI/campo
+
+Se agrego un contrato incremental para validar contra observaciones externas:
+
+- `data/validation/senamhi_frost_observations_sample.csv`
+- `ml_pipeline/evaluation/evaluate_observed_events.py`
+- `ml_pipeline/evaluation/senamhi_observation_evaluation_v0_2_0.json`
+
+Comando:
+
+```powershell
+python -m ml_pipeline.evaluation.evaluate_observed_events
+```
+
+El archivo de muestra define el formato requerido para reemplazarlo por datos oficiales: fecha observada, distrito, coordenadas, variables climaticas actuales, etiqueta observada y fuente. Esta etapa ayuda a decidir si una version candidata debe reentrenarse, rechazarse o promoverse.
+
+Metricas de muestra generadas para `v0.2.0`:
+
+- accuracy: `0.6000`
+- precision macro: `0.3889`
+- recall macro: `0.5000`
+- f1 macro: `0.4333`
+
+Estas metricas no son definitivas porque el archivo es pequeno y demostrativo. Su valor es dejar el pipeline listo para evidencia oficial.

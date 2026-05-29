@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ramas, commits y versiones del despliegue</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">FrostPuno - evidencia de despliegue</span>
+  <h1>Ramas, commits y versiones del despliegue</h1>
+  <p>Mapa de trazabilidad entre main, codex/model-v0-2-0, v0.1.0 productivo y v0.2.0 experimental.</p>
+  <pre># git status
+## codex/model-v0-2-0...origin/codex/model-v0-2-0
+ M tools/screenshots/README.md
+ M tools/screenshots/package.json
+ M tools/screenshots/update_checklist.js
+?? docs/capturas/25_github_repo.png
+?? docs/capturas/26_github_branch_v0_2_0.png
+?? docs/capturas/27_github_commits_v0_2_0.png
+?? docs/capturas/28_github_actions.png
+?? docs/capturas/29_render_health.png
+?? docs/capturas/30_render_model_info.png
+?? docs/capturas/31_render_swagger.png
+?? docs/capturas/32_vercel_flutter_mobile.png
+?? docs/capturas/33_vercel_flutter_desktop.png
+?? tools/screenshots/capture_deployment_evidence.js
+
+# ramas remotas
+e1e03bda5dceaf0efba8bb172dda5ef9f8c05a4e	refs/heads/codex/model-v0-2-0
+87bd81f96d1a0e8f4c6cca09c391edbbad8ce455	refs/heads/main
+
+# commits recientes
+e1e03bd (HEAD -&gt; codex/model-v0-2-0, origin/codex/model-v0-2-0) docs: completar informe y evidencias de despliegue
+f536179 feat: agregar modelo experimental v0.2.0
+87bd81f (origin/main, main, backup/pre-model-v0-2-0) fix: configurar build Android local
+0971225 feat: mejorar experiencia movil FrostPuno
+e4df8bf Prepare Frost Puno MVP for deployment
+
+# modelo productivo v0.1.0
+{
+  &quot;model_name&quot;: &quot;RandomForestClassifier&quot;,
+  &quot;version&quot;: &quot;v0.1.0&quot;,
+  &quot;created_at&quot;: &quot;2026-05-28T02:46:41+00:00&quot;,
+  &quot;features&quot;: [
+    &quot;latitud&quot;,
+    &quot;longitud&quot;,
+    &quot;altitud_estimada&quot;,
+    &quot;poblacion_total&quot;,
+    &quot;poblacion_rural&quot;,
+    &quot;porcentaje_rural&quot;,
+    &quot;temperature_2m&quot;,
+    &quot;relative_humidity_2m&quot;,
+    &quot;apparent_temperature&quot;,
+    &quot;dew_point_2m&quot;,
+    &quot;precipitation&quot;,
+    &quot;cloud_cover&quot;,
+    &quot;wind_speed_10m&quot;,
+    &quot;mes&quot;,
+    &quot;hora&quot;,
+    &quot;temperatura_minima_diaria&quot;,
+    &quot;horas_bajo_cero&quot;
+  ],
+  &quot;target&quot;: &quot;riesgo_helada&quot;,
+  &quot;metrics&quot;: {
+    &quot;accuracy&quot;: 1,
+    &quot;precision_macro&quot;: 1,
+    &quot;recall_macro&quot;: 1,
+    &quot;f1_macro&quot;: 1
+  },
+  &quot;all_model_metrics&quot;: {
+    &quot;LogisticRegression&quot;: {
+      &quot;accuracy&quot;: 0.9963369963369964,
+      &quot;precision_macro&quot;: 0.9965095986038395,
+      &quot;recall_macro&quot;: 0.9968701095461658,
+      &quot;f1_macro&quot;: 0.9966732869910625
+    },
+    &quot;DecisionTreeClassifier&quot;: {
+      &quot;accuracy&quot;: 1,
+      &quot;precision_macro&quot;: 1,
+      &quot;recall_macro&quot;: 1,
+      &quot;f1_macro&quot;: 1
+    },
+    &quot;RandomForestClassifier&quot;: {
+      &quot;accuracy&quot;: 1,
+      &quot;precision_macro&quot;: 1,
+      &quot;recall_macro&quot;: 1,
+      &quot;f1_macro&quot;: 1
+    }
+  },
+  &quot;dataset_size&quot;: 4368,
+  &quot;data_sources&quot;: [
+    &quot;Open-Meteo Historical API&quot;,
+    &quot;INEI-compatible curated district seed for Puno MVP&quot;,
+    &quot;SENAMHI documented for validation in phase 2&quot;,
+    &quot;MIDAGRI/SIEA documented as agrarian enrichment in phase 2&quot;
+  ],
+  &quot;limitations&quot;: [
+    &quot;Initial labels are rule-based and derived from temperature thresholds.&quot;,
+    &quot;The curated INEI district file is an MVP seed and must be replaced with official exports for production.&quot;,
+    &quot;Daily minimum temperature and hours below zero are label-derived features, so baseline metrics can be optimistic.&quot;,
+    &quot;SENAMHI station observations are not yet used as ground-truth labels.&quot;
+  ]
+}
+
+# modelo experimental v0.2.0
+{
+  &quot;model_name&quot;: &quot;RandomForestClassifier&quot;,
+  &quot;version&quot;: &quot;v0.2.0&quot;,
+  &quot;created_at&quot;: &quot;2026-05-29T07:26:59+00:00&quot;,
+  &quot;status&quot;: &quot;experimental&quot;,
+  &quot;production_model_unchanged&quot;: true,
+  &quot;production_model_path&quot;: &quot;ml_pipeline/registry/frost_risk_model.joblib&quot;,
+  &quot;production_metadata_path&quot;: &quot;ml_pipeline/registry/model_metadata.json&quot;,
+  &quot;model_path&quot;: &quot;ml_pipeline/registry/frost_risk_model_v0_2_0.joblib&quot;,
+  &quot;dataset_path&quot;: &quot;data/processed/frost_training_dataset_v2.csv&quot;,
+  &quot;features&quot;: [
+    &quot;latitud&quot;,
+    &quot;longitud&quot;,
+    &quot;altitud_estimada&quot;,
+    &quot;temperature_2m&quot;,
+    &quot;relative_humidity_2m&quot;,
+    &quot;apparent_temperature&quot;,
+    &quot;dew_point_2m&quot;,
+    &quot;precipitation&quot;,
+    &quot;cloud_cover&quot;,
+    &quot;wind_speed_10m&quot;,
+    &quot;mes&quot;,
+    &quot;hora&quot;
+  ],
+  &quot;removed_leakage_features&quot;: [
+    &quot;temperatura_minima_diaria&quot;,
+    &quot;horas_bajo_cero&quot;
+  ],
+  &quot;target&quot;: &quot;riesgo_helada&quot;,
+  &quot;split&quot;: {
+    &quot;strategy&quot;: &quot;district&quot;,
+    &quot;test_size&quot;: 0.3,
+    &quot;train_districts&quot;: [
+      &quot;Azangaro&quot;,
+      &quot;Huancane&quot;,
+      &quot;Ilave&quot;,
+      &quot;Macusani&quot;,
+      &quot;Moho&quot;,
+      &quot;Puno&quot;,
+      &quot;Putina&quot;,
+      &quot;Sandia&quot;,
+      &quot;Yunguyo&quot;
+    ],
+    &quot;test_districts&quot;: [
+      &quot;Ayaviri&quot;,
+      &quot;Juli&quot;,
+      &quot;Juliaca&quot;,
+      &quot;Lampa&quot;
+    ],
+    &quot;train_rows&quot;: 3024,
+    &quot;test_rows&quot;: 1344
+  },
+  &quot;metrics&quot;: {
+    &quot;accuracy&quot;: 0.5096726190476191,
+    &quot;precision_macro&quot;: 0.46973344651942206,
+    &quot;recall_macro&quot;: 0.4954282407407408,
+    &quot;f1_macro&quot;: 0.47899073277650545
+  },
+  &quot;all_model_metrics&quot;: {
+    &quot;LogisticRegression&quot;: {
+      &quot;accuracy&quot;: 0.6130952380952381,
+      &quot;precision_macro&quot;: 0.4844589481026825,
+      &quot;recall_macro&quot;: 0.5428356481481481,
+      &quot;f1_macro&quot;: 0.48884315253997107
+    },
+    &quot;RandomForestClassifier&quot;: {
+      &quot;accuracy&quot;: 0.5096726190476191,
+      &quot;precision_macro&quot;: 0.46973344651942206,
+      &quot;recall_macro&quot;: 0.4954282407407408,
+      &quot;f1_macro&quot;: 0.47899073277650545
+    }
+  },
+  &quot;selection_reason&quot;: &quot;RandomForestClassifier is kept as the v0.2.0 baseline model; LogisticRegression is reported only for comparison.&quot;,
+  &quot;label_order&quot;: [
+    &quot;bajo&quot;,
+    &quot;medio&quot;,
+    &quot;alto&quot;
+  ],
+  &quot;confusion_matrix_path&quot;: &quot;ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv&quot;,
+  &quot;dataset_size&quot;: 4368,
+  &quot;data_sources&quot;: [
+    &quot;Open-Meteo Historical API&quot;,
+    &quot;INEI-compatible curated district seed for Puno MVP&quot;
+  ],
+  &quot;limitations&quot;: [
+    &quot;Labels remain rule-based and are not official observed frost events.&quot;,
+    &quot;Leakage-derived features were removed from model inputs.&quot;,
+    &quot;District split estimates generalization to unseen districts, but still requires SENAMHI/campo ground truth.&quot;,
+    &quot;This model is experimental and is not used by FastAPI production endpoints.&quot;
+  ]
+}</pre>
+</body>
+</html>

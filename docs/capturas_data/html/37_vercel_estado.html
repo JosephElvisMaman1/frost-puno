@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vercel: frontend desplegado y dashboard pendiente de reautenticacion</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">FrostPuno - evidencia de despliegue</span>
+  <h1>Vercel: frontend desplegado y dashboard pendiente de reautenticacion</h1>
+  <p>Vercel sirve la app en frost-puno.vercel.app. El conector Vercel devolvio token_expired para dashboard/deployments privados.</p>
+  <pre># URL publica
+https://frost-puno.vercel.app
+
+# Headers
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Access-Control-Allow-Origin: *
+Age: 39447
+Cache-Control: public, max-age=0, must-revalidate
+Content-Disposition: inline
+Content-Length: 1552
+Content-Type: text/html; charset=utf-8
+Date: Fri, 29 May 2026 18:00:58 GMT
+Etag: &quot;929524cbe642553f4104e47f7197c80c&quot;
+Last-Modified: Fri, 29 May 2026 07:03:31 GMT
+Server: Vercel
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Vercel-Cache: HIT
+X-Vercel-Id: gru1::9fshh-1780077658352-1cc6204fec8e
+
+# Configuracion versionada
+{
+  &quot;installCommand&quot;: &quot;if [ ! -d \&quot;$HOME/flutter\&quot; ]; then git clone https://github.com/flutter/flutter.git -b stable --depth 1 \&quot;$HOME/flutter\&quot;; fi &amp;&amp; export PATH=\&quot;$HOME/flutter/bin:$PATH\&quot; &amp;&amp; flutter config --enable-web &amp;&amp; flutter pub get&quot;,
+  &quot;buildCommand&quot;: &quot;export PATH=\&quot;$HOME/flutter/bin:$PATH\&quot; &amp;&amp; flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL&quot;,
+  &quot;outputDirectory&quot;: &quot;build/web&quot;,
+  &quot;rewrites&quot;: [
+    {
+      &quot;source&quot;: &quot;/(.*)&quot;,
+      &quot;destination&quot;: &quot;/index.html&quot;
+    }
+  ]
+}
+</pre>
+</body>
+</html>

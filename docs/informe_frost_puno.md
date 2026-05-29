@@ -293,9 +293,9 @@ riesgo_helada
 - `medio`
 - `alto`
 
-### 12.4 Variables predictoras
+### 12.4 Variables predictoras v0.1.0
 
-Entre las variables usadas se incluyen:
+La versión productiva `v0.1.0`, mantenida para compatibilidad con FastAPI, usa variables territoriales, climáticas y derivadas:
 
 - latitud;
 - longitud;
@@ -315,19 +315,45 @@ Entre las variables usadas se incluyen:
 - temperatura mínima diaria;
 - horas bajo cero.
 
-### 12.5 Modelos comparados
+Estas dos últimas variables explican el resultado perfecto de la evaluación inicial, porque también participan en la regla que genera la etiqueta `riesgo_helada`.
 
-Se compararon:
+### 12.5 Variables predictoras v0.2.0 sin data leakage
+
+Para mejorar la validez académica se creó una versión experimental `v0.2.0`, sin reemplazar producción. Esta versión elimina como features:
+
+- `temperatura_minima_diaria`;
+- `horas_bajo_cero`.
+
+El nuevo dataset `data/processed/frost_training_dataset_v2.csv` conserva únicamente variables disponibles de forma honesta para una predicción operativa:
+
+- latitud;
+- longitud;
+- altitud estimada;
+- temperatura actual (`temperature_2m`);
+- humedad relativa (`relative_humidity_2m`);
+- sensación térmica (`apparent_temperature`);
+- punto de rocío (`dew_point_2m`);
+- viento (`wind_speed_10m`);
+- nubosidad (`cloud_cover`);
+- precipitación (`precipitation`);
+- mes;
+- hora.
+
+### 12.6 Modelos comparados
+
+En `v0.1.0` se compararon:
 
 - LogisticRegression;
 - DecisionTreeClassifier;
 - RandomForestClassifier.
 
-### 12.6 Métrica principal
+En `v0.2.0` se entrenó `RandomForestClassifier` como baseline versionado y se agregó `LogisticRegression` como comparación interna. El artefacto registrado de `v0.2.0` corresponde a Random Forest para mantener continuidad metodológica.
+
+### 12.7 Métrica principal
 
 La métrica principal fue f1-score macro. Esta métrica es adecuada porque el problema tiene tres clases y puede existir desbalance entre bajo, medio y alto.
 
-### 12.7 Elección de Random Forest
+### 12.8 Elección de Random Forest
 
 RandomForestClassifier fue seleccionado como modelo principal porque:
 
@@ -337,9 +363,29 @@ RandomForestClassifier fue seleccionado como modelo principal porque:
 - es eficiente para una laptop con 16 GB de RAM;
 - mantiene una complejidad razonable para fines académicos.
 
-### 12.8 Resultados obtenidos
+### 12.9 Resultados obtenidos y lectura crítica
 
-El modelo registrado fue RandomForestClassifier versión `v0.1.0`. El quality gate fue aprobado con f1-score macro superior al umbral mínimo configurado. Debe aclararse que las métricas son optimistas debido a que las etiquetas iniciales son generadas por reglas y algunas variables derivadas participan en el entrenamiento.
+El modelo productivo registrado sigue siendo RandomForestClassifier versión `v0.1.0`. El quality gate fue aprobado con f1-score macro igual a `1.0000`. Esta cifra no debe interpretarse como predicción perfecta de heladas reales: indica que el modelo aprendió muy bien la regla interna usada para construir la etiqueta.
+
+La versión experimental `v0.2.0` corrige este sesgo eliminando columnas filtradas y usando split por distrito. Sus métricas son más bajas, pero más honestas:
+
+| Métrica | v0.1.0 | v0.2.0 |
+|--------|--------|--------|
+| Split | Aleatorio estratificado | Por distrito |
+| Accuracy | 1.0000 | 0.5097 |
+| Precision macro | 1.0000 | 0.4697 |
+| Recall macro | 1.0000 | 0.4954 |
+| F1 macro | 1.0000 | 0.4790 |
+
+La matriz de confusión de `v0.2.0` evidencia errores reales de generalización:
+
+| Real \ Predicho | bajo | medio | alto |
+|-----------------|------|-------|------|
+| bajo | 287 | 82 | 15 |
+| medio | 79 | 330 | 191 |
+| alto | 103 | 189 | 68 |
+
+Esto permite discutir falsos positivos y falsos negativos. Por ejemplo, existen casos reales `alto` predichos como `medio` o `bajo`, lo que en un sistema productivo sería crítico y exigiría validación adicional con SENAMHI y observaciones de campo. Por esa razón `v0.2.0` no reemplaza al modelo activo: queda como versión experimental para validación académica.
 
 ---
 
@@ -363,15 +409,31 @@ El script `build_features.py` une ubicaciones y clima, calcula variables tempora
 
 El script `validate_dataset.py` verifica columnas requeridas, valores nulos críticos, clases esperadas y rangos climáticos.
 
-### 13.5 Entrenamiento
+### 13.5 Entrenamiento v0.1.0
 
 El script `train_models.py` entrena y compara modelos. Usa `train_test_split` con `random_state` fijo.
 
-### 13.6 Evaluación
+### 13.6 Entrenamiento v0.2.0
+
+El script `train_models_v2.py` entrena la versión experimental `v0.2.0` con dos estrategias de evaluación reproducibles:
+
+- split por distrito, separando distritos completos entre entrenamiento y prueba;
+- split por tiempo, usando fechas iniciales para train y fechas recientes para test cuando hay timestamp disponible.
+
+El modelo registrado `v0.2.0` usa split por distrito. Los distritos de prueba son Ayaviri, Juli, Juliaca y Lampa, por lo que no se mezclan registros del mismo distrito entre train y test.
+
+### 13.7 Evaluación
 
 El script `evaluate_model.py` genera métricas y matriz de confusión.
 
-### 13.7 Registry
+Para `v0.2.0`, las métricas y matriz de confusión quedan guardadas en:
+
+```text
+ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv
+ml_pipeline/evaluation/metrics_comparison_v0_2_0.json
+```
+
+### 13.8 Registry
 
 El modelo y metadata se guardan en:
 
@@ -380,7 +442,14 @@ ml_pipeline/registry/frost_risk_model.joblib
 ml_pipeline/registry/model_metadata.json
 ```
 
-### 13.8 Quality gate
+La versión experimental se guarda sin sobrescribir el modelo productivo:
+
+```text
+ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+ml_pipeline/registry/model_metadata_v0_2_0.json
+```
+
+### 13.9 Quality gate
 
 El script `check_model_quality.py` lee `f1_macro` desde metadata y falla si no supera el umbral mínimo.
 
@@ -447,6 +516,21 @@ Se habilita Row Level Security en tablas del esquema público. Las tablas territ
 
 La clave `service_role` solo debe existir en el backend o en secretos seguros de infraestructura. No debe exponerse en Flutter, Flutter Web, repositorios ni variables públicas.
 
+### 15.4 Feedback y observaciones para mejora supervisada
+
+Se agregó una migración incremental:
+
+```text
+supabase/migrations/002_add_feedback_and_observations.sql
+```
+
+Esta migración prepara dos tablas:
+
+- `prediction_feedback`: registra correcciones o confirmaciones de usuarios/productores sobre una predicción.
+- `official_frost_observations`: registra observaciones oficiales o verificadas en campo, por ejemplo SENAMHI o campañas de validación.
+
+Estas tablas no hacen que el modelo se entrene solo. Su objetivo es almacenar evidencia revisable para evaluar modelos candidatos, detectar falsos positivos/falsos negativos y decidir manualmente si una versión debe promoverse.
+
 ---
 
 ## 16. Aplicación Flutter
@@ -481,6 +565,18 @@ El diseño toma como referencia el concepto visual `stitch_frost_puno_predictor`
 
 La app fue creada para Android y Web. Usa `--dart-define=API_BASE_URL` para configurar el backend según entorno.
 
+### 16.5 Icono y acabado móvil
+
+El APK y la PWA usan un icono propio de FrostPuno con identidad visual altoandina/fría. Los assets se actualizaron en:
+
+```text
+app_flutter/android/app/src/main/res/mipmap-*/ic_launcher.png
+app_flutter/web/icons/
+app_flutter/web/favicon.png
+```
+
+La pantalla inicial también muestra una tarjeta de “mejora supervisada”, explicando que el sistema registra evidencia, evalúa contra observaciones y versiona modelos antes de promover cambios.
+
 ---
 
 ## 17. CI/CD y mejora continua
@@ -511,9 +607,91 @@ datos nuevos -> validación -> entrenamiento -> evaluación -> quality gate -> v
 
 Este flujo permite mantener el modelo bajo criterios mínimos de calidad antes de promover nuevas versiones.
 
+## 18. Despliegue, móvil y operación
+
+FrostPuno está preparado para ejecutarse como sistema distribuido en servicios gratuitos o de bajo costo:
+
+- FastAPI en Render, usando el backend desplegado en `https://frost-puno.onrender.com`;
+- Flutter Web en Vercel, disponible en `https://frost-puno.vercel.app` y configurado con `API_BASE_URL=https://frost-puno.onrender.com`;
+- Supabase como PostgreSQL administrado para historial, ubicaciones, versiones de modelo y logs;
+- GitHub Actions para pruebas, validación de datos, entrenamiento y quality gates;
+- Android APK para demo móvil con GPS y consumo del backend remoto.
+
+### 18.0 Trazabilidad de ramas y versiones
+
+El despliegue se organiza para no romper producción:
+
+| Componente | Rama / archivo | Estado | Modelo |
+|-----------|----------------|--------|--------|
+| Backend Render productivo | `main` + `render.yaml` | Desplegado en `https://frost-puno.onrender.com` | `v0.1.0` |
+| Frontend Vercel | `app_flutter/vercel.json` | Desplegado en `https://frost-puno.vercel.app` | consume API productiva |
+| ML experimental | `codex/model-v0-2-0` | Rama subida a GitHub | `v0.2.0` |
+| Backend Render experimental | `render.v2.yaml` | Configurado, pendiente de crear servicio | `v0.2.0` |
+
+La versión `v0.2.0` no reemplaza producción. Se despliega como servicio separado recomendado (`frost-puno-api-v2`) para evaluación académica de Aprendizaje de Máquina.
+
+### 18.1 Render
+
+Render ejecuta el servicio FastAPI desde la raíz del repositorio. La configuración esperada usa `uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir backend_fastapi`, variables de entorno seguras y health check en `/health`.
+
+Endpoints de verificación:
+
+```text
+https://frost-puno.onrender.com/health
+https://frost-puno.onrender.com/ml/model-info
+https://frost-puno.onrender.com/docs
+```
+
+Para desplegar la versión experimental `v0.2.0` sin tocar producción se agregó `render.v2.yaml`. Ese archivo configura:
+
+```text
+MODEL_PATH=ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+MODEL_METADATA_PATH=ml_pipeline/registry/model_metadata_v0_2_0.json
+```
+
+La sugerencia operativa es crear en Render un segundo servicio desde la rama `codex/model-v0-2-0`, con nombre `frost-puno-api-v2`, y desactivar `autoDeploy` hasta validar métricas, endpoints y recomendaciones.
+
+### 18.2 Vercel
+
+Vercel compila Flutter Web desde `app_flutter`, genera `build/web` y publica la experiencia web/PWA. El dominio Vercel debe agregarse en `CORS_ORIGINS` del backend Render. La geolocalización web requiere HTTPS, por lo que Vercel es adecuado para probar el botón `Usar mi ubicación`.
+
+### 18.3 Supabase
+
+Supabase queda preparado mediante migraciones, seed y políticas RLS. Flutter no accede directamente a Supabase; todas las escrituras pasan por FastAPI. La clave `service_role` debe residir solo en Render o en secretos seguros de infraestructura.
+
+La mejora supervisada usa las tablas `prediction_feedback` y `official_frost_observations` para almacenar observaciones verificables que luego pueden alimentar evaluaciones ML.
+
+Durante la generación automática de evidencias, los conectores privados de GitHub, Vercel y Supabase devolvieron `token_expired`. Por ello, las capturas de dashboard privado deben repetirse tras reautenticar los conectores o desde la sesión web del navegador. Las evidencias incluidas muestran el estado público del despliegue y la configuración versionada.
+
+### 18.4 Android y APK
+
+El build Android se ejecuta desde `app_flutter`:
+
+```powershell
+flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrender.com
+```
+
+La salida esperada es:
+
+```text
+app_flutter/build/app/outputs/flutter-apk/app-release.apk
+```
+
+Para correr en dispositivo físico:
+
+```powershell
+flutter run -d android --dart-define=API_BASE_URL=https://frost-puno.onrender.com
+```
+
+Para emulador Android con backend local:
+
+```powershell
+flutter run -d android --dart-define=API_BASE_URL=http://10.0.2.2:8000
+```
+
 ---
 
-## 18. Evidencias de implementación
+## 19. Evidencias de implementación
 
 Las siguientes capturas fueron generadas localmente mediante scripts de apoyo ubicados en `tools/screenshots/`. Estas evidencias documentan la estructura del proyecto, el pipeline de aprendizaje de máquina, el backend FastAPI, la aplicación Flutter Web, las pruebas y los componentes de CI/CD.
 
@@ -631,9 +809,117 @@ La evidencia muestra los workflows de GitHub Actions implementados. Estos archiv
 
 La captura presenta las migraciones, políticas RLS y datos semilla de Supabase. Esta evidencia respalda el diseño de persistencia, seguridad básica y preparación de la base de datos del MVP.
 
+### Captura 20: Dataset v2 sin data leakage
+
+![Captura 20. Dataset v2 sin leakage](capturas/20_dataset_v2_sin_leakage.png)
+
+La evidencia muestra el dataset experimental `frost_training_dataset_v2.csv`, creado sin sobrescribir el dataset original. Este dataset elimina `temperatura_minima_diaria` y `horas_bajo_cero` como features para evitar data leakage.
+
+### Captura 21: Metadata del modelo v0.2.0
+
+![Captura 21. Metadata v0.2.0](capturas/21_model_metadata_v0_2_0.png)
+
+La captura muestra el registro experimental `model_metadata_v0_2_0.json`, con estrategia de split por distrito, métricas realistas, features usadas y trazabilidad del entrenamiento.
+
+### Captura 22: Comparación formal v0.1.0 vs v0.2.0
+
+![Captura 22. Comparación de modelos](capturas/22_comparacion_modelos.png)
+
+La evidencia documenta por qué `v0.1.0` alcanza métricas perfectas, qué columnas generaban data leakage, cómo se corrige en `v0.2.0` y por qué la nueva evaluación es más confiable aunque tenga menor F1 macro.
+
+### Captura 23: Despliegue Render, Vercel y Supabase
+
+![Captura 23. Despliegue](capturas/23_despliegue_render_vercel_supabase.png)
+
+La captura resume la guía de despliegue con backend FastAPI en Render, frontend Flutter Web en Vercel, base PostgreSQL en Supabase y validaciones end-to-end.
+
+### Captura 24: Android APK y prueba móvil
+
+![Captura 24. Android APK](capturas/24_android_apk_mobile.png)
+
+La evidencia muestra los comandos para ejecutar en Android, usar GPS, configurar el backend remoto y generar el APK release.
+
+### Captura 25: GitHub repositorio
+
+![Captura 25. GitHub repositorio](capturas/25_github_repo.png)
+
+La captura muestra el repositorio público `JosephElvisMaman1/frost-puno`, base de trazabilidad para ramas, commits, CI/CD y despliegues.
+
+### Captura 26: GitHub rama v0.2.0
+
+![Captura 26. Rama v0.2.0](capturas/26_github_branch_v0_2_0.png)
+
+La evidencia muestra la rama `codex/model-v0-2-0`, donde se versionó el dataset sin leakage, el modelo experimental y el informe completo.
+
+### Captura 27: GitHub commits v0.2.0
+
+![Captura 27. Commits v0.2.0](capturas/27_github_commits_v0_2_0.png)
+
+La captura documenta los commits principales de la rama: configuración Android, modelo experimental `v0.2.0` e informe/evidencias de despliegue.
+
+### Captura 28: GitHub Actions
+
+![Captura 28. GitHub Actions](capturas/28_github_actions.png)
+
+La evidencia muestra la sección Actions del repositorio, donde se ubican los workflows de backend, datos, ML, quality gate y Flutter Web.
+
+### Captura 29: Render health remoto
+
+![Captura 29. Render health](capturas/29_render_health.png)
+
+La captura muestra `GET /health` del backend desplegado en Render, confirmando que FastAPI responde y que el modelo productivo está disponible.
+
+### Captura 30: Render model-info remoto
+
+![Captura 30. Render model-info](capturas/30_render_model_info.png)
+
+La evidencia muestra `GET /ml/model-info` desde Render. Permite verificar qué versión de modelo está activa en producción.
+
+### Captura 31: Render Swagger remoto
+
+![Captura 31. Render Swagger](capturas/31_render_swagger.png)
+
+La captura muestra Swagger UI en Render, evidencia de documentación interactiva de endpoints en el backend desplegado.
+
+### Captura 32: Vercel Flutter móvil
+
+![Captura 32. Vercel Flutter móvil](capturas/32_vercel_flutter_mobile.png)
+
+La evidencia muestra la app Flutter servida desde Vercel en viewport móvil, útil para validar que la interfaz sea usable en pantalla pequeña.
+
+### Captura 33: Vercel Flutter desktop
+
+![Captura 33. Vercel Flutter desktop](capturas/33_vercel_flutter_desktop.png)
+
+La captura muestra la misma app publicada en Vercel en viewport desktop, confirmando despliegue web/PWA.
+
+### Captura 34: Headers Render y Vercel
+
+![Captura 34. Headers de despliegue](capturas/34_despliegue_headers.png)
+
+La evidencia registra headers HTTP: Render responde desde `uvicorn` y Vercel sirve el frontend con infraestructura propia.
+
+### Captura 35: Ramas y versiones
+
+![Captura 35. Ramas y versiones](capturas/35_ramas_y_versiones.png)
+
+La captura consolida ramas remotas, commits recientes y metadata de modelos `v0.1.0` y `v0.2.0`.
+
+### Captura 36: Supabase estado y esquema
+
+![Captura 36. Supabase estado](capturas/36_supabase_estado.png)
+
+La evidencia muestra que el esquema Supabase está versionado mediante SQL, junto con la nota técnica de que el conector privado requería reautenticación para capturar el dashboard real.
+
+### Captura 37: Vercel estado y configuración
+
+![Captura 37. Vercel estado](capturas/37_vercel_estado.png)
+
+La captura registra la URL pública de Vercel, headers de despliegue y `app_flutter/vercel.json`.
+
 ---
 
-## 19. Resultados obtenidos
+## 20. Resultados obtenidos
 
 Los resultados del MVP son:
 
@@ -652,22 +938,57 @@ Los resultados del MVP son:
 - Backend FastAPI funcional con endpoints mínimos.
 - Supabase preparado con migraciones, seed y RLS.
 - Aplicación Flutter implementada con diseño inspirado en Stitch.
+- Aplicación móvil simplificada con GPS, clima automático, modo oscuro, historial visual y resultado comprensible.
+- Backend desplegable en Render y configurado para consumir desde Flutter Web/Android.
+- Guía de Vercel, Supabase, GitHub Actions y APK documentada.
+- Dataset `v0.2.0` creado sin data leakage.
+- Modelo experimental `v0.2.0` entrenado y registrado sin modificar producción.
+- Evaluación realista por distrito con F1 macro `0.4790`.
+- Comparación formal `v0.1.0` vs `v0.2.0` documentada.
+- Capturas remotas de GitHub, Render y Vercel generadas.
+- Configuración de despliegue separada para `v0.2.0` mediante `render.v2.yaml`.
+- Icono propio de APK/PWA agregado.
+- Flujo de mejora supervisada con observaciones tipo SENAMHI/campo agregado.
+- Supabase preparado para feedback y observaciones oficiales.
 
 ---
 
-## 20. Limitaciones
+## 21. Recomendaciones de mejora
+
+1. Reautenticar conectores GitHub, Vercel y Supabase para capturar dashboards privados directamente desde el navegador o MCP.
+2. Crear un servicio Render separado `frost-puno-api-v2` usando `render.v2.yaml`, rama `codex/model-v0-2-0` y `autoDeploy=false`.
+3. Agregar un selector interno o endpoint `/ml/model-info-v2` solo para demo académica, sin cambiar la predicción productiva.
+4. Validar `v0.2.0` con datos independientes de SENAMHI o reportes de campo antes de promoverlo.
+5. Configurar Supabase real con `ENABLE_SUPABASE=true` solo después de verificar RLS, service role en Render y que Flutter no tenga claves privadas.
+6. Conectar Vercel a la rama `main` para producción y a `codex/model-v0-2-0` como preview, documentando ambas URLs.
+7. Agregar monitoreo básico: latencia de Render, errores de `/predict/frost-risk`, tasa de permisos GPS denegados y registros de predicción.
+8. Reemplazar el archivo de muestra SENAMHI por observaciones oficiales completas y recalcular `senamhi_observation_evaluation_v0_2_0.json`.
+
+---
+
+## 22. Limitaciones
 
 1. INEI se usa mediante una semilla curada MVP, no mediante extracción oficial completa automática.
-2. SENAMHI aún no está integrado como validación oficial completa.
-3. Las etiquetas iniciales se generan con reglas térmicas, no con observaciones de daño agrícola.
+2. SENAMHI aún no está integrado como extracción oficial automática completa; sin embargo, ya existe un contrato de observaciones y un script de evaluación externa.
+3. Las etiquetas iniciales se generan con reglas térmicas, no con observaciones de daño agrícola; la nueva ruta de feedback/observaciones permite reemplazar progresivamente esa limitación.
 4. El dataset inicial tiene cobertura temporal y territorial limitada.
-5. Las métricas pueden ser optimistas por el uso de variables derivadas de la regla de etiquetado.
+5. Las métricas `v0.1.0` son optimistas por el uso de variables derivadas de la regla de etiquetado.
 6. Render, Vercel y Supabase free tier tienen límites de disponibilidad, almacenamiento y ejecución.
 7. El MVP no reemplaza sistemas oficiales de alerta meteorológica ni recomendaciones técnicas institucionales.
+8. La versión `v0.2.0` mejora la evaluación, pero aún usa una etiqueta rule-based; falta validación con eventos reales.
+
+### 22.1 Limitaciones mitigadas en esta iteración
+
+- Métrica perfecta `v0.1.0`: mitigada con `v0.2.0`, eliminación de leakage y split por distrito.
+- SENAMHI: mitigada parcialmente con `data/validation/senamhi_frost_observations_sample.csv` y `evaluate_observed_events.py`.
+- Daño agrícola observado: mitigado parcialmente con tablas Supabase para feedback y observaciones.
+- App móvil: mejorada con icono APK/PWA propio y tarjeta de mejora supervisada.
+
+La mitigación no significa que el problema esté cerrado para producción. Significa que el proyecto ya tiene una ruta técnica clara para resolverlo con datos oficiales.
 
 ---
 
-## 21. Trabajos futuros
+## 23. Trabajos futuros
 
 1. Integrar datos SENAMHI de estaciones y avisos de helada.
 2. Reemplazar la semilla INEI por exportaciones oficiales completas.
@@ -680,7 +1001,7 @@ Los resultados del MVP son:
 9. Validar predicciones con productores locales y especialistas.
 10. Incorporar monitoreo de deriva de datos y comparación automática con modelo activo anterior.
 
-### 21.1 Evolución móvil y climática planificada
+### 23.1 Evolución móvil y climática planificada
 
 La versión evolucionada de FrostPuno incorpora preparación para uso móvil mediante geolocalización, permisos Android, PWA y generación de APK. El sistema añade un contrato de proveedores climáticos donde SENAMHI se considera fuente oficial peruana prioritaria, mientras Open-Meteo permanece como fuente de respaldo cuando no hay acceso operativo estable a datos oficiales en tiempo real.
 
@@ -688,19 +1009,21 @@ Esta mejora no cambia la limitación central del MVP: la validación oficial com
 
 ---
 
-## 22. Conclusiones
+## 24. Conclusiones
 
 1. FrostPuno demuestra la viabilidad de integrar datos abiertos, aprendizaje supervisado y arquitectura distribuida para estimar riesgo de heladas en un contexto regional altoandino.
 2. Desde Aprendizaje de Máquina, el proyecto implementa un ciclo completo: dataset, features, entrenamiento, evaluación, registro de modelo y quality gate.
 3. Desde Computación Paralela y Distribuida, el sistema evidencia procesamiento concurrente por ubicaciones, separación modular de responsabilidades y automatización mediante jobs independientes.
-4. El uso de RandomForestClassifier resulta adecuado para el MVP por su desempeño en datos tabulares y bajo costo computacional.
-5. La arquitectura modular monolítica del backend es una decisión apropiada para un proyecto universitario, ya que reduce complejidad sin impedir escalabilidad futura.
-6. La aplicación Flutter permite mostrar el sistema de manera visual, clara y preparada para web/móvil, sin exponer credenciales sensibles.
-7. Las limitaciones del dataset y las etiquetas iniciales deben ser reconocidas explícitamente; el valor académico del sistema está en su arquitectura, trazabilidad y capacidad de mejora.
+4. La métrica perfecta de `v0.1.0` no demuestra predicción perfecta de heladas reales; evidencia aprendizaje de una regla con data leakage.
+5. La versión `v0.2.0` ofrece una evaluación más realista al eliminar features filtradas y separar distritos entre entrenamiento y prueba.
+6. El uso de RandomForestClassifier resulta adecuado para el MVP por su desempeño en datos tabulares y bajo costo computacional.
+7. La arquitectura modular monolítica del backend es una decisión apropiada para un proyecto universitario, ya que reduce complejidad sin impedir escalabilidad futura.
+8. La aplicación Flutter permite mostrar el sistema de manera visual, clara y preparada para web/móvil, sin exponer credenciales sensibles.
+9. Las limitaciones del dataset y las etiquetas iniciales deben ser reconocidas explícitamente; el valor académico del sistema está en su arquitectura, trazabilidad y capacidad de mejora.
 
 ---
 
-## 23. Bibliografía
+## 25. Bibliografía
 
 FastAPI. (2026). *FastAPI documentation*. https://fastapi.tiangolo.com/
 
@@ -727,9 +1050,9 @@ Supabase. (2026). *Securing your API*. https://supabase.com/docs/guides/api/secu
 
 ---
 
-## 24. Anexos
+## 26. Anexos
 
-### 24.1 Comandos de ejecución
+### 26.1 Comandos de ejecución
 
 #### Backend FastAPI
 
@@ -758,7 +1081,7 @@ python -m ml_pipeline.evaluation.evaluate_model
 python -m ml_pipeline.registry.check_model_quality --metadata ml_pipeline\registry\model_metadata.json --min-f1-macro 0.70
 ```
 
-### 24.2 Estructura de carpetas
+### 26.2 Estructura de carpetas
 
 ```text
 FrostPuno/
@@ -771,7 +1094,7 @@ FrostPuno/
   .github/workflows/
 ```
 
-### 24.3 Ejemplo JSON de predicción
+### 26.3 Ejemplo JSON de predicción
 
 ```json
 {
@@ -798,7 +1121,50 @@ FrostPuno/
 }
 ```
 
-### 24.4 Checklist de despliegue futuro
+### 26.4 Comandos del modelo experimental v0.2.0
+
+```powershell
+python -m ml_pipeline.features.build_features_v2
+python -m ml_pipeline.training.train_models_v2 --version v0.2.0 --split-strategy district
+pytest ml_pipeline\tests -q
+```
+
+Artefactos generados:
+
+```text
+data/processed/frost_training_dataset_v2.csv
+ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+ml_pipeline/registry/model_metadata_v0_2_0.json
+ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv
+ml_pipeline/evaluation/metrics_comparison_v0_2_0.json
+```
+
+### 26.5 Comandos de mejora supervisada
+
+```powershell
+python -m ml_pipeline.evaluation.evaluate_observed_events
+```
+
+Archivos relacionados:
+
+```text
+data/validation/senamhi_frost_observations_sample.csv
+ml_pipeline/evaluation/senamhi_observation_evaluation_v0_2_0.json
+supabase/migrations/002_add_feedback_and_observations.sql
+```
+
+Metricas de muestra:
+
+```text
+accuracy = 0.6000
+precision_macro = 0.3889
+recall_macro = 0.5000
+f1_macro = 0.4333
+```
+
+Estas metricas son demostrativas porque el archivo de observaciones es pequeño. El objetivo es probar el mecanismo de mejora supervisada.
+
+### 26.6 Checklist de despliegue futuro
 
 - [ ] Crear proyecto Supabase.
 - [ ] Ejecutar migraciones SQL.
@@ -811,3 +1177,51 @@ FrostPuno/
 - [ ] Validar Swagger en entorno remoto.
 - [ ] Validar predicción desde Flutter Web.
 - [ ] Verificar que no existan claves Supabase en frontend.
+
+---
+
+## 27. Material final para exposicion y actualizacion de diapositivas
+
+Ademas del informe principal, se prepararon dos materiales de apoyo para la exposicion:
+
+```text
+docs/guion_exposicion_frost_puno.docx
+docs/guia_codigo_frost_puno.txt
+docs/actualizacion_canva_frost_puno.md
+```
+
+### 27.1 Guion para tres expositores
+
+El archivo `docs/guion_exposicion_frost_puno.docx` divide la exposicion en tres partes:
+
+- Expositor 1: problema regional, usuario objetivo y experiencia movil.
+- Expositor 2: arquitectura distribuida, FastAPI, Supabase, Render, Vercel y GitHub Actions.
+- Expositor 3: codigo, pipeline ML, data leakage, modelo v0.2.0 y mejora supervisada.
+
+El guion incluye tiempos sugeridos, frases de transicion, preguntas probables del jurado y respuestas cortas.
+
+### 27.2 Guia tecnica para explicar codigo
+
+El archivo `docs/guia_codigo_frost_puno.txt` explica la distribucion del codigo por carpetas y archivos principales. Esta pensado para que el expositor pueda responder donde vive cada parte:
+
+- App Flutter: `app_flutter/lib`.
+- Backend FastAPI: `backend_fastapi/app`.
+- Pipeline ML: `ml_pipeline`.
+- Datasets: `data`.
+- Supabase: `supabase`.
+- CI/CD: `.github/workflows`.
+
+Tambien aclara que el sistema no aprende automaticamente en produccion. La mejora continua se maneja como un ciclo supervisado: feedback, observaciones, entrenamiento, evaluacion, comparacion y promocion manual.
+
+### 27.3 Actualizacion de Canva
+
+El archivo `docs/actualizacion_canva_frost_puno.md` contiene una propuesta slide-by-slide para actualizar la presentacion de Canva con los cambios recientes:
+
+- Nueva experiencia movil con GPS y clima automatico.
+- App lista para Android con icono propio.
+- Despliegue Render + Vercel + GitHub + Supabase.
+- Comparacion v0.1.0 vs v0.2.0.
+- Explicacion de data leakage.
+- Limitaciones honestas y mejoras pendientes.
+
+Durante esta actualizacion, los conectores de Canva, Vercel y Supabase respondieron con `token_expired`. Por ese motivo no se guardaron cambios remotos directamente desde el plugin en esta sesion; el material queda versionado en el repositorio para aplicarlo apenas se reconecten los servicios.

@@ -5,6 +5,7 @@ This folder contains the MVP database structure for FrostPuno.
 ## Files
 
 - `migrations/001_create_core_tables.sql`: core tables, constraints, indexes and update triggers.
+- `migrations/002_add_feedback_and_observations.sql`: feedback de predicciones y observaciones oficiales para mejora supervisada.
 - `policies/rls_policies.sql`: Row Level Security, grants and MVP policies.
 - `seed/seed_locations.sql`: small Puno seed for demo locations and model version `v0.1.0`.
 
@@ -13,8 +14,9 @@ This folder contains the MVP database structure for FrostPuno.
 1. Create a Supabase project from the Supabase Dashboard.
 2. Open `SQL Editor`.
 3. Run `migrations/001_create_core_tables.sql`.
-4. Run `policies/rls_policies.sql`.
-5. Run `seed/seed_locations.sql`.
+4. Run `migrations/002_add_feedback_and_observations.sql`.
+5. Run `policies/rls_policies.sql`.
+6. Run `seed/seed_locations.sql`.
 6. Go to `Project Settings > API`.
 7. Copy the project URL.
 8. Copy the `service_role` key only into the backend environment in Render.
@@ -42,6 +44,7 @@ For the first deployed demo, keep `ENABLE_SUPABASE=false` until the SQL files ar
 - Authenticated users may read only predictions whose `user_id` matches `auth.uid()`.
 - In this MVP, prediction requests do not yet include authenticated user context, so backend inserts use `user_id = null`.
 - `model_versions` exposes only active rows to public clients.
+- `prediction_feedback` and `official_frost_observations` support supervised ML improvement; review grants/RLS before exposing them to clients.
 
 ## MVP limitations
 

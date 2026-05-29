@@ -27,6 +27,40 @@ python -m ml_pipeline.training.train_models --version v0.1.0
 python -m ml_pipeline.evaluation.evaluate_model
 ```
 
+## Modelo experimental v0.2.0 sin data leakage
+
+`v0.2.0` no reemplaza al modelo productivo. Crea artefactos separados para evaluar el impacto de eliminar features derivadas de la etiqueta.
+
+```powershell
+python -m ml_pipeline.features.build_features_v2
+python -m ml_pipeline.training.train_models_v2 --version v0.2.0 --split-strategy district --test-size 0.30
+```
+
+Artefactos:
+
+- `data/processed/frost_training_dataset_v2.csv`
+- `ml_pipeline/registry/frost_risk_model_v0_2_0.joblib`
+- `ml_pipeline/registry/model_metadata_v0_2_0.json`
+- `ml_pipeline/evaluation/confusion_matrix_v0_2_0.csv`
+- `ml_pipeline/evaluation/metrics_comparison_v0_2_0.json`
+
+El backend sigue usando `ml_pipeline/registry/frost_risk_model.joblib`.
+
+## Validacion con observaciones SENAMHI/campo
+
+El pipeline incluye un contrato para evaluar modelos contra observaciones externas. El archivo de muestra debe reemplazarse por datos oficiales o verificados en campo antes de usarlo como evidencia final.
+
+```powershell
+python -m ml_pipeline.evaluation.evaluate_observed_events
+```
+
+Entradas y salidas:
+
+- `data/validation/senamhi_frost_observations_sample.csv`
+- `ml_pipeline/evaluation/senamhi_observation_evaluation_v0_2_0.json`
+
+Esta etapa permite detectar falsos positivos/falsos negativos frente a eventos observados y decidir si una nueva version debe reentrenarse o rechazarse.
+
 Para una prueba corta:
 
 ```powershell
@@ -37,4 +71,5 @@ python -m ml_pipeline.data_ingestion.ingest_weather_open_meteo --start-date 2024
 
 - El dataset territorial inicial es una semilla MVP y debe reemplazarse por exportaciones oficiales completas de INEI EstaDist/CPV 2017 antes de usar el sistema fuera de una demo.
 - Las etiquetas iniciales son reglas basadas en temperatura minima y horas bajo cero; no son observaciones oficiales de dano agricola.
-- SENAMHI queda priorizado para validacion oficial en fase 2.
+- `v0.1.0` incluye features derivadas de la etiqueta y sus metricas son optimistas. `v0.2.0` elimina esas features y evalua con split por distrito.
+- SENAMHI queda priorizado para validacion oficial; el contrato de evaluacion ya existe, pero el archivo de muestra debe reemplazarse por datos oficiales completos.

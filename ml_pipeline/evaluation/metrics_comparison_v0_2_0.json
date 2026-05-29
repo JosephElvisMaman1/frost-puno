@@ -1,0 +1,14 @@
+{
+  "LogisticRegression": {
+    "accuracy": 0.6130952380952381,
+    "precision_macro": 0.4844589481026825,
+    "recall_macro": 0.5428356481481481,
+    "f1_macro": 0.48884315253997107
+  },
+  "RandomForestClassifier": {
+    "accuracy": 0.5096726190476191,
+    "precision_macro": 0.46973344651942206,
+    "recall_macro": 0.4954282407407408,
+    "f1_macro": 0.47899073277650545
+  }
+}
