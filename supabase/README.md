@@ -7,6 +7,7 @@ This folder contains the MVP database structure for FrostPuno.
 - `migrations/001_create_core_tables.sql`: core tables, constraints, indexes and update triggers.
 - `migrations/002_add_feedback_and_observations.sql`: feedback de predicciones y observaciones oficiales para mejora supervisada.
 - `migrations/20260529201250_apply_rls_policies.sql`: RLS, grants and MVP policies ready for `supabase db push`.
+- `migrations/20260529202739_harden_private_rls_and_functions.sql`: private service-role policies and fixed function `search_path`.
 - `policies/rls_policies.sql`: Row Level Security, grants and MVP policies.
 - `seed/seed_locations.sql`: small Puno seed for demo locations and model version `v0.1.0`.
 
@@ -27,11 +28,12 @@ Then run `seed/seed_locations.sql` from the SQL Editor if demo seed data is need
 3. Run `migrations/001_create_core_tables.sql`.
 4. Run `migrations/002_add_feedback_and_observations.sql`.
 5. Run `migrations/20260529201250_apply_rls_policies.sql`.
-6. Run `seed/seed_locations.sql`.
-7. Go to `Project Settings > API`.
-8. Copy the project URL.
-9. Copy the `service_role` key only into the backend environment in Render.
-10. Do not copy the `service_role` key into Flutter, Vercel or any browser bundle.
+6. Run `migrations/20260529202739_harden_private_rls_and_functions.sql`.
+7. Run `seed/seed_locations.sql`.
+8. Go to `Project Settings > API`.
+9. Copy the project URL.
+10. Copy the `service_role` key only into the backend environment in Render.
+11. Do not copy the `service_role` key into Flutter, Vercel or any browser bundle.
 
 ## Environment variables
 
