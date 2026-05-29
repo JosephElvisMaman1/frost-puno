@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: frost-puno-api
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: pip install --upgrade pip && pip install -r backend_fastapi/requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir backend_fastapi
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENABLE_SUPABASE
+        value: false
+      - key: CORS_ORIGINS
+        value: http://localhost:3000,http://127.0.0.1:5174,http://localhost:5174
+      - key: MODEL_PATH
+        value: ml_pipeline/registry/frost_risk_model.joblib
+      - key: MODEL_METADATA_PATH
+        value: ml_pipeline/registry/model_metadata.json
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

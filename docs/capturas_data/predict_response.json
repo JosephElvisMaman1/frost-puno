@@ -1,0 +1,13 @@
+{
+  "risk_level": "alto",
+  "confidence": 0.98,
+  "recommendation": "Existe alto riesgo de helada. Se recomienda proteger cultivos sensibles, priorizar vigilancia de papa y revisar ganado o infraestructura expuesta. Las condiciones pueden ser favorables para la produccion de chuno.",
+  "chuno_conditions": "favorables",
+  "model_version": "v0.1.0",
+  "data_sources": [
+    "Open-Meteo Historical API",
+    "INEI-compatible curated district seed for Puno MVP",
+    "SENAMHI documented for validation in phase 2",
+    "MIDAGRI/SIEA documented as agrarian enrichment in phase 2"
+  ]
+}

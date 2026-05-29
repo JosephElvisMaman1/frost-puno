@@ -1,0 +1,216 @@
+import 'package:flutter/material.dart';
+
+import '../../../core/api/frost_api_service.dart';
+import '../../../core/models/health_status.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass_card.dart';
+import '../../../shared/widgets/primary_action_button.dart';
+import '../../../shared/widgets/responsive_content.dart';
+import '../../../shared/widgets/status_chip.dart';
+import '../../data_sources/screens/data_sources_screen.dart';
+import '../../history/screens/history_screen.dart';
+import '../../model_info/screens/model_info_screen.dart';
+import '../../prediction/screens/prediction_form_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({required this.apiService, super.key});
+
+  final FrostApiService apiService;
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final Future<HealthStatus> _healthFuture = widget.apiService.getHealth();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return SafeArea(
+      child: ResponsiveContent(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+          children: [
+            FutureBuilder<HealthStatus>(
+              future: _healthFuture,
+              builder: (context, snapshot) {
+                final active = snapshot.data?.modelAvailable ?? false;
+                return StatusChip(
+                  icon: Icons.circle,
+                  label: active ? 'Sistema activo' : 'Modo demo',
+                  color: active ? AppColors.mutedTeal : AppColors.warmAmber,
+                );
+              },
+            ),
+            const SizedBox(height: 32),
+            Text('Frost Puno', style: textTheme.displayLarge),
+            const SizedBox(height: 16),
+            Text(
+              'Prediccion inteligente de heladas para comunidades altoandinas.',
+              style: textTheme.headlineMedium?.copyWith(
+                color: AppColors.textSecondary,
+                fontSize: 22,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const SizedBox(height: 34),
+            const _CurrentRiskCard(),
+            const SizedBox(height: 32),
+            PrimaryActionButton(
+              label: 'Consultar riesgo',
+              icon: Icons.arrow_forward,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      PredictionFormScreen(apiService: widget.apiService),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: _QuickTile(
+                    icon: Icons.history,
+                    label: 'Ver historial',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            HistoryScreen(apiService: widget.apiService),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _QuickTile(
+                    icon: Icons.storage_outlined,
+                    label: 'Fuentes de datos',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const DataSourcesScreen(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _QuickTile(
+              icon: Icons.account_tree_outlined,
+              label: 'Informacion del modelo',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      ModelInfoScreen(apiService: widget.apiService),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CurrentRiskCard extends StatelessWidget {
+  const _CurrentRiskCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return GlassCard(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Riesgo actual de helada',
+                  style: textTheme.headlineMedium,
+                ),
+              ),
+              const Icon(Icons.ac_unit, color: AppColors.mutedTeal, size: 42),
+            ],
+          ),
+          const SizedBox(height: 34),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '-4.2',
+                style: textTheme.displayLarge?.copyWith(fontSize: 54),
+              ),
+              const SizedBox(width: 10),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'C',
+                  style: textTheme.titleMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 26),
+          Wrap(
+            spacing: 14,
+            runSpacing: 10,
+            children: const [
+              StatusChip(icon: Icons.water_drop_outlined, label: 'Hum 42%'),
+              StatusChip(icon: Icons.air, label: '12 km/h'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickTile extends StatelessWidget {
+  const _QuickTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 128),
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLow,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.outline),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, color: AppColors.textSecondary, size: 32),
+            Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontSize: 17),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

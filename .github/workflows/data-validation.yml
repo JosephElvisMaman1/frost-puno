@@ -1,0 +1,44 @@
+name: Data Validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  data-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: ml_pipeline/requirements.txt
+
+      - name: Install ML dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml_pipeline/requirements.txt
+
+      - name: Validate and process locations
+        run: python -m ml_pipeline.data_ingestion.ingest_locations
+
+      - name: Build demo weather dataset
+        run: >
+          python -m ml_pipeline.data_ingestion.ingest_weather_open_meteo
+          --start-date 2024-06-01
+          --end-date 2024-06-03
+          --limit 3
+          --max-workers 3
+
+      - name: Build features
+        run: python -m ml_pipeline.features.build_features
+
+      - name: Validate training dataset
+        run: python -m ml_pipeline.preprocessing.validate_dataset
+

@@ -1,0 +1,20 @@
+{
+  "LogisticRegression": {
+    "accuracy": 0.9963369963369964,
+    "precision_macro": 0.9965095986038395,
+    "recall_macro": 0.9968701095461658,
+    "f1_macro": 0.9966732869910625
+  },
+  "DecisionTreeClassifier": {
+    "accuracy": 1.0,
+    "precision_macro": 1.0,
+    "recall_macro": 1.0,
+    "f1_macro": 1.0
+  },
+  "RandomForestClassifier": {
+    "accuracy": 1.0,
+    "precision_macro": 1.0,
+    "recall_macro": 1.0,
+    "f1_macro": 1.0
+  }
+}

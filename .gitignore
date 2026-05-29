@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.log
+*.err
+.env
+.env.local
+.env.*.local
+.vercel/
+node_modules/
+**/node_modules/
+docs/_render_*/
+
+titulo.pdf
+stitch_frost_puno_predictor/
+	itulo.pdf
+titulo.pdf

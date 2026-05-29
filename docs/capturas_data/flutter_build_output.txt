@@ -1,0 +1,21 @@
+﻿Frost Puno terminal evidence
+Command: flutter build web --dart-define=API_BASE_URL=http://127.0.0.1:8000
+Started at: 2026-05-27 23:29:42
+Finished at: 2026-05-27 23:30:40
+Exit code: 0
+
+Output:
+-------
+Compiling lib\main.dart for the Web...                          
+flutter : Wasm dry run succeeded. Consider building and testing your application with the `--wasm` flag. See docs for 
+more info: https://docs.flutter.dev/platform-integration/web/wasm
+En D:\Dev\02_UNIVERSIDAD\FrostPuno\tools\screenshots\generate_terminal_evidence.ps1: 89 Carácter: 16
++ ...  -Command { flutter build web --dart-define=API_BASE_URL=http://127.0 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Wasm dry run su...ration/web/wasm:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Use --no-wasm-dry-run to disable these warnings.
+Compiling lib\main.dart for the Web...                             54,7s
+√ Built build\web
+

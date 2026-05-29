@@ -1,0 +1,11 @@
+﻿Frost Puno terminal evidence
+Command: python -m ml_pipeline.registry.check_model_quality --metadata ml_pipeline\registry\model_metadata.json --min-f1-macro 0.70
+Started at: 2026-05-27 23:28:24
+Finished at: 2026-05-27 23:28:24
+Exit code: 0
+
+Output:
+-------
+Model quality gate: f1_macro=1.000000, minimum=0.700000
+QUALITY GATE PASSED: model f1_macro meets the required threshold.
+

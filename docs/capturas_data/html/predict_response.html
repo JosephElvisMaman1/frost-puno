@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POST /predict/frost-risk</title>
+  <style>
+    body { margin: 0; padding: 28px; font-family: Consolas, 'Courier New', monospace; background: #0d1b2a; color: #f8fbff; }
+    h1 { margin: 0 0 6px; font-family: Arial, sans-serif; font-size: 24px; color: #e0fbfc; }
+    p { margin: 0 0 18px; font-family: Arial, sans-serif; color: #b9d8df; }
+    pre { white-space: pre-wrap; background: #10263a; border: 1px solid #3d5a80; border-radius: 10px; padding: 18px; line-height: 1.45; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>POST /predict/frost-risk</h1>
+  <p>Respuesta generada localmente desde FastAPI. Status HTTP: 200.</p>
+  <pre>{
+  &quot;risk_level&quot;: &quot;alto&quot;,
+  &quot;confidence&quot;: 0.98,
+  &quot;recommendation&quot;: &quot;Existe alto riesgo de helada. Se recomienda proteger cultivos sensibles, priorizar vigilancia de papa y revisar ganado o infraestructura expuesta. Las condiciones pueden ser favorables para la produccion de chuno.&quot;,
+  &quot;chuno_conditions&quot;: &quot;favorables&quot;,
+  &quot;model_version&quot;: &quot;v0.1.0&quot;,
+  &quot;data_sources&quot;: [
+    &quot;Open-Meteo Historical API&quot;,
+    &quot;INEI-compatible curated district seed for Puno MVP&quot;,
+    &quot;SENAMHI documented for validation in phase 2&quot;,
+    &quot;MIDAGRI/SIEA documented as agrarian enrichment in phase 2&quot;
+  ]
+}</pre>
+</body>
+</html>

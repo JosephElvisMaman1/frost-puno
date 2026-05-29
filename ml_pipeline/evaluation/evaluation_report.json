@@ -1,0 +1,36 @@
+{
+  "model_name": "RandomForestClassifier",
+  "version": "v0.1.0",
+  "features": [
+    "latitud",
+    "longitud",
+    "altitud_estimada",
+    "poblacion_total",
+    "poblacion_rural",
+    "porcentaje_rural",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "apparent_temperature",
+    "dew_point_2m",
+    "precipitation",
+    "cloud_cover",
+    "wind_speed_10m",
+    "mes",
+    "hora",
+    "temperatura_minima_diaria",
+    "horas_bajo_cero"
+  ],
+  "target": "riesgo_helada",
+  "metrics": {
+    "accuracy": 1.0,
+    "precision_macro": 1.0,
+    "recall_macro": 1.0,
+    "f1_macro": 1.0
+  },
+  "label_order": [
+    "bajo",
+    "medio",
+    "alto"
+  ],
+  "confusion_matrix_path": "D:\\Dev\\02_UNIVERSIDAD\\FrostPuno\\ml_pipeline\\evaluation\\confusion_matrix.csv"
+}

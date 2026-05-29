@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Model metadata</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">Frost Puno - evidencia local</span>
+  <h1>Model metadata</h1>
+  <p>Registro del mejor modelo entrenado y sus metricas de evaluacion.</p>
+  <pre>{
+  &quot;model_name&quot;: &quot;RandomForestClassifier&quot;,
+  &quot;version&quot;: &quot;v0.1.0&quot;,
+  &quot;created_at&quot;: &quot;2026-05-28T02:46:41+00:00&quot;,
+  &quot;features&quot;: [
+    &quot;latitud&quot;,
+    &quot;longitud&quot;,
+    &quot;altitud_estimada&quot;,
+    &quot;poblacion_total&quot;,
+    &quot;poblacion_rural&quot;,
+    &quot;porcentaje_rural&quot;,
+    &quot;temperature_2m&quot;,
+    &quot;relative_humidity_2m&quot;,
+    &quot;apparent_temperature&quot;,
+    &quot;dew_point_2m&quot;,
+    &quot;precipitation&quot;,
+    &quot;cloud_cover&quot;,
+    &quot;wind_speed_10m&quot;,
+    &quot;mes&quot;,
+    &quot;hora&quot;,
+    &quot;temperatura_minima_diaria&quot;,
+    &quot;horas_bajo_cero&quot;
+  ],
+  &quot;target&quot;: &quot;riesgo_helada&quot;,
+  &quot;metrics&quot;: {
+    &quot;accuracy&quot;: 1,
+    &quot;precision_macro&quot;: 1,
+    &quot;recall_macro&quot;: 1,
+    &quot;f1_macro&quot;: 1
+  },
+  &quot;all_model_metrics&quot;: {
+    &quot;LogisticRegression&quot;: {
+      &quot;accuracy&quot;: 0.9963369963369964,
+      &quot;precision_macro&quot;: 0.9965095986038395,
+      &quot;recall_macro&quot;: 0.9968701095461658,
+      &quot;f1_macro&quot;: 0.9966732869910625
+    },
+    &quot;DecisionTreeClassifier&quot;: {
+      &quot;accuracy&quot;: 1,
+      &quot;precision_macro&quot;: 1,
+      &quot;recall_macro&quot;: 1,
+      &quot;f1_macro&quot;: 1
+    },
+    &quot;RandomForestClassifier&quot;: {
+      &quot;accuracy&quot;: 1,
+      &quot;precision_macro&quot;: 1,
+      &quot;recall_macro&quot;: 1,
+      &quot;f1_macro&quot;: 1
+    }
+  },
+  &quot;dataset_size&quot;: 4368,
+  &quot;data_sources&quot;: [
+    &quot;Open-Meteo Historical API&quot;,
+    &quot;INEI-compatible curated district seed for Puno MVP&quot;,
+    &quot;SENAMHI documented for validation in phase 2&quot;,
+    &quot;MIDAGRI/SIEA documented as agrarian enrichment in phase 2&quot;
+  ],
+  &quot;limitations&quot;: [
+    &quot;Initial labels are rule-based and derived from temperature thresholds.&quot;,
+    &quot;The curated INEI district file is an MVP seed and must be replaced with official exports for production.&quot;,
+    &quot;Daily minimum temperature and hours below zero are label-derived features, so baseline metrics can be optimistic.&quot;,
+    &quot;SENAMHI station observations are not yet used as ground-truth labels.&quot;
+  ]
+}</pre>
+</body>
+</html>

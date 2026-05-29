@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estructura del proyecto</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">Frost Puno - evidencia local</span>
+  <h1>Estructura del proyecto</h1>
+  <p>Arbol generado localmente con carpetas principales y archivos relevantes.</p>
+  <pre>﻿Frost Puno - estructura del proyecto
+Generado localmente para evidencias del informe.
+Raiz: frost-puno
+
+|-- .github
+|   \-- workflows
+|       |-- backend-tests.yml
+|       |-- data-validation.yml
+|       |-- ml-training.yml
+|       \-- model-quality-gate.yml
+|-- app_flutter
+|   |-- .idea
+|   |   |-- libraries
+|   |   |   |-- Dart_SDK.xml
+|   |   |   \-- KotlinJavaRuntime.xml
+|   |   |-- runConfigurations
+|   |   |   \-- main_dart.xml
+|   |   |-- modules.xml
+|   |   \-- workspace.xml
+|   |-- android
+|   |   |-- app
+|   |   |   |-- src
+|   |   |   |   |-- debug
+|   |   |   |   |-- main
+|   |   |   |   \-- profile
+|   |   |   \-- build.gradle.kts
+|   |   |-- gradle
+|   |   |   \-- wrapper
+|   |   |       |-- gradle-wrapper.jar
+|   |   |       \-- gradle-wrapper.properties
+|   |   |-- .gitignore
+|   |   |-- app_flutter_android.iml
+|   |   |-- build.gradle.kts
+|   |   |-- gradle.properties
+|   |   |-- gradlew
+|   |   |-- gradlew.bat
+|   |   |-- local.properties
+|   |   \-- settings.gradle.kts
+|   |-- lib
+|   |   |-- core
+|   |   |   |-- api
+|   |   |   |   |-- api_client.dart
+|   |   |   |   \-- frost_api_service.dart
+|   |   |   |-- config
+|   |   |   |   \-- app_config.dart
+|   |   |   |-- models
+|   |   |   |   \-- health_status.dart
+|   |   |   \-- theme
+|   |   |       |-- app_colors.dart
+|   |   |       \-- app_theme.dart
+|   |   |-- features
+|   |   |   |-- data_sources
+|   |   |   |   |-- models
+|   |   |   |   \-- screens
+|   |   |   |-- history
+|   |   |   |   |-- models
+|   |   |   |   \-- screens
+|   |   |   |-- home
+|   |   |   |   \-- screens
+|   |   |   |-- model_info
+|   |   |   |   |-- models
+|   |   |   |   \-- screens
+|   |   |   |-- prediction
+|   |   |   |   |-- models
+|   |   |   |   \-- screens
+|   |   |   \-- shell
+|   |   |       \-- app_shell.dart
+|   |   |-- shared
+|   |   |   \-- widgets
+|   |   |       |-- frost_app_bar.dart
+|   |   |       |-- glass_card.dart
+|   |   |       |-- page_scaffold.dart
+|   |   |       |-- primary_action_button.dart
+|   |   |       |-- responsive_content.dart
+|   |   |       |-- section_header.dart
+|   |   |       \-- status_chip.dart
+|   |   |-- app.dart
+|   |   \-- main.dart
+|   |-- test
+|   |   \-- widget_test.dart
+|   |-- web
+|   |   |-- icons
+|   |   |   |-- Icon-192.png
+|   |   |   |-- Icon-512.png
+|   |   |   |-- Icon-maskable-192.png
+|   |   |   \-- Icon-maskable-512.png
+|   |   |-- favicon.png
+|   |   |-- index.html
+|   |   \-- manifest.json
+|   |-- .gitignore
+|   |-- .metadata
+|   |-- analysis_options.yaml
+|   |-- app_flutter.iml
+|   |-- pubspec.lock
+|   |-- pubspec.yaml
+|   |-- README.md
+|   |-- static_web.err
+|   \-- static_web.log
+|-- backend_fastapi
+|   |-- app
+|   |   |-- api
+|   |   |   |-- routes
+|   |   |   |   |-- __init__.py
+|   |   |   |   |-- health.py
+|   |   |   |   |-- ml.py
+|   |   |   |   |-- predict.py
+|   |   |   |   \-- predictions.py
+|   |   |   \-- __init__.py
+|   |   |-- core
+|   |   |   |-- __init__.py
+|   |   |   |-- config.py
+|   |   |   \-- exceptions.py
+|   |   |-- repositories
+|   |   |   |-- __init__.py
+|   |   |   |-- predictions.py
+|   |   |   \-- supabase_prediction_repository.py
+|   |   |-- schemas
+|   |   |   |-- __init__.py
+|   |   |   |-- health.py
+|   |   |   |-- ml.py
+|   |   |   \-- prediction.py
+|   |   |-- services
+|   |   |   |-- __init__.py
+|   |   |   |-- model_registry.py
+|   |   |   |-- prediction_service.py
+|   |   |   \-- recommendation_service.py
+|   |   |-- __init__.py
+|   |   \-- main.py
+|   |-- tests
+|   |   \-- test_api.py
+|   |-- .env.example
+|   |-- README.md
+|   |-- requirements.txt
+|   |-- uvicorn.err
+|   \-- uvicorn.log
+|-- data
+|   |-- external
+|   |   |-- inei_puno_districts.csv
+|   |   \-- README.md
+|   |-- processed
+|   |   |-- frost_training_dataset.csv
+|   |   \-- locations_puno.csv
+|   |-- raw
+|   |   \-- weather_open_meteo.csv
+|   \-- samples
+|       \-- README.md
+|-- docs
+|   |-- capturas
+|   |-- capturas_data
+|   |   \-- project_tree.txt
+|   |-- capturas_checklist.md
+|   |-- ci_cd.md
+|   |-- data_sources.md
+|   |-- informe_frost_puno.md
+|   |-- informe_frost_puno_sin_caratula.docx
+|   |-- limitations.md
+|   |-- ml_lifecycle.md
+|   |-- model_card.md
+|   \-- model_governance.md
+|-- ml_pipeline
+|   |-- data_ingestion
+|   |   |-- ingest_locations.py
+|   |   \-- ingest_weather_open_meteo.py
+|   |-- evaluation
+|   |   |-- confusion_matrix.csv
+|   |   |-- evaluate_model.py
+|   |   |-- evaluation_report.json
+|   |   \-- metrics_comparison.json
+|   |-- features
+|   |   \-- build_features.py
+|   |-- preprocessing
+|   |   \-- validate_dataset.py
+|   |-- registry
+|   |   |-- check_model_quality.py
+|   |   |-- frost_risk_model.joblib
+|   |   \-- model_metadata.json
+|   |-- training
+|   |   \-- train_models.py
+|   |-- __init__.py
+|   |-- config.py
+|   |-- README.md
+|   |-- requirements.txt
+|   \-- utils.py
+|-- stitch_frost_puno_predictor
+|   |-- andean_intelligence
+|   |   \-- DESIGN.md
+|   |-- consulta_frost_puno
+|   |   |-- code.html
+|   |   \-- screen.png
+|   |-- fuentes_frost_puno
+|   |   |-- code.html
+|   |   \-- screen.png
+|   |-- historial_frost_puno
+|   |   |-- code.html
+|   |   \-- screen.png
+|   |-- inicio_frost_puno
+|   |   |-- code.html
+|   |   \-- screen.png
+|   |-- modelo_frost_puno
+|   |   |-- code.html
+|   |   \-- screen.png
+|   \-- resultado_frost_puno
+|       |-- code.html
+|       \-- screen.png
+|-- supabase
+|   |-- migrations
+|   |   \-- 001_create_core_tables.sql
+|   |-- policies
+|   |   \-- rls_policies.sql
+|   |-- seed
+|   |   \-- seed_locations.sql
+|   \-- README.md
+|-- tools
+|   \-- screenshots
+|       |-- capture_fastapi_screenshots.js
+|       |-- capture_static_evidence.js
+|       |-- capture_web_screenshots.js
+|       |-- generate_project_tree.ps1
+|       |-- generate_terminal_evidence.ps1
+|       |-- package.json
+|       |-- package-lock.json
+|       |-- README.md
+|       |-- run_all_screenshots.ps1
+|       \-- update_checklist.js
+|-- .env.example
+|-- .gitignore
+\-- README.md
+</pre>
+</body>
+</html>

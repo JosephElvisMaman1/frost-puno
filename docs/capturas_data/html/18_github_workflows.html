@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GitHub Actions workflows</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">Frost Puno - evidencia local</span>
+  <h1>GitHub Actions workflows</h1>
+  <p>Workflows implementados para backend, datos, entrenamiento y quality gate.</p>
+  <pre># .github/workflows/backend-tests.yml
+
+name: Backend Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    env:
+      ENABLE_SUPABASE: &quot;false&quot;
+      PYTHONPATH: ${{ github.workspace }}/backend_fastapi
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: &quot;3.11&quot;
+          cache: &quot;pip&quot;
+          cache-dependency-path: |
+            backend_fastapi/requirements.txt
+            ml_pipeline/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend_fastapi/requirements.txt
+          pip install -r ml_pipeline/requirements.txt
+
+      - name: Run backend tests
+        run: pytest backend_fastapi/tests -q
+
+
+
+# .github/workflows/data-validation.yml
+
+name: Data Validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  data-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: &quot;3.11&quot;
+          cache: &quot;pip&quot;
+          cache-dependency-path: ml_pipeline/requirements.txt
+
+      - name: Install ML dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml_pipeline/requirements.txt
+
+      - name: Validate and process locations
+        run: python -m ml_pipeline.data_ingestion.ingest_locations
+
+      - name: Build demo weather dataset
+        run: &gt;
+          python -m ml_pipeline.data_ingestion.ingest_weather_open_meteo
+          --start-date 2024-06-01
+          --end-date 2024-06-03
+          --limit 3
+          --max-workers 3
+
+      - name: Build features
+        run: python -m ml_pipeline.features.build_features
+
+      - name: Validate training dataset
+        run: python -m ml_pipeline.preprocessing.validate_dataset
+
+
+
+# .github/workflows/ml-training.yml
+
+name: ML Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: &quot;Open-Meteo historical start date&quot;
+        required: false
+        default: &quot;2024-06-01&quot;
+      end_date:
+        description: &quot;Open-Meteo historical end date&quot;
+        required: false
+        default: &quot;2024-06-07&quot;
+      location_limit:
+        description: &quot;Number of locations for demo training. Use empty for all curated locations.&quot;
+        required: false
+        default: &quot;5&quot;
+      model_version:
+        description: &quot;Model version label&quot;
+        required: false
+        default: &quot;ci-demo&quot;
+  schedule:
+    - cron: &quot;0 9 * * 1&quot;
+
+jobs:
+  train-model:
+    runs-on: ubuntu-latest
+    env:
+      START_DATE: ${{ github.event_name == 'workflow_dispatch' &amp;&amp; github.event.inputs.start_date || '2024-06-01' }}
+      END_DATE: ${{ github.event_name == 'workflow_dispatch' &amp;&amp; github.event.inputs.end_date || '2024-06-07' }}
+      LOCATION_LIMIT: ${{ github.event_name == 'workflow_dispatch' &amp;&amp; github.event.inputs.location_limit || '5' }}
+      MODEL_VERSION: ${{ github.event_name == 'workflow_dispatch' &amp;&amp; github.event.inputs.model_version || 'scheduled-demo' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: &quot;3.11&quot;
+          cache: &quot;pip&quot;
+          cache-dependency-path: ml_pipeline/requirements.txt
+
+      - name: Install ML dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml_pipeline/requirements.txt
+
+      - name: Ingest locations
+        run: python -m ml_pipeline.data_ingestion.ingest_locations
+
+      - name: Ingest Open-Meteo demo weather
+        run: |
+          if [ -n &quot;$LOCATION_LIMIT&quot; ]; then
+            python -m ml_pipeline.data_ingestion.ingest_weather_open_meteo \
+              --start-date &quot;$START_DATE&quot; \
+              --end-date &quot;$END_DATE&quot; \
+              --limit &quot;$LOCATION_LIMIT&quot; \
+              --max-workers 4
+          else
+            python -m ml_pipeline.data_ingestion.ingest_weather_open_meteo \
+              --start-date &quot;$START_DATE&quot; \
+              --end-date &quot;$END_DATE&quot; \
+              --max-workers 4
+          fi
+
+      - name: Build features
+        run: python -m ml_pipeline.features.build_features
+
+      - name: Validate dataset
+        run: python -m ml_pipeline.preprocessing.validate_dataset
+
+      - name: Train candidate models
+        run: python -m ml_pipeline.training.train_models --version &quot;$MODEL_VERSION&quot;
+
+      - name: Evaluate registered model
+        run: python -m ml_pipeline.evaluation.evaluate_model
+
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frost-puno-model-${{ github.run_id }}
+          retention-days: 14
+          path: |
+            ml_pipeline/registry/frost_risk_model.joblib
+            ml_pipeline/registry/model_metadata.json
+            ml_pipeline/evaluation/metrics_comparison.json
+            ml_pipeline/evaluation/evaluation_report.json
+            ml_pipeline/evaluation/confusion_matrix.csv
+            data/processed/frost_training_dataset.csv
+
+
+
+# .github/workflows/model-quality-gate.yml
+
+name: Model Quality Gate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      min_f1_macro:
+        description: &quot;Minimum accepted f1_macro&quot;
+        required: false
+        default: &quot;0.70&quot;
+
+jobs:
+  model-quality-gate:
+    runs-on: ubuntu-latest
+    env:
+      MIN_F1_MACRO: ${{ github.event_name == 'workflow_dispatch' &amp;&amp; github.event.inputs.min_f1_macro || '0.70' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: &quot;3.11&quot;
+
+      - name: Evaluate model metadata quality
+        run: &gt;
+          python -m ml_pipeline.registry.check_model_quality
+          --metadata ml_pipeline/registry/model_metadata.json
+
+      - name: Future active-model comparison
+        run: |
+          echo &quot;Future step: download the currently active production model metadata,&quot;
+          echo &quot;compare f1_macro and drift metrics, then block deployment on regression.&quot;
+
+</pre>
+</body>
+</html>

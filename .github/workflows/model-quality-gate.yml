@@ -1,0 +1,37 @@
+name: Model Quality Gate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      min_f1_macro:
+        description: "Minimum accepted f1_macro"
+        required: false
+        default: "0.70"
+
+jobs:
+  model-quality-gate:
+    runs-on: ubuntu-latest
+    env:
+      MIN_F1_MACRO: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.min_f1_macro || '0.70' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Evaluate model metadata quality
+        run: >
+          python -m ml_pipeline.registry.check_model_quality
+          --metadata ml_pipeline/registry/model_metadata.json
+
+      - name: Future active-model comparison
+        run: |
+          echo "Future step: download the currently active production model metadata,"
+          echo "compare f1_macro and drift metrics, then block deployment on regression."
+

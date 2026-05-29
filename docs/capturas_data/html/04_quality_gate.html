@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quality gate</title>
+  <style>
+    body { margin: 0; padding: 30px; background: #0d1b2a; color: #f8fbff; font-family: Arial, sans-serif; }
+    h1 { margin: 0 0 8px; color: #e0fbfc; font-size: 28px; }
+    p { margin: 0 0 20px; color: #b9d8df; font-size: 15px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10263a; border: 1px solid #3d5a80; border-radius: 12px; padding: 18px; font: 13px/1.45 Consolas, 'Courier New', monospace; }
+    .badge { display: inline-block; margin-bottom: 14px; padding: 6px 10px; border-radius: 999px; background: #ee6c4d; color: #111827; font-weight: 700; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <span class="badge">Frost Puno - evidencia local</span>
+  <h1>Quality gate</h1>
+  <p>Validacion del f1-score macro minimo.</p>
+  <pre>﻿Frost Puno terminal evidence
+Command: python -m ml_pipeline.registry.check_model_quality --metadata ml_pipeline\registry\model_metadata.json --min-f1-macro 0.70
+Started at: 2026-05-27 23:28:24
+Finished at: 2026-05-27 23:28:24
+Exit code: 0
+
+Output:
+-------
+Model quality gate: f1_macro=1.000000, minimum=0.700000
+QUALITY GATE PASSED: model f1_macro meets the required threshold.
+
+</pre>
+</body>
+</html>
