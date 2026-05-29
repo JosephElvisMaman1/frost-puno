@@ -13,7 +13,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: ENABLE_SUPABASE
-        value: false
+        value: true
       - key: CORS_ORIGINS
         value: https://frost-puno.vercel.app,http://localhost:3000,http://127.0.0.1:5174,http://localhost:5174
       - key: MODEL_PATH
@@ -21,6 +21,6 @@ services:
       - key: MODEL_METADATA_PATH
         value: ml_pipeline/registry/model_metadata.json
       - key: SUPABASE_URL
-        sync: false
+        value: https://qwufojxuebxfhimmvbaa.supabase.co
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
