@@ -74,6 +74,56 @@ class FrostRiskRequest {
     );
   }
 
+  FrostRiskRequest copyWith({
+    String? district,
+    String? province,
+    String? populatedCenter,
+    double? latitude,
+    double? longitude,
+    double? altitude,
+    int? ruralPopulation,
+    int? totalPopulation,
+    double? ruralPercentage,
+    bool? agriculturalActivity,
+    String? mainCrop,
+    double? temperatureMin,
+    double? temperatureMax,
+    double? feelsLike,
+    double? humidity,
+    double? windSpeed,
+    double? cloudCover,
+    double? dewPoint,
+    double? precipitation,
+    int? month,
+    int? hour,
+    int? hoursBelowZero,
+  }) {
+    return FrostRiskRequest(
+      district: district ?? this.district,
+      province: province ?? this.province,
+      populatedCenter: populatedCenter ?? this.populatedCenter,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      altitude: altitude ?? this.altitude,
+      ruralPopulation: ruralPopulation ?? this.ruralPopulation,
+      totalPopulation: totalPopulation ?? this.totalPopulation,
+      ruralPercentage: ruralPercentage ?? this.ruralPercentage,
+      agriculturalActivity: agriculturalActivity ?? this.agriculturalActivity,
+      mainCrop: mainCrop ?? this.mainCrop,
+      temperatureMin: temperatureMin ?? this.temperatureMin,
+      temperatureMax: temperatureMax ?? this.temperatureMax,
+      feelsLike: feelsLike ?? this.feelsLike,
+      humidity: humidity ?? this.humidity,
+      windSpeed: windSpeed ?? this.windSpeed,
+      cloudCover: cloudCover ?? this.cloudCover,
+      dewPoint: dewPoint ?? this.dewPoint,
+      precipitation: precipitation ?? this.precipitation,
+      month: month ?? this.month,
+      hour: hour ?? this.hour,
+      hoursBelowZero: hoursBelowZero ?? this.hoursBelowZero,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'district': district,

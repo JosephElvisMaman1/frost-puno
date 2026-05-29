@@ -1,4 +1,4 @@
-﻿Frost Puno - estructura del proyecto
+﻿FrostPuno - estructura del proyecto
 Generado localmente para evidencias del informe.
 Raiz: frost-puno
 

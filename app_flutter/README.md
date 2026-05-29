@@ -1,6 +1,8 @@
-# Frost Puno Flutter App
+﻿# FrostPuno Flutter App
 
 Cliente Flutter mobile/web inspirado en el diseño Stitch `stitch_frost_puno_predictor`.
+
+Incluye GPS mediante `geolocator`, permisos Android, clima automatico desde FastAPI, dark/light mode, PWA basica y preparacion para APK Android.
 
 ## Ejecutar web local
 
@@ -47,3 +49,40 @@ flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:8000
 ```
 
 Flutter nunca usa credenciales de Supabase. Toda persistencia pasa por FastAPI.
+
+## Flujo de consulta movil
+
+La pantalla de consulta evita inputs climaticos manuales. El usuario ve tarjetas grandes y trabaja con tres acciones:
+
+- `Usar mi ubicacion`: solicita permiso, obtiene GPS y consulta automaticamente `GET /weather/current`.
+- `Obtener clima`: refresca el clima para la ubicacion actual; si GPS falla, usa Puno demo como fallback manual.
+- `Predecir`: envia al backend ubicacion, clima interno y contexto agricola del modelo.
+
+La pantalla muestra ubicacion detectada, precision aproximada, temperatura, humedad, viento, nubosidad, proveedor climatico y estacion cuando el backend la devuelve.
+
+El resultado muestra riesgo ALTO/MEDIO/BAJO con color, icono, confianza y recomendacion breve. El historial usa cards con distrito, riesgo, fecha y confianza.
+
+## GPS y permisos
+
+En Flutter Web, GPS requiere HTTPS. En Android, revisar `docs/mobile_build.md`.
+
+Para probar en emulador Android con FastAPI local:
+
+```powershell
+flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:8000
+```
+
+Para probar en telefono fisico, usa una API accesible desde la red del telefono:
+
+```powershell
+flutter run -d android --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+```
+
+## Generar APK
+
+```powershell
+flutter pub get
+flutter build apk --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+```
+
+El APK queda en `build\app\outputs\flutter-apk\app-release.apk`.

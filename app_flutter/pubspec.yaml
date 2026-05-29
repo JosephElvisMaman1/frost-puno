@@ -1,5 +1,5 @@
-name: frost_puno
-description: "Flutter mobile and web client for Frost Puno."
+﻿name: frost_puno
+description: "Flutter mobile and web client for FrostPuno."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
 
   http: ^1.2.2
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

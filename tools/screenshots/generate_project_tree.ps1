@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Root = Resolve-Path (Join-Path $ScriptDir "..\..")
@@ -48,7 +48,7 @@ function Write-Tree {
 
 $OutputFile = Join-Path $DataDir "project_tree.txt"
 $header = @(
-    "Frost Puno - estructura del proyecto",
+    "FrostPuno - estructura del proyecto",
     "Generado localmente para evidencias del informe.",
     "Raiz: frost-puno",
     ""

@@ -1,4 +1,4 @@
-# Frost Puno
+﻿# FrostPuno
 
 Sistema inteligente distribuido para prediccion de heladas y apoyo a la produccion de chuno en comunidades altoandinas de Puno mediante aprendizaje supervisado y datos abiertos.
 
@@ -7,6 +7,7 @@ Sistema inteligente distribuido para prediccion de heladas y apoyo a la producci
 - `ml_pipeline`: ingesta Open-Meteo, semilla territorial INEI-compatible, features, validacion, entrenamiento, evaluacion y registry.
 - `backend_fastapi`: API modular con modelo ML, Pydantic, CORS, health check y persistencia Supabase opcional.
 - `app_flutter`: Flutter Web/mobile con pantallas Home, consulta, resultado, historial, fuentes y modelo.
+- `backend_fastapi/app/services/weather_providers.py`: proveedores climaticos SENAMHI/Open-Meteo con fallback.
 - `supabase`: SQL para PostgreSQL, RLS, seed y tablas del MVP.
 - `.github/workflows`: CI/CD para backend, datos, ML, quality gate y Flutter Web.
 - `docs`: documentacion academica, despliegue, ciclo ML y evidencias.
@@ -20,6 +21,7 @@ Sistema inteligente distribuido para prediccion de heladas y apoyo a la producci
 - Quality gate ML: aprobado.
 - Capturas del informe: generadas localmente.
 - Despliegue: preparado, pendiente de ejecucion manual en Render, Vercel y Supabase.
+- Movil: flujo GPS + clima automatico, modo oscuro, permisos Android, PWA y build APK preparados.
 
 ## Ejecucion local rapida
 
@@ -64,6 +66,38 @@ Flutter Web:
 ```powershell
 Set-Location .\app_flutter
 flutter build web --release --dart-define=API_BASE_URL=http://127.0.0.1:8000
+```
+
+Android APK:
+
+```powershell
+Set-Location .\app_flutter
+flutter build apk --release --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
+```
+
+## Flujo movil actual
+
+La app ya no funciona como formulario tecnico. En `Consulta de riesgo` el usuario trabaja con tres acciones:
+
+- `Usar mi ubicacion`: solicita permiso GPS, obtiene latitud/longitud y consulta automaticamente `GET /weather/current`.
+- `Obtener clima`: vuelve a consultar el clima para la ubicacion actual; si no hay GPS, usa Puno demo como fallback manual.
+- `Predecir`: envia al backend la ubicacion, variables climaticas internas y contexto agricola requerido por el modelo.
+
+La UI muestra una tarjeta de ubicacion, una tarjeta de clima actual y una pantalla de resultado con riesgo grande, confianza, icono, color por nivel y recomendacion breve. El historial se presenta como cards con distrito, riesgo, fecha y confianza.
+
+El tema usa `ThemeMode.system` y permite alternar entre sistema, claro y oscuro desde la app.
+
+Para probar en Android local con FastAPI en la misma maquina:
+
+```powershell
+Set-Location .\app_flutter
+flutter run -d emulator --dart-define=API_BASE_URL=http://10.0.2.2:8000
+```
+
+En un telefono fisico, usa una URL accesible desde el dispositivo, por ejemplo el backend desplegado en Render:
+
+```powershell
+flutter run -d android --dart-define=API_BASE_URL=https://TU-BACKEND.onrender.com
 ```
 
 ## URLs esperadas
@@ -115,6 +149,17 @@ Para Computacion Paralela y Distribuida:
 - Backend modular con separacion de responsabilidades.
 - Jobs independientes en CI/CD.
 - Estrategia de escalabilidad hacia microservicios.
+
+## Evolucion movil
+
+- GPS mediante `geolocator` y permisos Android.
+- Fallback manual si el permiso se deniega.
+- Clima actual mediante `GET /weather/current`.
+- SENAMHI preparado como proveedor oficial prioritario.
+- Open-Meteo como fallback operativo.
+- PWA con manifest FrostPuno y fallback offline basico.
+- UX movil simplificada sin inputs climaticos manuales.
+- Dark/light mode con `ThemeMode.system`.
 
 ## Seguridad
 

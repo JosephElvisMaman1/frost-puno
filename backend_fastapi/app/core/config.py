@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
-    app_name: str = Field(default="Frost Puno API", validation_alias=AliasChoices("APP_NAME", "FROST_PUNO_APP_NAME"))
+    app_name: str = Field(default="FrostPuno API", validation_alias=AliasChoices("APP_NAME", "FROST_PUNO_APP_NAME"))
     api_version: str = Field(default="0.1.0", validation_alias=AliasChoices("API_VERSION", "FROST_PUNO_API_VERSION"))
     log_level: str = Field(default="INFO", validation_alias=AliasChoices("LOG_LEVEL", "FROST_PUNO_LOG_LEVEL"))
 

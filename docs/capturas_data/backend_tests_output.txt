@@ -1,4 +1,4 @@
-﻿Frost Puno terminal evidence
+﻿FrostPuno terminal evidence
 Command: pytest backend_fastapi/tests -q
 Started at: 2026-05-27 23:28:04
 Finished at: 2026-05-27 23:28:24

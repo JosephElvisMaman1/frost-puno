@@ -109,6 +109,33 @@ def test_prediction_history_returns_empty_without_supabase() -> None:
     assert response.json() == []
 
 
+def test_current_weather_contract(monkeypatch) -> None:
+    from app.api.routes import weather
+    from app.schemas.weather import CurrentWeatherResponse
+
+    class FakeWeatherProvider:
+        def get_current_weather(self, query):
+            return CurrentWeatherResponse(
+                latitude=query.latitude,
+                longitude=query.longitude,
+                temperature=-1.5,
+                humidity=70,
+                provider="Open-Meteo",
+                source_priority=["SENAMHI", "Open-Meteo"],
+                fallback_used=True,
+            )
+
+    weather.get_weather_provider.cache_clear()
+    monkeypatch.setattr(weather, "get_weather_provider", lambda: FakeWeatherProvider())
+
+    response = client.get("/weather/current?latitude=-15.8402&longitude=-70.0219")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["provider"] == "Open-Meteo"
+    assert body["fallback_used"] is True
+
+
 def test_noop_repository_does_not_persist_and_returns_empty_history() -> None:
     repository = NoOpPredictionRepository()
 

@@ -1,6 +1,6 @@
-# Frost Puno Supabase
+﻿# FrostPuno Supabase
 
-This folder contains the MVP database structure for Frost Puno.
+This folder contains the MVP database structure for FrostPuno.
 
 ## Files
 

@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..', '..');
@@ -32,7 +32,7 @@ function exists(fileName) {
 }
 
 const lines = [
-  '# Checklist de capturas - Frost Puno',
+  '# Checklist de capturas - FrostPuno',
   '',
   'Este documento se actualiza con `node tools/screenshots/update_checklist.js` o desde `tools/screenshots/run_all_screenshots.ps1`.',
   '',

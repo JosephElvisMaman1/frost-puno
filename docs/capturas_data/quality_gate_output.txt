@@ -1,4 +1,4 @@
-﻿Frost Puno terminal evidence
+﻿FrostPuno terminal evidence
 Command: python -m ml_pipeline.registry.check_model_quality --metadata ml_pipeline\registry\model_metadata.json --min-f1-macro 0.70
 Started at: 2026-05-27 23:28:24
 Finished at: 2026-05-27 23:28:24

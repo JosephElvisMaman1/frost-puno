@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Continue"
+﻿$ErrorActionPreference = "Continue"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Root = Resolve-Path (Join-Path $ScriptDir "..\..")
@@ -24,7 +24,7 @@ function Invoke-EvidenceCommand {
         $finishedAt = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
         $content = @(
-            "Frost Puno terminal evidence",
+            "FrostPuno terminal evidence",
             "Command: $Name",
             "Started at: $startedAt",
             "Finished at: $finishedAt",
@@ -40,7 +40,7 @@ function Invoke-EvidenceCommand {
     }
     catch {
         $content = @(
-            "Frost Puno terminal evidence",
+            "FrostPuno terminal evidence",
             "Command: $Name",
             "Status: failed to execute",
             "",

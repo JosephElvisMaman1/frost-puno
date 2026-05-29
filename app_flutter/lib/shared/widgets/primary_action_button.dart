@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
-
 class PrimaryActionButton extends StatelessWidget {
   const PrimaryActionButton({
     required this.label,
@@ -23,8 +21,6 @@ class PrimaryActionButton extends StatelessWidget {
       icon: Icon(icon ?? Icons.arrow_forward),
       label: Text(label),
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.deepNavy,
-        foregroundColor: AppColors.softWhite,
         minimumSize: const Size(0, 60),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),

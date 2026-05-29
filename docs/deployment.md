@@ -1,4 +1,4 @@
-# Frost Puno - guia de despliegue gratuito
+﻿# FrostPuno - guia de despliegue gratuito
 
 Esta guia prepara el despliegue manual end-to-end del MVP:
 
@@ -116,6 +116,12 @@ flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL
 ```
 
 El archivo `vercel.json` instala Flutter estable durante el build. En Hobby, el build puede tardar mas que un sitio estatico comun.
+
+## PWA y GPS
+
+FrostPuno Web requiere HTTPS para que el navegador permita geolocalizacion. Vercel entrega HTTPS por defecto, por lo que el boton `Usar mi ubicacion` funciona siempre que el usuario otorgue permisos.
+
+Si el navegador bloquea GPS, revisar permisos del sitio, probar en Chrome/Edge movil o usar fallback manual con coordenadas y distrito.
 
 ## 4. GitHub Actions
 

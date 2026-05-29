@@ -21,20 +21,20 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final riskColor = response.riskLevel == 'alto'
-        ? AppColors.warmAmber
-        : AppColors.mutedTeal;
+    final riskColor = _riskColor(response.riskLevel);
+    final riskIcon = _riskIcon(response.riskLevel);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return PageScaffold(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
         children: [
           const SectionHeader(
-            title: 'Resultado de prediccion',
-            subtitle:
-                'Lectura del modelo para la ubicacion y condiciones enviadas.',
+            title: 'Resultado',
+            subtitle: 'Lectura clara para decidir acciones en campo.',
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 24),
           GlassCard(
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -45,39 +45,51 @@ class ResultScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const _Label('RIESGO'),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                color: riskColor,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                _title(response.riskLevel),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(color: riskColor),
-                              ),
-                            ],
+                          const SizedBox(height: 8),
+                          Text(
+                            _title(response.riskLevel).toUpperCase(),
+                            style: Theme.of(context).textTheme.displayLarge
+                                ?.copyWith(color: riskColor, fontSize: 44),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(
-                      width: 78,
-                      height: 78,
-                      child: CircularProgressIndicator(
-                        value: response.confidence,
-                        color: riskColor,
-                        backgroundColor: AppColors.surfaceHigh,
-                        strokeWidth: 7,
+                    Container(
+                      width: 82,
+                      height: 82,
+                      decoration: BoxDecoration(
+                        color: riskColor.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: Icon(riskIcon, color: riskColor, size: 42),
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: riskColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: riskColor.withValues(alpha: 0.24),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.tips_and_updates_outlined, color: riskColor),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _shortRecommendation(response.recommendation),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 18),
                 Row(
@@ -97,8 +109,8 @@ class ResultScreen extends StatelessWidget {
                           StatusChip(
                             icon: Icons.ac_unit,
                             label: _chuno(response.chunoConditions),
-                            color: AppColors.deepNavy,
-                            background: AppColors.surfaceHigh,
+                            color: onSurface,
+                            background: onSurface.withValues(alpha: 0.08),
                           ),
                         ],
                       ),
@@ -108,38 +120,20 @@ class ResultScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.warmAmber.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppColors.warmAmber.withValues(alpha: 0.22),
-              ),
-            ),
-            child: Text(
-              response.recommendation,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           GlassCard(
-            color: AppColors.softWhite,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _Label('INFORMACION DEL MODELO'),
+                const _Label('RESUMEN'),
                 const SizedBox(height: 18),
-                _InfoRow(label: 'Modelo', value: 'Random Forest'),
-                const Divider(),
-                _InfoRow(label: 'Version', value: response.modelVersion),
-                const Divider(),
                 _InfoRow(label: 'Distrito', value: request.district),
+                const Divider(),
+                _InfoRow(label: 'Modelo', value: response.modelVersion),
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           PrimaryActionButton(
             label: 'Nueva consulta',
             icon: Icons.add,
@@ -152,6 +146,33 @@ class ResultScreen extends StatelessWidget {
 
   static String _title(String value) =>
       value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
+
+  static Color _riskColor(String value) {
+    return switch (value.toLowerCase()) {
+      'alto' => AppColors.warmAmber,
+      'medio' => AppColors.mediumRisk,
+      'moderado' => AppColors.mediumRisk,
+      _ => AppColors.lowRisk,
+    };
+  }
+
+  static IconData _riskIcon(String value) {
+    return switch (value.toLowerCase()) {
+      'alto' => Icons.warning_amber_rounded,
+      'medio' => Icons.report_problem_outlined,
+      'moderado' => Icons.report_problem_outlined,
+      _ => Icons.check_circle_outline,
+    };
+  }
+
+  static String _shortRecommendation(String value) {
+    final clean = value.trim();
+    if (clean.isEmpty) {
+      return 'Revisar condiciones locales y monitorear cambios de temperatura.';
+    }
+    final firstSentence = clean.split('.').first.trim();
+    return firstSentence.isEmpty ? clean : '$firstSentence.';
+  }
 
   static String _chuno(String value) {
     if (value == 'favorables') return 'Favorable';
@@ -170,9 +191,9 @@ class _Label extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: AppColors.textSecondary,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.64),
         fontFamily: 'monospace',
-        letterSpacing: 1.4,
+        letterSpacing: 0,
         fontWeight: FontWeight.w700,
       ),
     );
@@ -209,15 +230,19 @@ class _InfoRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontWeight: FontWeight.w700,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

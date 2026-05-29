@@ -1,8 +1,8 @@
-# Frost Puno - guion breve de exposicion
+﻿# FrostPuno - guion breve de exposicion
 
 ## 1. Apertura
 
-Presentar Frost Puno como un MVP academico para predecir riesgo de heladas en comunidades altoandinas de Puno y apoyar decisiones relacionadas con cultivos y produccion de chuno.
+Presentar FrostPuno como un MVP academico para predecir riesgo de heladas en comunidades altoandinas de Puno y apoyar decisiones relacionadas con cultivos y produccion de chuno.
 
 ## 2. Demo de la aplicacion
 
@@ -55,4 +55,4 @@ datos nuevos -> validacion -> entrenamiento -> evaluacion -> quality gate -> ver
 
 ## 6. Cierre
 
-Concluir que Frost Puno integra datos abiertos, ML, backend modular, base de datos y CI/CD en un MVP defendible para ambos cursos, manteniendo claras sus limitaciones y su ruta de mejora.
+Concluir que FrostPuno integra datos abiertos, ML, backend modular, base de datos y CI/CD en un MVP defendible para ambos cursos, manteniendo claras sus limitaciones y su ruta de mejora.

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
-
 class SectionHeader extends StatelessWidget {
   const SectionHeader({required this.title, required this.subtitle, super.key});
 
@@ -11,6 +9,7 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -18,7 +17,9 @@ class SectionHeader extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           subtitle,
-          style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+          style: textTheme.bodyLarge?.copyWith(
+            color: colorScheme.onSurface.withValues(alpha: 0.68),
+          ),
         ),
       ],
     );

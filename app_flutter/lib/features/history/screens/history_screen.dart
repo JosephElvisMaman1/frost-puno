@@ -38,21 +38,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
         children: [
           const SectionHeader(
-            title: 'Historial de predicciones',
-            subtitle:
-                'Predicciones registradas por FastAPI cuando Supabase esta activo.',
-          ),
-          const SizedBox(height: 26),
-          TextField(
-            enabled: false,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              hintText: 'Filtrar por distrito...',
-              fillColor: AppColors.surfaceLow,
-              hintStyle: TextStyle(
-                color: AppColors.textSecondary.withValues(alpha: 0.35),
-              ),
-            ),
+            title: 'Historial',
+            subtitle: 'Consultas guardadas con distrito, riesgo y confianza.',
           ),
           const SizedBox(height: 26),
           FutureBuilder<List<PredictionHistoryItem>>(
@@ -103,11 +90,13 @@ class _HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isHigh = item.riskLevel == 'alto';
-    final color = isHigh ? AppColors.warmAmber : AppColors.mutedTeal;
+    final color = _riskColor(item.riskLevel);
+    final icon = _riskIcon(item.riskLevel);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
       child: GlassCard(
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,15 +105,13 @@ class _HistoryCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.district,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.deepNavy,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineMedium?.copyWith(color: onSurface),
                   ),
                 ),
                 StatusChip(
-                  icon: isHigh
-                      ? Icons.warning_amber_rounded
-                      : Icons.info_outline,
+                  icon: icon,
                   label: 'Riesgo ${_title(item.riskLevel)}',
                   color: color,
                   background: color.withValues(alpha: 0.14),
@@ -133,10 +120,10 @@ class _HistoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              item.createdAt,
-              style: const TextStyle(
+              _formatDate(item.createdAt),
+              style: TextStyle(
                 fontFamily: 'monospace',
-                color: AppColors.textSecondary,
+                color: onSurface.withValues(alpha: 0.66),
               ),
             ),
             const SizedBox(height: 18),
@@ -147,9 +134,9 @@ class _HistoryCard extends StatelessWidget {
               children: [
                 _SmallMetric(
                   label: 'CONFIANZA',
-                  value: '${(item.confidence * 100).toStringAsFixed(1)}%',
+                  value: '${(item.confidence * 100).round()}%',
                 ),
-                _SmallMetric(label: 'MODELO', value: item.modelVersion),
+                _SmallMetric(label: 'FECHA', value: _shortDate(item.createdAt)),
               ],
             ),
           ],
@@ -160,6 +147,38 @@ class _HistoryCard extends StatelessWidget {
 
   static String _title(String value) =>
       value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
+
+  static Color _riskColor(String value) {
+    return switch (value.toLowerCase()) {
+      'alto' => AppColors.warmAmber,
+      'medio' => AppColors.mediumRisk,
+      'moderado' => AppColors.mediumRisk,
+      _ => AppColors.lowRisk,
+    };
+  }
+
+  static IconData _riskIcon(String value) {
+    return switch (value.toLowerCase()) {
+      'alto' => Icons.warning_amber_rounded,
+      'medio' => Icons.report_problem_outlined,
+      'moderado' => Icons.report_problem_outlined,
+      _ => Icons.check_circle_outline,
+    };
+  }
+
+  static String _formatDate(String raw) {
+    final date = DateTime.tryParse(raw);
+    if (date == null) return raw;
+    return '${_two(date.day)}/${_two(date.month)}/${date.year} ${_two(date.hour)}:${_two(date.minute)}';
+  }
+
+  static String _shortDate(String raw) {
+    final date = DateTime.tryParse(raw);
+    if (date == null) return raw;
+    return '${_two(date.day)}/${_two(date.month)}';
+  }
+
+  static String _two(int value) => value.toString().padLeft(2, '0');
 }
 
 class _SmallMetric extends StatelessWidget {
@@ -177,16 +196,17 @@ class _SmallMetric extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             fontFamily: 'monospace',
-            letterSpacing: 1.4,
+            letterSpacing: 0,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'monospace',
             fontSize: 20,
             fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
@@ -202,13 +222,14 @@ class _EmptyHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      color: AppColors.softWhite,
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.history_toggle_off,
             size: 42,
-            color: AppColors.textSecondary,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.56),
           ),
           const SizedBox(height: 14),
           Text(

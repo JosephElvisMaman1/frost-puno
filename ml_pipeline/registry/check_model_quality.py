@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -45,7 +45,7 @@ def run(metadata_path: Path, min_f1_macro: float) -> int:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate Frost Puno model quality metrics.")
+    parser = argparse.ArgumentParser(description="Validate FrostPuno model quality metrics.")
     parser.add_argument("--metadata", type=Path, default=DEFAULT_METADATA_PATH)
     parser.add_argument("--min-f1-macro", type=float, default=None)
     return parser.parse_args()

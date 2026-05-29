@@ -1,4 +1,4 @@
-class HealthStatus {
+﻿class HealthStatus {
   const HealthStatus({
     required this.status,
     required this.appName,
@@ -14,7 +14,7 @@ class HealthStatus {
   factory HealthStatus.fromJson(Map<String, dynamic> json) {
     return HealthStatus(
       status: json['status'] as String? ?? 'unknown',
-      appName: json['app_name'] as String? ?? 'Frost Puno API',
+      appName: json['app_name'] as String? ?? 'FrostPuno API',
       version: json['version'] as String? ?? '-',
       modelAvailable: json['model_available'] as bool? ?? false,
     );

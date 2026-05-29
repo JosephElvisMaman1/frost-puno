@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 
@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health, ml, predict, predictions
+from app.api.routes import health, ml, predict, predictions, weather
 from app.core.config import settings
 from app.core.exceptions import ModelLoadError, PredictionError
 
@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version=settings.api_version,
-        description="Backend MVP for Frost Puno frost-risk prediction.",
+        description="Backend MVP for FrostPuno frost-risk prediction.",
     )
     app.add_middleware(
         CORSMiddleware,
@@ -59,6 +59,7 @@ def create_app() -> FastAPI:
     app.include_router(ml.router)
     app.include_router(predict.router)
     app.include_router(predictions.router)
+    app.include_router(weather.router)
     return app
 
 

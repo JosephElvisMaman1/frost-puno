@@ -1,4 +1,4 @@
-# Universidad Nacional del Altiplano
+﻿# Universidad Nacional del Altiplano
 
 ## Facultad de Ingeniería Mecánica Eléctrica, Electrónica y Sistemas
 
@@ -6,7 +6,7 @@
 
 ### Proyecto
 
-# Frost Puno
+# FrostPuno
 
 ## Sistema inteligente distribuido para predicción de heladas y apoyo a la producción de chuño en comunidades altoandinas de Puno mediante aprendizaje supervisado y datos abiertos
 
@@ -23,7 +23,7 @@
 **Universidad:** Universidad Nacional del Altiplano  
 **Facultad:** Facultad de Ingeniería Mecánica Eléctrica, Electrónica y Sistemas  
 **Escuela Profesional:** Ingeniería de Sistemas  
-**Proyecto:** Frost Puno  
+**Proyecto:** FrostPuno
 **Cursos:** Computación Paralela y Distribuida / Aprendizaje de Máquina  
 **Autor:** Joseph Elvis Mamani Mendoza  
 **Docente:** [Completar]  
@@ -34,7 +34,7 @@
 
 ## 2. Resumen
 
-Frost Puno es un sistema inteligente orientado a la predicción del riesgo de heladas en comunidades altoandinas de la región Puno, con énfasis en el apoyo a productores agrícolas y productores de chuño. El proyecto aborda una problemática regional relevante: la exposición de cultivos, ganado y actividades productivas tradicionales a descensos críticos de temperatura, especialmente en zonas de alta altitud donde las decisiones suelen basarse en experiencia empírica y no siempre en información climática integrada.
+FrostPuno es un sistema inteligente orientado a la predicción del riesgo de heladas en comunidades altoandinas de la región Puno, con énfasis en el apoyo a productores agrícolas y productores de chuño. El proyecto aborda una problemática regional relevante: la exposición de cultivos, ganado y actividades productivas tradicionales a descensos críticos de temperatura, especialmente en zonas de alta altitud donde las decisiones suelen basarse en experiencia empírica y no siempre en información climática integrada.
 
 La solución implementada corresponde a un Producto Mínimo Viable (MVP) que integra datos abiertos meteorológicos, territoriales y agropecuarios. Open-Meteo se utiliza como fuente climática principal para obtener variables horarias por coordenadas; INEI se emplea como fuente territorial y censal mediante una semilla curada documentada para distritos de Puno; SENAMHI se considera como fuente oficial peruana para validación climática en una segunda fase; y MIDAGRI/SIEA se plantea como fuente complementaria para enriquecer el contexto agrícola.
 
@@ -50,7 +50,7 @@ La región Puno presenta condiciones climáticas particulares debido a su altitu
 
 Tradicionalmente, muchos productores interpretan señales del entorno y toman decisiones a partir de conocimiento empírico acumulado. Dicho conocimiento es valioso, pero puede fortalecerse mediante herramientas computacionales que integren datos meteorológicos, ubicación geográfica, altitud, información territorial y aprendizaje automático.
 
-Frost Puno surge como una propuesta académica y tecnológica para demostrar que es posible construir un sistema distribuido, modular y basado en datos abiertos capaz de estimar el riesgo de helada en niveles bajo, medio y alto. El proyecto combina una aplicación Flutter, un backend FastAPI, un pipeline de Machine Learning en Python con Scikit-learn, una base de datos Supabase preparada para persistencia y workflows de GitHub Actions para validación continua.
+FrostPuno surge como una propuesta académica y tecnológica para demostrar que es posible construir un sistema distribuido, modular y basado en datos abiertos capaz de estimar el riesgo de helada en niveles bajo, medio y alto. El proyecto combina una aplicación Flutter, un backend FastAPI, un pipeline de Machine Learning en Python con Scikit-learn, una base de datos Supabase preparada para persistencia y workflows de GitHub Actions para validación continua.
 
 El propósito del MVP no es emitir alertas oficiales ni reemplazar a instituciones especializadas como SENAMHI, sino construir una base tecnológica verificable para investigación, exposición universitaria y mejora progresiva del modelo.
 
@@ -85,7 +85,7 @@ El proyecto demuestra la integración de tecnologías modernas: Flutter para fro
 
 ### 5.3 Justificación académica
 
-Frost Puno articula dos áreas centrales de la Ingeniería de Sistemas: Computación Paralela y Distribuida, y Aprendizaje de Máquina. El sistema permite demostrar ingesta concurrente, separación de responsabilidades, validación automatizada, entrenamiento de modelos, evaluación de métricas y ciclo de vida ML.
+FrostPuno articula dos áreas centrales de la Ingeniería de Sistemas: Computación Paralela y Distribuida, y Aprendizaje de Máquina. El sistema permite demostrar ingesta concurrente, separación de responsabilidades, validación automatizada, entrenamiento de modelos, evaluación de métricas y ciclo de vida ML.
 
 ### 5.4 Justificación regional
 
@@ -149,7 +149,7 @@ El chuño es un producto tradicional obtenido mediante procesos de congelación 
 
 ### 8.3 Aprendizaje supervisado
 
-El aprendizaje supervisado utiliza ejemplos etiquetados para entrenar modelos capaces de predecir una variable objetivo. En Frost Puno, la variable objetivo es `riesgo_helada`, con tres clases: bajo, medio y alto. Las etiquetas iniciales se generan mediante reglas basadas en temperatura mínima diaria y horas bajo cero.
+El aprendizaje supervisado utiliza ejemplos etiquetados para entrenar modelos capaces de predecir una variable objetivo. En FrostPuno, la variable objetivo es `riesgo_helada`, con tres clases: bajo, medio y alto. Las etiquetas iniciales se generan mediante reglas basadas en temperatura mínima diaria y horas bajo cero.
 
 ### 8.4 Random Forest
 
@@ -161,11 +161,11 @@ La clasificación multiclase consiste en asignar cada registro a una de varias c
 
 ### 8.6 Computación paralela
 
-La computación paralela permite ejecutar múltiples tareas al mismo tiempo para reducir tiempos de procesamiento. En Frost Puno se evidencia mediante la descarga concurrente de clima por distrito usando `max-workers`, lo que permite consultar Open-Meteo para varias ubicaciones de forma simultánea.
+La computación paralela permite ejecutar múltiples tareas al mismo tiempo para reducir tiempos de procesamiento. En FrostPuno se evidencia mediante la descarga concurrente de clima por distrito usando `max-workers`, lo que permite consultar Open-Meteo para varias ubicaciones de forma simultánea.
 
 ### 8.7 Sistemas distribuidos
 
-Un sistema distribuido separa responsabilidades entre componentes que interactúan mediante interfaces. Frost Puno distribuye funciones entre app Flutter, backend FastAPI, pipeline ML, Supabase y GitHub Actions. Aunque el MVP usa un backend modular monolítico, su diseño facilita migrar a microservicios.
+Un sistema distribuido separa responsabilidades entre componentes que interactúan mediante interfaces. FrostPuno distribuye funciones entre app Flutter, backend FastAPI, pipeline ML, Supabase y GitHub Actions. Aunque el MVP usa un backend modular monolítico, su diseño facilita migrar a microservicios.
 
 ### 8.8 CI/CD
 
@@ -173,7 +173,7 @@ La integración y entrega continua permiten automatizar pruebas, validación, en
 
 ### 8.9 Ciclo de vida de modelos ML
 
-El ciclo de vida ML comprende ingesta de datos, preparación, entrenamiento, evaluación, registro, monitoreo y mejora continua. Frost Puno implementa una versión inicial de este ciclo mediante scripts de pipeline, registry y quality gate.
+El ciclo de vida ML comprende ingesta de datos, preparación, entrenamiento, evaluación, registro, monitoreo y mejora continua. FrostPuno implementa una versión inicial de este ciclo mediante scripts de pipeline, registry y quality gate.
 
 ---
 
@@ -203,7 +203,7 @@ El dataset inicial utiliza etiquetas derivadas de reglas térmicas. Esto permite
 
 ## 10. Arquitectura del sistema
 
-Frost Puno se organiza en componentes independientes:
+FrostPuno se organiza en componentes independientes:
 
 - **Flutter:** interfaz móvil/web para consulta, resultado, historial, fuentes y modelo.
 - **FastAPI:** backend que expone endpoints REST, valida datos con Pydantic y ejecuta predicciones.
@@ -521,7 +521,7 @@ Las siguientes capturas fueron generadas localmente mediante scripts de apoyo ub
 
 ![Captura 01. Estructura del proyecto](capturas/01_estructura_proyecto.png)
 
-La captura presenta la organización principal del repositorio Frost Puno. Se observa la separación entre `app_flutter`, `backend_fastapi`, `ml_pipeline`, `data`, `docs`, `supabase` y `.github/workflows`, lo que evidencia una estructura modular por responsabilidades.
+La captura presenta la organización principal del repositorio FrostPuno. Se observa la separación entre `app_flutter`, `backend_fastapi`, `ml_pipeline`, `data`, `docs`, `supabase` y `.github/workflows`, lo que evidencia una estructura modular por responsabilidades.
 
 ### Captura 02: Dataset generado
 
@@ -680,11 +680,17 @@ Los resultados del MVP son:
 9. Validar predicciones con productores locales y especialistas.
 10. Incorporar monitoreo de deriva de datos y comparación automática con modelo activo anterior.
 
+### 21.1 Evolución móvil y climática planificada
+
+La versión evolucionada de FrostPuno incorpora preparación para uso móvil mediante geolocalización, permisos Android, PWA y generación de APK. El sistema añade un contrato de proveedores climáticos donde SENAMHI se considera fuente oficial peruana prioritaria, mientras Open-Meteo permanece como fuente de respaldo cuando no hay acceso operativo estable a datos oficiales en tiempo real.
+
+Esta mejora no cambia la limitación central del MVP: la validación oficial completa con estaciones SENAMHI y trabajo de campo sigue pendiente. Por ello, los datos consultados por fallback deben interpretarse como soporte técnico para demostración y no como reemplazo de alertas oficiales.
+
 ---
 
 ## 22. Conclusiones
 
-1. Frost Puno demuestra la viabilidad de integrar datos abiertos, aprendizaje supervisado y arquitectura distribuida para estimar riesgo de heladas en un contexto regional altoandino.
+1. FrostPuno demuestra la viabilidad de integrar datos abiertos, aprendizaje supervisado y arquitectura distribuida para estimar riesgo de heladas en un contexto regional altoandino.
 2. Desde Aprendizaje de Máquina, el proyecto implementa un ciclo completo: dataset, features, entrenamiento, evaluación, registro de modelo y quality gate.
 3. Desde Computación Paralela y Distribuida, el sistema evidencia procesamiento concurrente por ubicaciones, separación modular de responsabilidades y automatización mediante jobs independientes.
 4. El uso de RandomForestClassifier resulta adecuado para el MVP por su desempeño en datos tabulares y bajo costo computacional.

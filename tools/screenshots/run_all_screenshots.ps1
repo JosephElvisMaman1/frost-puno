@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Continue"
+﻿$ErrorActionPreference = "Continue"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Root = Resolve-Path (Join-Path $ScriptDir "..\..")
@@ -8,7 +8,7 @@ $DataDir = Join-Path $Root "docs\capturas_data"
 
 New-Item -ItemType Directory -Force $CapturesDir, $DataDir | Out-Null
 
-Write-Host "Frost Puno screenshot automation"
+Write-Host "FrostPuno screenshot automation"
 $BackendUrl = if ($env:BACKEND_URL) { $env:BACKEND_URL } else { "http://127.0.0.1:8000" }
 $FlutterUrl = if ($env:FLUTTER_WEB_URL) { $env:FLUTTER_WEB_URL } else { "http://127.0.0.1:5174" }
 Write-Host "Backend URL: $BackendUrl"

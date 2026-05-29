@@ -1,6 +1,6 @@
-# External data
+﻿# External data
 
-`inei_puno_districts.csv` is an MVP seed file for the first Frost Puno ML pipeline.
+`inei_puno_districts.csv` is an MVP seed file for the first FrostPuno ML pipeline.
 
 Important notes:
 

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import logging
@@ -173,7 +173,7 @@ def run(dataset_path: Path, version: str, test_size: float) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train and compare Frost Puno ML models.")
+    parser = argparse.ArgumentParser(description="Train and compare FrostPuno ML models.")
     parser.add_argument("--dataset", type=Path, default=TRAINING_DATASET_PATH)
     parser.add_argument("--version", default="v0.1.0")
     parser.add_argument("--test-size", type=float, default=0.25)

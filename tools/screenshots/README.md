@@ -1,6 +1,6 @@
-# Frost Puno - automatizacion de capturas
+﻿# FrostPuno - automatizacion de capturas
 
-Estos scripts generan evidencias visuales locales para el informe academico de Frost Puno. No modifican la logica del backend, Flutter, ML ni Supabase.
+Estos scripts generan evidencias visuales locales para el informe academico de FrostPuno. No modifican la logica del backend, Flutter, ML ni Supabase.
 
 ## Requisitos
 

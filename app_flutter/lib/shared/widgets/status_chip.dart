@@ -18,6 +18,7 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
@@ -35,11 +36,11 @@ class StatusChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: color == AppColors.warmAmber ? AppColors.deepNavy : color,
+              color: color == AppColors.warmAmber ? onSurface : color,
               fontFamily: 'monospace',
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
+              letterSpacing: 0,
             ),
           ),
         ],

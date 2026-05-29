@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -65,7 +65,7 @@ def run(dataset_path: Path, model_path: Path, metadata_path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Evaluate the registered Frost Puno model.")
+    parser = argparse.ArgumentParser(description="Evaluate the registered FrostPuno model.")
     parser.add_argument("--dataset", type=Path, default=TRAINING_DATASET_PATH)
     parser.add_argument("--model", type=Path, default=MODEL_PATH)
     parser.add_argument("--metadata", type=Path, default=MODEL_METADATA_PATH)

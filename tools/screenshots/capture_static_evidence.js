@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+﻿const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
@@ -52,7 +52,7 @@ function htmlPage(title, subtitle, body) {
   </style>
 </head>
 <body>
-  <span class="badge">Frost Puno - evidencia local</span>
+  <span class="badge">FrostPuno - evidencia local</span>
   <h1>${escapeHtml(title)}</h1>
   <p>${escapeHtml(subtitle)}</p>
   <pre>${escapeHtml(body || 'Archivo no disponible al momento de generar la captura.')}</pre>

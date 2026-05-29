@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/api/frost_api_service.dart';
 import '../../../core/models/health_status.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/theme_mode_scope.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/primary_action_button.dart';
 import '../../../shared/widgets/responsive_content.dart';
@@ -27,29 +28,48 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final themeScope = ThemeModeScope.maybeOf(context);
     return SafeArea(
       child: ResponsiveContent(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
           children: [
-            FutureBuilder<HealthStatus>(
-              future: _healthFuture,
-              builder: (context, snapshot) {
-                final active = snapshot.data?.modelAvailable ?? false;
-                return StatusChip(
-                  icon: Icons.circle,
-                  label: active ? 'Sistema activo' : 'Modo demo',
-                  color: active ? AppColors.mutedTeal : AppColors.warmAmber,
-                );
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: FutureBuilder<HealthStatus>(
+                    future: _healthFuture,
+                    builder: (context, snapshot) {
+                      final active = snapshot.data?.modelAvailable ?? false;
+                      return StatusChip(
+                        icon: Icons.circle,
+                        label: active ? 'Sistema activo' : 'Modo demo',
+                        color: active
+                            ? AppColors.mutedTeal
+                            : AppColors.warmAmber,
+                      );
+                    },
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Cambiar tema',
+                  icon: Icon(_themeIcon(themeScope?.themeMode)),
+                  onPressed: themeScope == null
+                      ? null
+                      : () => themeScope.onThemeModeChanged(
+                          _nextThemeMode(themeScope.themeMode),
+                        ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
-            Text('Frost Puno', style: textTheme.displayLarge),
+            Text('FrostPuno', style: textTheme.displayLarge),
             const SizedBox(height: 16),
             Text(
               'Prediccion inteligente de heladas para comunidades altoandinas.',
               style: textTheme.headlineMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: onSurface.withValues(alpha: 0.68),
                 fontSize: 22,
                 fontWeight: FontWeight.w400,
               ),
@@ -112,6 +132,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  static ThemeMode _nextThemeMode(ThemeMode? mode) {
+    return switch (mode ?? ThemeMode.system) {
+      ThemeMode.system => ThemeMode.light,
+      ThemeMode.light => ThemeMode.dark,
+      ThemeMode.dark => ThemeMode.system,
+    };
+  }
+
+  static IconData _themeIcon(ThemeMode? mode) {
+    return switch (mode ?? ThemeMode.system) {
+      ThemeMode.system => Icons.brightness_auto_outlined,
+      ThemeMode.light => Icons.light_mode_outlined,
+      ThemeMode.dark => Icons.dark_mode_outlined,
+    };
+  }
 }
 
 class _CurrentRiskCard extends StatelessWidget {
@@ -120,6 +156,7 @@ class _CurrentRiskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -150,7 +187,7 @@ class _CurrentRiskCard extends StatelessWidget {
                 child: Text(
                   'C',
                   style: textTheme.titleMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: onSurface.withValues(alpha: 0.68),
                   ),
                 ),
               ),
@@ -185,21 +222,33 @@ class _QuickTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(8),
       onTap: onTap,
       child: Container(
         constraints: const BoxConstraints(minHeight: 128),
         padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
-          color: AppColors.surfaceLow,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.outline),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.08),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: AppColors.textSecondary, size: 32),
+            Icon(
+              icon,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.66),
+              size: 32,
+            ),
             Text(
               label,
               maxLines: 2,

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import logging
@@ -48,7 +48,7 @@ def validate_training_dataset(path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate Frost Puno training dataset.")
+    parser = argparse.ArgumentParser(description="Validate FrostPuno training dataset.")
     parser.add_argument("--dataset", type=Path, default=TRAINING_DATASET_PATH)
     return parser.parse_args()
 

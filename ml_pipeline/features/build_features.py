@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import logging
@@ -155,7 +155,7 @@ def run(locations_path: Path, weather_path: Path, output_path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build Frost Puno ML features and labels.")
+    parser = argparse.ArgumentParser(description="Build FrostPuno ML features and labels.")
     parser.add_argument("--locations", type=Path, default=LOCATIONS_PROCESSED_PATH)
     parser.add_argument("--weather", type=Path, default=WEATHER_RAW_PATH)
     parser.add_argument("--output", type=Path, default=TRAINING_DATASET_PATH)

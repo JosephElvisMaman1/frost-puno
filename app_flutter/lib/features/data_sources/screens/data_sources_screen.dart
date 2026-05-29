@@ -16,9 +16,9 @@ class DataSourcesScreen extends StatelessWidget {
   static const sources = [
     DataSourceInfo(
       name: 'Open-Meteo',
-      tag: 'CLIMA',
+      tag: 'FALLBACK',
       description:
-          'Fuente climatica principal del MVP. Provee datos meteorologicos historicos y pronosticos por coordenadas.',
+          'Fuente climatica global usada como respaldo operativo cuando SENAMHI no entrega datos disponibles para el MVP.',
       icon: Icons.cloud_outlined,
     ),
     DataSourceInfo(
@@ -30,9 +30,9 @@ class DataSourcesScreen extends StatelessWidget {
     ),
     DataSourceInfo(
       name: 'SENAMHI',
-      tag: 'VALIDACION',
+      tag: 'OFICIAL',
       description:
-          'Fuente oficial propuesta para validar estaciones, avisos de heladas y calibracion climatica.',
+          'Fuente oficial peruana prioritaria para estaciones, avisos, validacion y futura calibracion climatica.',
       icon: Icons.device_thermostat,
     ),
     DataSourceInfo(
@@ -60,16 +60,22 @@ class DataSourcesScreen extends StatelessWidget {
           const SizedBox(height: 18),
         ],
         GlassCard(
-          color: AppColors.surfaceHigh,
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: AppColors.textSecondary),
+              Icon(
+                Icons.info_outline,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.66),
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  'El MVP usa datos abiertos y una semilla territorial curada. INEI no se usa como fuente de clima.',
+                  'SENAMHI se prioriza como fuente oficial; si no hay datos operativos disponibles, FrostPuno usa Open-Meteo como fallback.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.68),
                     fontStyle: FontStyle.italic,
                   ),
                 ),

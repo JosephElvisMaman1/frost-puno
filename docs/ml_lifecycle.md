@@ -1,4 +1,4 @@
-# Frost Puno - Ciclo de vida ML
+﻿# FrostPuno - Ciclo de vida ML
 
 ## 1. Ingesta
 
@@ -63,3 +63,11 @@ Los workflows principales son:
 - `model-quality-gate.yml`: lee `model_metadata.json` y falla si `f1_macro` no supera el umbral `MIN_F1_MACRO`.
 
 La ventana demo mantiene GitHub Actions liviano. Para produccion se ampliarian rango temporal, distritos y validacion SENAMHI.
+
+## 9. Extension climatica SENAMHI/Open-Meteo
+
+La evolucion movil introduce un contrato de proveedores climaticos desacoplado. SENAMHI queda como fuente oficial peruana prioritaria para validacion y enriquecimiento futuro, mientras Open-Meteo opera como fallback cuando no existe una API publica estable configurada para el MVP.
+
+Nuevos features candidatos: temperatura minima oficial, humedad oficial, velocidad de viento, nubosidad, estacion cercana, distancia a estacion, altitud real, sensacion termica, presion atmosferica y radiacion.
+
+Estos campos se documentan como contrato futuro. No se reentrena automaticamente el modelo hasta contar con dataset validado, etiquetas revisadas y comparacion contra la version activa.

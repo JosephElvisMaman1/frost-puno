@@ -1,4 +1,4 @@
-# Frost Puno FastAPI Backend
+﻿# FrostPuno FastAPI Backend
 
 Backend MVP que carga el modelo entrenado desde `ml_pipeline/registry` y expone:
 

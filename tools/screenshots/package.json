@@ -1,8 +1,8 @@
-{
+﻿{
   "name": "frost-puno-screenshots",
   "version": "0.1.0",
   "private": true,
-  "description": "Local screenshot automation for Frost Puno academic evidence.",
+  "description": "Local screenshot automation for FrostPuno academic evidence.",
   "scripts": {
     "capture:flutter": "node capture_web_screenshots.js",
     "capture:api": "node capture_fastapi_screenshots.js",
