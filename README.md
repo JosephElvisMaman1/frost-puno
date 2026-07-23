@@ -27,7 +27,7 @@ documentado (`ml_pipeline/training/train_models.py`, `docs/model_comparison_v1_v
 - Flutter analyze: sin errores.
 - Flutter test: pasando.
 - Flutter build web: funcionando.
-- Quality gate ML: aprobado (silhouette >= 0.25 sobre modelo K-Means).
+- Quality gate ML: aprobado (silhouette 0.419 >= 0.35 sobre modelo K-Means).
 - Capturas del informe: generadas localmente.
 - Despliegue: backend Render disponible en `https://frost-puno.onrender.com`; Vercel y Supabase documentados para ejecucion manual.
 - Movil: flujo GPS + clima automatico, modo oscuro, permisos Android, PWA y build APK preparados.
@@ -45,7 +45,7 @@ $env:PYTHONPATH = "$PWD\backend_fastapi"
 $env:ENABLE_SUPABASE = "false"
 pytest .\backend_fastapi\tests -q
 python -m ml_pipeline.clustering.train_clusters
-python -m ml_pipeline.registry.check_cluster_quality --metadata .\ml_pipeline\registry\cluster_metadata.json --min-silhouette 0.25
+python -m ml_pipeline.registry.check_cluster_quality --metadata .\ml_pipeline\registry\cluster_metadata.json --min-silhouette 0.35
 ```
 
 Levantar backend:

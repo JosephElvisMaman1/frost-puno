@@ -34,7 +34,7 @@ def load_silhouette(metadata_path: Path) -> float:
 def parse_threshold(cli_threshold: float | None) -> float:
     if cli_threshold is not None:
         return cli_threshold
-    return float(os.getenv("MIN_SILHOUETTE", "0.25"))
+    return float(os.getenv("MIN_SILHOUETTE", "0.35"))
 
 
 def run(metadata_path: Path, min_silhouette: float) -> int:

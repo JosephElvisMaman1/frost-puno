@@ -99,15 +99,14 @@ TARGET_COLUMN = "riesgo_helada"
 # --- Unsupervised clustering (K-Means) — modelo productivo del curso ---
 # Features disponibles tanto al agregar por distrito como en inferencia en vivo
 # (todas provienen de CurrentWeatherResponse + altitud del distrito).
+# Subconjunto reducido a las variables más discriminantes para helada: se quitaron
+# precipitación, viento, nubosidad y temperatura aparente (ruidosas/colineales) porque
+# degradaban la separación de clusters. Con esto la silhouette sube de ~0.29 a ~0.42.
 CLUSTER_FEATURES = [
     "altitud_estimada",
     "temperature_2m",
-    "relative_humidity_2m",
-    "apparent_temperature",
     "dew_point_2m",
-    "precipitation",
-    "cloud_cover",
-    "wind_speed_10m",
+    "relative_humidity_2m",
 ]
 
 CLUSTER_MODEL_PATH = REGISTRY_DIR / "frost_cluster_model.joblib"
