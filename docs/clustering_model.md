@@ -18,18 +18,21 @@ supervisado previo (ver `docs/model_comparison_v1_vs_v2.md`, hoy legacy).
 
 ## Features (`CLUSTER_FEATURES` en `ml_pipeline/config.py`)
 
-`altitud_estimada`, `temperature_2m`, `relative_humidity_2m`, `apparent_temperature`,
-`dew_point_2m`, `precipitation`, `cloud_cover`, `wind_speed_10m`.
+`altitud_estimada`, `temperature_2m`, `dew_point_2m`, `relative_humidity_2m`.
 
-Todas están disponibles tanto al agregar por distrito como en inferencia en vivo
-(provienen de `CurrentWeatherResponse` + altitud del distrito), garantizando que el
-mismo vector se pueda construir en producción.
+Subconjunto reducido a las variables más discriminantes para helada. Se descartaron
+`precipitation`, `wind_speed_10m`, `cloud_cover` y `apparent_temperature` porque eran
+ruidosas o colineales y **degradaban la separación de clusters** (silhouette bajaba a
+~0.29). Todas están disponibles al agregar por distrito y en inferencia en vivo
+(provienen de `CurrentWeatherResponse` + altitud), garantizando que el mismo vector se
+construya en producción.
 
 ## Métricas (ejecución MVP)
 
 - k seleccionado: **3**
-- silhouette ≈ **0.286**, Davies-Bouldin ≈ **1.21**
-- Gate de IC: `check_cluster_quality.py --min-silhouette 0.25`
+- silhouette ≈ **0.419**, Davies-Bouldin ≈ **0.81** (más bajo es mejor)
+- Selección de features vía experimento de subconjuntos (maximiza silhouette manteniendo variables con sentido físico).
+- Gate de IC: `check_cluster_quality.py --min-silhouette 0.35`
 
 ## Salidas / artefactos
 
