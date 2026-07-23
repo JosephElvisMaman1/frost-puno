@@ -127,7 +127,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
   LineChartData _tempChart(BuildContext context, List<HistoryDay> days) {
     return LineChartData(
       gridData: const FlGridData(show: true, drawVerticalLine: false),
-      titlesData: _titles(days),
+      titlesData: _titles(context, days),
       borderData: FlBorderData(show: false),
       lineBarsData: [
         _line(_spots(days, (d) => d.temperatureMin), AppColors.mutedTeal),
@@ -139,7 +139,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
   LineChartData _humidityChart(BuildContext context, List<HistoryDay> days) {
     return LineChartData(
       gridData: const FlGridData(show: true, drawVerticalLine: false),
-      titlesData: _titles(days),
+      titlesData: _titles(context, days),
       borderData: FlBorderData(show: false),
       lineBarsData: [
         _line(_spots(days, (d) => d.humidityMean), AppColors.deepTeal),
@@ -155,32 +155,46 @@ class _ChartsScreenState extends State<ChartsScreen> {
     dotData: const FlDotData(show: false),
   );
 
-  FlTitlesData _titles(List<HistoryDay> days) => FlTitlesData(
-    show: true,
-    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    leftTitles: const AxisTitles(
-      sideTitles: SideTitles(showTitles: true, reservedSize: 34),
-    ),
-    bottomTitles: AxisTitles(
-      sideTitles: SideTitles(
-        showTitles: true,
-        interval: (days.length / 4).clamp(1, 30).toDouble(),
-        getTitlesWidget: (value, meta) {
-          final index = value.toInt();
-          if (index < 0 || index >= days.length) return const SizedBox.shrink();
-          final label = days[index].date;
-          return Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              label.length >= 10 ? label.substring(5) : label,
-              style: const TextStyle(fontSize: 10),
-            ),
-          );
-        },
+  FlTitlesData _titles(BuildContext context, List<HistoryDay> days) {
+    final axisColor = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.62);
+    return FlTitlesData(
+      show: true,
+      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 36,
+          getTitlesWidget: (value, meta) => Text(
+            value.round().toString(),
+            style: TextStyle(fontSize: 11, color: axisColor),
+          ),
+        ),
       ),
-    ),
-  );
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          interval: (days.length / 4).clamp(1, 30).toDouble(),
+          getTitlesWidget: (value, meta) {
+            final index = value.toInt();
+            if (index < 0 || index >= days.length) {
+              return const SizedBox.shrink();
+            }
+            final label = days[index].date;
+            return Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                label.length >= 10 ? label.substring(5) : label,
+                style: TextStyle(fontSize: 10, color: axisColor),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class _Legend extends StatelessWidget {

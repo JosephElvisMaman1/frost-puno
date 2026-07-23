@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
 import '../../../core/models/health_status.dart';
+import '../../../core/notifications/notification_service.dart';
+import '../../../core/settings/user_settings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_mode_scope.dart';
 import '../../alerts/models/daily_alert.dart';
+import '../../settings/screens/settings_screen.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/primary_action_button.dart';
 import '../../../shared/widgets/responsive_content.dart';
@@ -69,6 +72,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           _nextThemeMode(themeScope.themeMode),
                         ),
                 ),
+                IconButton(
+                  tooltip: 'Ajustes',
+                  icon: const Icon(Icons.tune),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 32),
@@ -83,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            _DailyAlertBanner(future: _alertFuture),
+            _AlertSection(future: _alertFuture),
             const SizedBox(height: 20),
             const _CurrentRiskCard(),
             const SizedBox(height: 32),
@@ -162,64 +172,206 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _DailyAlertBanner extends StatelessWidget {
-  const _DailyAlertBanner({required this.future});
+Color _levelColor(String level) => switch (level) {
+  'alto' => AppColors.warmAmber,
+  'medio' => AppColors.mediumRisk,
+  _ => AppColors.lowRisk,
+};
+
+class _AlertSection extends StatefulWidget {
+  const _AlertSection({required this.future});
 
   final Future<DailyAlert> future;
 
-  Color _color(String severity) => switch (severity) {
-    'fuerte' => AppColors.warmAmber,
-    'moderada' => AppColors.mediumRisk,
-    _ => AppColors.lowRisk,
-  };
+  @override
+  State<_AlertSection> createState() => _AlertSectionState();
+}
 
-  IconData _icon(String severity) => switch (severity) {
-    'fuerte' => Icons.warning_amber_rounded,
-    'moderada' => Icons.ac_unit,
-    _ => Icons.check_circle_outline,
-  };
+class _AlertSectionState extends State<_AlertSection> {
+  bool _notified = false;
+
+  bool _shouldAlert(DailyAlert alert, UserSettings settings) {
+    if (!settings.alertsEnabled) return false;
+    if (alert.frostAlert) return true;
+    final tmin = alert.temperatureMin;
+    return tmin != null && tmin <= settings.alertThreshold;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final settings = UserSettings.instance;
     return FutureBuilder<DailyAlert>(
-      future: future,
+      future: widget.future,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox.shrink();
-        }
+        if (!snapshot.hasData) return const SizedBox.shrink();
         final alert = snapshot.data!;
-        final color = _color(alert.severity);
-        return GlassCard(
-          padding: const EdgeInsets.all(18),
-          color: color.withValues(alpha: 0.14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(_icon(alert.severity), color: color, size: 30),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      alert.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      alert.message,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        return AnimatedBuilder(
+          animation: settings,
+          builder: (context, _) {
+            final active = _shouldAlert(alert, settings);
+            if (active && !_notified) {
+              _notified = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                NotificationService.showFrostAlert(alert.title, alert.message);
+              });
+            }
+
+            final profile = settings.profile;
+            final showLivestock =
+                profile == UserProfile.general ||
+                profile == UserProfile.ganadero;
+            final cards = <Widget>[];
+
+            if (settings.alertsEnabled) {
+              cards.add(
+                _FrostBanner(alert: alert, active: active, settings: settings),
+              );
+            }
+            if (showLivestock && alert.livestock.level != 'bajo') {
+              cards.add(_LivestockCard(livestock: alert.livestock));
+            }
+            if (alert.anomaly.isUnusual) {
+              cards.add(_AnomalyCard(anomaly: alert.anomaly));
+            }
+            if (cards.isEmpty) return const SizedBox.shrink();
+
+            return Column(
+              children: [
+                for (var i = 0; i < cards.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 12),
+                  cards[i],
+                ],
+              ],
+            );
+          },
         );
       },
+    );
+  }
+}
+
+class _FrostBanner extends StatelessWidget {
+  const _FrostBanner({
+    required this.alert,
+    required this.active,
+    required this.settings,
+  });
+
+  final DailyAlert alert;
+  final bool active;
+  final UserSettings settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active ? _levelColor(alert.riskLevel) : AppColors.lowRisk;
+    final icon = active ? Icons.warning_amber_rounded : Icons.check_circle_outline;
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      color: color.withValues(alpha: 0.14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 30),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  alert.title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(alert.message, style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LivestockCard extends StatelessWidget {
+  const _LivestockCard({required this.livestock});
+
+  final LivestockRisk livestock;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _levelColor(livestock.level);
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      color: color.withValues(alpha: 0.12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.pets, color: color, size: 28),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ganado · riesgo ${livestock.level}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  livestock.message,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnomalyCard extends StatelessWidget {
+  const _AnomalyCard({required this.anomaly});
+
+  final ClimateAnomaly anomaly;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      color: AppColors.deepTeal.withValues(alpha: 0.12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.insights, color: AppColors.deepTeal, size: 28),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Riesgo inusual',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: AppColors.deepTeal,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  anomaly.message,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
