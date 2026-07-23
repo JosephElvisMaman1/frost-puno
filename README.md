@@ -143,7 +143,6 @@ Workflows principales:
 Archivos preparados:
 
 - `render.yaml`: Render Free para FastAPI.
-- `render.v2.yaml`: Render Free separado para FastAPI experimental con modelo `v0.2.0`.
 - `app_flutter/vercel.json`: Vercel Hobby para Flutter Web.
 - `supabase/`: migraciones, RLS y seed.
 - `docs/deployment.md`: guia paso a paso.
