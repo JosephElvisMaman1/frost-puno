@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health, ml, predict, predictions, weather
+from app.api.routes import alerts, chuno, health, ml, predict, predictions, weather
 from app.core.config import settings
 from app.core.exceptions import ModelLoadError, PredictionError
 
@@ -60,6 +60,8 @@ def create_app() -> FastAPI:
     app.include_router(predict.router)
     app.include_router(predictions.router)
     app.include_router(weather.router)
+    app.include_router(chuno.router)
+    app.include_router(alerts.router)
     return app
 
 

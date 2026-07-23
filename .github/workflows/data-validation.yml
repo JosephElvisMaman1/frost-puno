@@ -42,3 +42,12 @@ jobs:
       - name: Validate training dataset
         run: python -m ml_pipeline.preprocessing.validate_dataset
 
+      - name: Validate district clustering output
+        run: >
+          python -c "import pandas as pd;
+          df = pd.read_csv('data/processed/district_clusters.csv');
+          required = {'distrito', 'tier', 'dominant_cluster', 'cold_share'};
+          assert required.issubset(df.columns), f'missing columns: {required - set(df.columns)}';
+          assert set(df['tier']).issubset({'alto', 'medio', 'bajo'}), 'unexpected tier values';
+          print(f'district_clusters.csv OK: {len(df)} districts')"
+

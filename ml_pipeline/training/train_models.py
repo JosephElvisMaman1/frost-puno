@@ -1,4 +1,12 @@
-﻿from __future__ import annotations
+﻿"""LEGACY — clasificador supervisado (previo migrado).
+
+El path productivo del curso es el modelo NO SUPERVISADO en
+``ml_pipeline/clustering/train_clusters.py`` (K-Means, métrica silhouette).
+Este script se conserva solo como referencia histórica para el informe
+("modelo previo migrado"); no forma parte de la IC ni del backend.
+"""
+
+from __future__ import annotations
 
 import argparse
 import logging

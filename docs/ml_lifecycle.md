@@ -1,5 +1,9 @@
 ﻿# FrostPuno - Ciclo de vida ML
 
+> **Modelo actual:** no supervisado (K-Means). El paso de entrenamiento es
+> `ml_pipeline.clustering.train_clusters` y el gate de calidad usa silhouette
+> (`check_cluster_quality.py`). Ver `docs/clustering_model.md`.
+
 ## 1. Ingesta
 
 - `ingest_locations.py` valida `data/external/inei_puno_districts.csv` y produce `data/processed/locations_puno.csv`.

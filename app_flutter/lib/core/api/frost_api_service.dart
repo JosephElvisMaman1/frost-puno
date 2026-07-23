@@ -1,3 +1,7 @@
+import '../../features/alerts/models/daily_alert.dart';
+import '../../features/charts/models/history_day.dart';
+import '../../features/chuno/models/chuno_window.dart';
+import '../../features/clusters/models/cluster_info.dart';
 import '../../features/history/models/prediction_history_item.dart';
 import '../../features/model_info/models/model_info.dart';
 import '../../features/prediction/models/frost_risk_request.dart';
@@ -45,5 +49,42 @@ class FrostApiService {
       '/weather/current?latitude=$latitude&longitude=$longitude',
     );
     return CurrentWeather.fromJson(json);
+  }
+
+  Future<ClustersResult> getClusters() async {
+    final json = await _client.getJson('/ml/clusters');
+    return ClustersResult.fromJson(json);
+  }
+
+  Future<ChunoWindow> getChunoWindow({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final json = await _client.getJson(
+      '/chuno/window?latitude=$latitude&longitude=$longitude',
+    );
+    return ChunoWindow.fromJson(json);
+  }
+
+  Future<WeatherHistory> getWeatherHistory({
+    required double latitude,
+    required double longitude,
+    required String start,
+    required String end,
+  }) async {
+    final json = await _client.getJson(
+      '/weather/history?latitude=$latitude&longitude=$longitude&start=$start&end=$end',
+    );
+    return WeatherHistory.fromJson(json);
+  }
+
+  Future<DailyAlert> getDailyAlert({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final json = await _client.getJson(
+      '/alerts/today?latitude=$latitude&longitude=$longitude',
+    );
+    return DailyAlert.fromJson(json);
   }
 }

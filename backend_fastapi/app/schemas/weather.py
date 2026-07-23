@@ -22,3 +22,21 @@ class CurrentWeatherResponse(BaseModel):
     limitations: list[str] = Field(default_factory=list)
 
     model_config = ConfigDict(extra="forbid")
+
+
+class HistoryDay(BaseModel):
+    date: str
+    temperature_min: float | None = None
+    temperature_max: float | None = None
+    humidity_mean: float | None = None
+
+
+class WeatherHistoryResponse(BaseModel):
+    latitude: float
+    longitude: float
+    start_date: str
+    end_date: str
+    provider: str = "Open-Meteo Archive"
+    days: list[HistoryDay]
+
+    model_config = ConfigDict(extra="forbid")

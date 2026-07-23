@@ -13,9 +13,12 @@ services:
         value: 3.11.9
       - key: ENABLE_SUPABASE
         value: false
+      # v2 experimental supervisado retirado; usa el mismo modelo no supervisado.
       - key: MODEL_PATH
-        value: ml_pipeline/registry/frost_risk_model_v0_2_0.joblib
+        value: ml_pipeline/registry/frost_cluster_model.joblib
       - key: MODEL_METADATA_PATH
-        value: ml_pipeline/registry/model_metadata_v0_2_0.json
+        value: ml_pipeline/registry/cluster_metadata.json
+      - key: DISTRICT_CLUSTERS_PATH
+        value: data/processed/district_clusters.csv
       - key: CORS_ORIGINS
         value: https://frost-puno.vercel.app,http://localhost:3000,http://127.0.0.1:5174,http://localhost:5174

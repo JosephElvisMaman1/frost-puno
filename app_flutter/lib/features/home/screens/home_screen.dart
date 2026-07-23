@@ -4,6 +4,7 @@ import '../../../core/api/frost_api_service.dart';
 import '../../../core/models/health_status.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_mode_scope.dart';
+import '../../alerts/models/daily_alert.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/primary_action_button.dart';
 import '../../../shared/widgets/responsive_content.dart';
@@ -23,7 +24,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const _defaultLat = -15.8402;
+  static const _defaultLon = -70.0219;
+
   late final Future<HealthStatus> _healthFuture = widget.apiService.getHealth();
+  late final Future<DailyAlert> _alertFuture = widget.apiService.getDailyAlert(
+    latitude: _defaultLat,
+    longitude: _defaultLon,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 34),
+            const SizedBox(height: 24),
+            _DailyAlertBanner(future: _alertFuture),
+            const SizedBox(height: 20),
             const _CurrentRiskCard(),
             const SizedBox(height: 32),
             PrimaryActionButton(
@@ -149,6 +159,68 @@ class _HomeScreenState extends State<HomeScreen> {
       ThemeMode.light => Icons.light_mode_outlined,
       ThemeMode.dark => Icons.dark_mode_outlined,
     };
+  }
+}
+
+class _DailyAlertBanner extends StatelessWidget {
+  const _DailyAlertBanner({required this.future});
+
+  final Future<DailyAlert> future;
+
+  Color _color(String severity) => switch (severity) {
+    'fuerte' => AppColors.warmAmber,
+    'moderada' => AppColors.mediumRisk,
+    _ => AppColors.lowRisk,
+  };
+
+  IconData _icon(String severity) => switch (severity) {
+    'fuerte' => Icons.warning_amber_rounded,
+    'moderada' => Icons.ac_unit,
+    _ => Icons.check_circle_outline,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DailyAlert>(
+      future: future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+        final alert = snapshot.data!;
+        final color = _color(alert.severity);
+        return GlassCard(
+          padding: const EdgeInsets.all(18),
+          color: color.withValues(alpha: 0.14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(_icon(alert.severity), color: color, size: 30),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      alert.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      alert.message,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

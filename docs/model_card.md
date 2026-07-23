@@ -1,5 +1,9 @@
 ﻿# Model Card - FrostPuno Frost Risk MVP
 
+> **Migración a no supervisado:** el modelo productivo es ahora K-Means (clustering),
+> evaluado con silhouette / Davies-Bouldin. Ver `docs/clustering_model.md`. Lo descrito
+> abajo corresponde al clasificador supervisado previo, conservado como referencia legacy.
+
 ## Modelo
 
 Clasificador supervisado tabular para riesgo de helada:
