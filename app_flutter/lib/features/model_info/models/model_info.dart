@@ -9,6 +9,7 @@ class ModelInfo {
     required this.datasetSize,
     required this.dataSources,
     required this.limitations,
+    this.nClusters,
   });
 
   final String modelName;
@@ -20,6 +21,7 @@ class ModelInfo {
   final int datasetSize;
   final List<String> dataSources;
   final List<String> limitations;
+  final int? nClusters;
 
   factory ModelInfo.fromJson(Map<String, dynamic> json) {
     final rawMetrics = json['metrics'] as Map<String, dynamic>? ?? const {};
@@ -41,6 +43,7 @@ class ModelInfo {
       limitations: (json['limitations'] as List<dynamic>? ?? const [])
           .map((item) => item.toString())
           .toList(),
+      nClusters: (json['n_clusters'] as num?)?.toInt(),
     );
   }
 }

@@ -149,14 +149,15 @@ def test_current_weather_contract(monkeypatch) -> None:
 
 
 class _FakeForecastProvider:
-    def __init__(self, rows):
+    def __init__(self, rows, history=None):
         self._rows = rows
+        self._history = history if history is not None else rows
 
     def get_daily_forecast(self, query, days=7):
         return self._rows
 
     def get_history(self, query, start_date, end_date):
-        return self._rows
+        return self._history
 
 
 def test_chuno_window_flags_optimal_streak(monkeypatch) -> None:
@@ -183,11 +184,18 @@ def test_chuno_window_flags_optimal_streak(monkeypatch) -> None:
     assert body["days"][0]["tier"] in {"excelente", "bueno"}
 
 
-def test_alert_today_strong_frost(monkeypatch) -> None:
+def test_alert_today_strong_frost_with_livestock_and_anomaly(monkeypatch) -> None:
     from app.api.routes import alerts
 
-    rows = [{"date": "2026-06-10", "temperature_2m_min": -6.0}]
-    monkeypatch.setattr(alerts, "get_weather_provider", lambda: _FakeForecastProvider(rows))
+    rows = [{"date": "2026-06-10", "temperature_2m_min": -7.0}]
+    # Historia templada con varianza -> la minima de hoy (-7) es una anomalia clara.
+    history = [
+        {"date": f"2026-05-{d:02d}", "temperature_2m_min": 0.0 if d % 2 else 2.0}
+        for d in range(1, 16)
+    ]
+    monkeypatch.setattr(
+        alerts, "get_weather_provider", lambda: _FakeForecastProvider(rows, history=history)
+    )
 
     response = client.get("/alerts/today?latitude=-15.8402&longitude=-70.0219")
 
@@ -196,6 +204,10 @@ def test_alert_today_strong_frost(monkeypatch) -> None:
     assert body["frost_alert"] is True
     assert body["severity"] == "fuerte"
     assert body["risk_level"] == "alto"
+    assert body["livestock"]["level"] == "alto"
+    assert body["anomaly"]["is_unusual"] is True
+    assert body["anomaly"]["historical_mean"] is not None
+    assert body["anomaly"]["delta"] < 0
 
 
 def test_weather_history_contract(monkeypatch) -> None:

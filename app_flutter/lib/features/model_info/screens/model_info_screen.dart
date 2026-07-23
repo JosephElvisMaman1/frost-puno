@@ -28,14 +28,14 @@ class ModelInfoScreen extends StatelessWidget {
             );
           }
           final info = snapshot.data!;
-          final f1 = info.metrics['f1_macro'] ?? 0;
+          final silhouette = info.metrics['silhouette'] ?? 0;
           return ListView(
             padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
             children: [
               const SectionHeader(
                 title: 'Informacion del modelo',
                 subtitle:
-                    'Especificaciones tecnicas y metricas de rendimiento del clasificador climatico actual.',
+                    'Especificaciones tecnicas y metricas del modelo no supervisado (clustering) en produccion.',
               ),
               const SizedBox(height: 30),
               GlassCard(
@@ -57,7 +57,8 @@ class ModelInfoScreen extends StatelessWidget {
                             spacing: 10,
                             runSpacing: 10,
                             children: [
-                              StatusChip(label: 'Ensemble Learning'),
+                              StatusChip(label: 'Clustering'),
+                              StatusChip(label: 'No supervisado'),
                               StatusChip(label: 'Scikit-Learn'),
                             ],
                           ),
@@ -80,10 +81,19 @@ class ModelInfoScreen extends StatelessWidget {
               _MetricPanel(
                 icon: Icons.analytics_outlined,
                 label: 'METRICA PRINCIPAL',
-                value: f1.toStringAsFixed(2),
-                suffix: 'F1 macro',
+                value: silhouette.toStringAsFixed(3),
+                suffix: 'silhouette',
                 description:
-                    'Balance entre precision y exhaustividad para tres clases de riesgo.',
+                    'Cohesion y separacion de los grupos climaticos (0 a 1, mas alto es mejor).',
+              ),
+              const SizedBox(height: 18),
+              _MetricPanel(
+                icon: Icons.hub_outlined,
+                label: 'GRUPOS DE RIESGO',
+                value: (info.nClusters ?? 0).toString(),
+                suffix: 'clusters',
+                description:
+                    'Regimenes climaticos agrupados por K-Means y mapeados a alto/medio/bajo.',
               ),
               const SizedBox(height: 18),
               _MetricPanel(
