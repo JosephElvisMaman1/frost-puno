@@ -14,13 +14,18 @@ class Settings(BaseSettings):
     api_version: str = Field(default="0.1.0", validation_alias=AliasChoices("API_VERSION", "FROST_PUNO_API_VERSION"))
     log_level: str = Field(default="INFO", validation_alias=AliasChoices("LOG_LEVEL", "FROST_PUNO_LOG_LEVEL"))
 
+    # Modelo productivo: K-Means no supervisado (reemplaza al clasificador supervisado).
     model_path: Path = Field(
-        default=PROJECT_ROOT / "ml_pipeline" / "registry" / "frost_risk_model.joblib",
+        default=PROJECT_ROOT / "ml_pipeline" / "registry" / "frost_cluster_model.joblib",
         validation_alias=AliasChoices("MODEL_PATH", "FROST_PUNO_MODEL_PATH"),
     )
     model_metadata_path: Path = Field(
-        default=PROJECT_ROOT / "ml_pipeline" / "registry" / "model_metadata.json",
+        default=PROJECT_ROOT / "ml_pipeline" / "registry" / "cluster_metadata.json",
         validation_alias=AliasChoices("MODEL_METADATA_PATH", "FROST_PUNO_MODEL_METADATA_PATH"),
+    )
+    district_clusters_path: Path = Field(
+        default=PROJECT_ROOT / "data" / "processed" / "district_clusters.csv",
+        validation_alias=AliasChoices("DISTRICT_CLUSTERS_PATH", "FROST_PUNO_DISTRICT_CLUSTERS_PATH"),
     )
 
     supabase_url: str | None = Field(default=None, validation_alias=AliasChoices("SUPABASE_URL", "FROST_PUNO_SUPABASE_URL"))

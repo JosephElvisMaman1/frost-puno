@@ -71,11 +71,13 @@ jobs:
       - name: Validate dataset
         run: python -m ml_pipeline.preprocessing.validate_dataset
 
-      - name: Train candidate models
-        run: python -m ml_pipeline.training.train_models --version "$MODEL_VERSION"
+      - name: Train unsupervised K-Means model
+        run: python -m ml_pipeline.clustering.train_clusters --version "$MODEL_VERSION"
 
-      - name: Evaluate registered model
-        run: python -m ml_pipeline.evaluation.evaluate_model
+      - name: Cluster quality gate (silhouette)
+        run: >
+          python -m ml_pipeline.registry.check_cluster_quality
+          --metadata ml_pipeline/registry/cluster_metadata.json
 
       - name: Upload model artifacts
         uses: actions/upload-artifact@v4
@@ -83,10 +85,9 @@ jobs:
           name: frost-puno-model-${{ github.run_id }}
           retention-days: 14
           path: |
-            ml_pipeline/registry/frost_risk_model.joblib
-            ml_pipeline/registry/model_metadata.json
-            ml_pipeline/evaluation/metrics_comparison.json
-            ml_pipeline/evaluation/evaluation_report.json
-            ml_pipeline/evaluation/confusion_matrix.csv
+            ml_pipeline/registry/frost_cluster_model.joblib
+            ml_pipeline/registry/cluster_metadata.json
+            ml_pipeline/evaluation/cluster_profiles.csv
+            data/processed/district_clusters.csv
             data/processed/frost_training_dataset.csv
 

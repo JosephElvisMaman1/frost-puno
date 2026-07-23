@@ -1,5 +1,9 @@
 ﻿# FrostPuno - Gobierno del modelo
 
+> **Criterio de promoción actual:** modelo no supervisado K-Means. Un nuevo modelo se
+> promueve solo si su **silhouette** supera el umbral del gate (`MIN_SILHOUETTE`, def. 0.25)
+> en `model-quality-gate.yml`. Reemplaza al criterio `f1_macro` del clasificador legacy.
+
 ## Principio
 
 El modelo no se actualiza solo por existir un entrenamiento nuevo. Debe pasar validacion de datos, evaluacion y un quality gate.

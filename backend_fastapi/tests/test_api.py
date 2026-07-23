@@ -57,18 +57,30 @@ def test_health_check() -> None:
     assert "model_available" in body
 
 
-def test_model_info_returns_registry_metadata() -> None:
+def test_model_info_returns_cluster_metadata() -> None:
     response = client.get("/ml/model-info")
 
     assert response.status_code == 200
     body = response.json()
-    assert body["model_name"] == "RandomForestClassifier"
-    assert body["version"] == "v0.1.0"
-    assert "f1_macro" in body["metrics"]
-    assert "Open-Meteo Historical API" in body["data_sources"]
+    assert body["model_name"] == "KMeans"
+    assert body["version"].endswith("clustering")
+    assert "silhouette" in body["metrics"]
+    assert body["n_clusters"] >= 2
 
 
-def test_predict_frost_risk_high_risk() -> None:
+def test_clusters_endpoint_returns_profiles_and_districts() -> None:
+    response = client.get("/ml/clusters")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["n_clusters"] == len(body["profiles"])
+    assert body["profiles"], "expected at least one cluster profile"
+    assert body["districts"], "expected district groupings"
+    tiers = {district["tier"] for district in body["districts"]}
+    assert tiers.issubset({"alto", "medio", "bajo"})
+
+
+def test_predict_frost_risk_returns_cluster_tier() -> None:
     payload = {
         "district": "Puno",
         "province": "Puno",
@@ -96,9 +108,9 @@ def test_predict_frost_risk_high_risk() -> None:
 
     assert response.status_code == 200
     body = response.json()
-    assert body["risk_level"] == "alto"
+    assert body["risk_level"] in {"alto", "medio", "bajo"}
     assert 0 <= body["confidence"] <= 1
-    assert body["model_version"] == "v0.1.0"
+    assert body["model_version"].endswith("clustering")
     assert body["chuno_conditions"] == "favorables"
 
 
@@ -134,6 +146,80 @@ def test_current_weather_contract(monkeypatch) -> None:
     body = response.json()
     assert body["provider"] == "Open-Meteo"
     assert body["fallback_used"] is True
+
+
+class _FakeForecastProvider:
+    def __init__(self, rows):
+        self._rows = rows
+
+    def get_daily_forecast(self, query, days=7):
+        return self._rows
+
+    def get_history(self, query, start_date, end_date):
+        return self._rows
+
+
+def test_chuno_window_flags_optimal_streak(monkeypatch) -> None:
+    from app.api.routes import chuno
+
+    cold_day = {
+        "date": "2026-06-10",
+        "temperature_2m_min": -7.0,
+        "temperature_2m_max": 16.0,
+        "relative_humidity_2m_max": 45.0,
+        "cloud_cover_mean": 15.0,
+        "precipitation_sum": 0.0,
+    }
+    rows = [dict(cold_day, date=f"2026-06-{10 + i}") for i in range(4)]
+    monkeypatch.setattr(chuno, "get_weather_provider", lambda: _FakeForecastProvider(rows))
+
+    response = client.get("/chuno/window?latitude=-15.8402&longitude=-70.0219")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["best_streak"] >= 3
+    assert all(day["is_good_day"] for day in body["days"])
+    # optimal_window depende de la temporada real; el streak siempre debe reflejar los días buenos.
+    assert body["days"][0]["tier"] in {"excelente", "bueno"}
+
+
+def test_alert_today_strong_frost(monkeypatch) -> None:
+    from app.api.routes import alerts
+
+    rows = [{"date": "2026-06-10", "temperature_2m_min": -6.0}]
+    monkeypatch.setattr(alerts, "get_weather_provider", lambda: _FakeForecastProvider(rows))
+
+    response = client.get("/alerts/today?latitude=-15.8402&longitude=-70.0219")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["frost_alert"] is True
+    assert body["severity"] == "fuerte"
+    assert body["risk_level"] == "alto"
+
+
+def test_weather_history_contract(monkeypatch) -> None:
+    from app.api.routes import weather
+
+    rows = [
+        {
+            "date": "2026-06-01",
+            "temperature_2m_min": -5.0,
+            "temperature_2m_max": 14.0,
+            "relative_humidity_2m_mean": 55.0,
+        }
+    ]
+    weather.get_weather_provider.cache_clear()
+    monkeypatch.setattr(weather, "get_weather_provider", lambda: _FakeForecastProvider(rows))
+
+    response = client.get(
+        "/weather/history?latitude=-15.8402&longitude=-70.0219&start=2026-06-01&end=2026-06-01"
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["days"][0]["temperature_min"] == -5.0
+    assert body["days"][0]["humidity_mean"] == 55.0
 
 
 def test_noop_repository_does_not_persist_and_returns_empty_history() -> None:

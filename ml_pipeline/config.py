@@ -96,6 +96,29 @@ NUMERIC_FEATURES_V2 = [
 
 TARGET_COLUMN = "riesgo_helada"
 
+# --- Unsupervised clustering (K-Means) — modelo productivo del curso ---
+# Features disponibles tanto al agregar por distrito como en inferencia en vivo
+# (todas provienen de CurrentWeatherResponse + altitud del distrito).
+CLUSTER_FEATURES = [
+    "altitud_estimada",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "apparent_temperature",
+    "dew_point_2m",
+    "precipitation",
+    "cloud_cover",
+    "wind_speed_10m",
+]
+
+CLUSTER_MODEL_PATH = REGISTRY_DIR / "frost_cluster_model.joblib"
+CLUSTER_METADATA_PATH = REGISTRY_DIR / "cluster_metadata.json"
+CLUSTER_PROFILES_PATH = EVALUATION_DIR / "cluster_profiles.csv"
+DISTRICT_CLUSTERS_PATH = PROCESSED_DIR / "district_clusters.csv"
+CLUSTER_VERSION = "v1.0.0-clustering"
+CLUSTER_K_RANGE = (3, 4, 5, 6)
+# Orden ordinal de riesgo: clusters más fríos → mayor riesgo de helada.
+RISK_TIERS = ("alto", "medio", "bajo")
+
 OBSERVATION_REQUIRED_COLUMNS = [
     "observed_at",
     "distrito",

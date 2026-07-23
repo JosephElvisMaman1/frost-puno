@@ -5,16 +5,16 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      min_f1_macro:
-        description: "Minimum accepted f1_macro"
+      min_silhouette:
+        description: "Minimum accepted silhouette score"
         required: false
-        default: "0.70"
+        default: "0.25"
 
 jobs:
   model-quality-gate:
     runs-on: ubuntu-latest
     env:
-      MIN_F1_MACRO: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.min_f1_macro || '0.70' }}
+      MIN_SILHOUETTE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.min_silhouette || '0.25' }}
 
     steps:
       - name: Checkout repository
@@ -25,13 +25,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Evaluate model metadata quality
+      - name: Evaluate cluster metadata quality (silhouette)
         run: >
-          python -m ml_pipeline.registry.check_model_quality
-          --metadata ml_pipeline/registry/model_metadata.json
+          python -m ml_pipeline.registry.check_cluster_quality
+          --metadata ml_pipeline/registry/cluster_metadata.json
 
       - name: Future active-model comparison
         run: |
-          echo "Future step: download the currently active production model metadata,"
-          echo "compare f1_macro and drift metrics, then block deployment on regression."
+          echo "Future step: download the currently active production cluster metadata,"
+          echo "compare silhouette / Davies-Bouldin drift, then block deployment on regression."
 

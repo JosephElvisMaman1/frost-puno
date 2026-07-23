@@ -2,11 +2,20 @@
 
 Sistema inteligente distribuido para prediccion de heladas y apoyo a la produccion de chuno en comunidades altoandinas de Puno mediante aprendizaje supervisado y datos abiertos.
 
+## Modelo de ML: no supervisado (K-Means)
+
+El modelo productivo es **no supervisado** (K-Means clustering), acorde al criterio del
+curso. Agrupa regímenes climáticos de Puno y deriva niveles de riesgo de helada por
+distrito. Métricas: **silhouette / Davies-Bouldin** (no `f1_macro`). Detalle en
+`docs/clustering_model.md`. El clasificador supervisado anterior queda como legacy
+documentado (`ml_pipeline/training/train_models.py`, `docs/model_comparison_v1_vs_v2.md`).
+
 ## Arquitectura final MVP
 
-- `ml_pipeline`: ingesta Open-Meteo, semilla territorial INEI-compatible, features, validacion, entrenamiento, evaluacion y registry.
-- `backend_fastapi`: API modular con modelo ML, Pydantic, CORS, health check y persistencia Supabase opcional.
-- `app_flutter`: Flutter Web/mobile con pantallas Home, consulta, resultado, historial, fuentes y modelo.
+- `ml_pipeline/clustering`: modelo K-Means, selección de k por silhouette, perfilado y agrupación de distritos.
+- `ml_pipeline`: ingesta Open-Meteo, semilla territorial INEI-compatible, features, validacion y registry.
+- `backend_fastapi`: API modular. Endpoints ML (`/ml/clusters`), chuño (`/chuno/window`), histórico (`/weather/history`) y alerta diaria (`/alerts/today`).
+- `app_flutter`: Flutter Web/mobile con pantallas Home (alerta diaria), Zonas de riesgo, Módulo chuño, Clima histórico (gráficos) e Historial.
 - `backend_fastapi/app/services/weather_providers.py`: proveedores climaticos SENAMHI/Open-Meteo con fallback.
 - `supabase`: SQL para PostgreSQL, RLS, seed y tablas del MVP.
 - `.github/workflows`: CI/CD para backend, datos, ML, quality gate y Flutter Web.
@@ -18,7 +27,7 @@ Sistema inteligente distribuido para prediccion de heladas y apoyo a la producci
 - Flutter analyze: sin errores.
 - Flutter test: pasando.
 - Flutter build web: funcionando.
-- Quality gate ML: aprobado.
+- Quality gate ML: aprobado (silhouette >= 0.25 sobre modelo K-Means).
 - Capturas del informe: generadas localmente.
 - Despliegue: backend Render disponible en `https://frost-puno.onrender.com`; Vercel y Supabase documentados para ejecucion manual.
 - Movil: flujo GPS + clima automatico, modo oscuro, permisos Android, PWA y build APK preparados.
@@ -35,7 +44,8 @@ python -m pip install -r .\backend_fastapi\requirements-dev.txt
 $env:PYTHONPATH = "$PWD\backend_fastapi"
 $env:ENABLE_SUPABASE = "false"
 pytest .\backend_fastapi\tests -q
-python -m ml_pipeline.registry.check_model_quality --metadata .\ml_pipeline\registry\model_metadata.json --min-f1-macro 0.70
+python -m ml_pipeline.clustering.train_clusters
+python -m ml_pipeline.registry.check_cluster_quality --metadata .\ml_pipeline\registry\cluster_metadata.json --min-silhouette 0.25
 ```
 
 Levantar backend:
@@ -124,8 +134,8 @@ Workflows principales:
 
 - `backend-tests.yml`: valida FastAPI sin Supabase real.
 - `data-validation.yml`: valida ubicaciones, clima demo y dataset.
-- `ml-training.yml`: ejecuta entrenamiento/evaluacion y guarda artefactos.
-- `model-quality-gate.yml`: bloquea modelos bajo el umbral de `f1_macro`.
+- `ml-training.yml`: entrena el K-Means, aplica el gate de silhouette y guarda artefactos.
+- `model-quality-gate.yml`: bloquea modelos bajo el umbral de `silhouette` (no supervisado).
 - `flutter-build.yml`: analiza, prueba y compila Flutter Web.
 
 ## Despliegue gratuito

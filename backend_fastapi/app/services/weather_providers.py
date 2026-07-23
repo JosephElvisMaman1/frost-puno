@@ -106,6 +106,54 @@ class OpenMeteoProvider:
         )
 
 
+    def get_daily_forecast(self, query: WeatherQuery, days: int = 7) -> list[dict[str, float | str | None]]:
+        """Pronóstico diario Open-Meteo para el módulo de chuño."""
+        response = self._client.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": query.latitude,
+                "longitude": query.longitude,
+                "daily": ",".join(
+                    [
+                        "temperature_2m_min",
+                        "temperature_2m_max",
+                        "relative_humidity_2m_max",
+                        "cloud_cover_mean",
+                        "precipitation_sum",
+                    ],
+                ),
+                "forecast_days": days,
+                "timezone": "auto",
+            },
+        )
+        response.raise_for_status()
+        return _rows_from_daily(response.json().get("daily") or {})
+
+    def get_history(
+        self, query: WeatherQuery, start_date: str, end_date: str
+    ) -> list[dict[str, float | str | None]]:
+        """Serie histórica diaria vía Open-Meteo Archive API (sin API key)."""
+        response = self._client.get(
+            "https://archive-api.open-meteo.com/v1/archive",
+            params={
+                "latitude": query.latitude,
+                "longitude": query.longitude,
+                "start_date": start_date,
+                "end_date": end_date,
+                "daily": ",".join(
+                    [
+                        "temperature_2m_min",
+                        "temperature_2m_max",
+                        "relative_humidity_2m_mean",
+                    ],
+                ),
+                "timezone": "auto",
+            },
+        )
+        response.raise_for_status()
+        return _rows_from_daily(response.json().get("daily") or {})
+
+
 class HybridWeatherProvider:
     name = "HybridWeatherProvider"
 
@@ -140,6 +188,14 @@ class HybridWeatherProvider:
 
         self._cache[cache_key] = (now, result)
         return result
+
+    def get_daily_forecast(self, query: WeatherQuery, days: int = 7) -> list[dict[str, float | str | None]]:
+        return self._open_meteo.get_daily_forecast(query, days=days)
+
+    def get_history(
+        self, query: WeatherQuery, start_date: str, end_date: str
+    ) -> list[dict[str, float | str | None]]:
+        return self._open_meteo.get_history(query, start_date, end_date)
 
     def _fallback_to_open_meteo(
         self,
@@ -182,3 +238,17 @@ def _num(value: object) -> float | None:
     if value is None:
         return None
     return float(value)
+
+
+def _rows_from_daily(daily: dict[str, list]) -> list[dict[str, float | str | None]]:
+    """Transpone el bloque `daily` de Open-Meteo (columnas) en filas por fecha."""
+    dates = daily.get("time") or []
+    keys = [key for key in daily if key != "time"]
+    rows: list[dict[str, float | str | None]] = []
+    for index, date in enumerate(dates):
+        row: dict[str, float | str | None] = {"date": date}
+        for key in keys:
+            values = daily.get(key) or []
+            row[key] = _num(values[index]) if index < len(values) else None
+        rows.append(row)
+    return rows

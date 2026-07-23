@@ -1,0 +1,98 @@
+{
+  "model_name": "KMeans",
+  "version": "v1.0.0-clustering",
+  "created_at": "2026-07-23T16:06:47+00:00",
+  "features": [
+    "altitud_estimada",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "apparent_temperature",
+    "dew_point_2m",
+    "precipitation",
+    "cloud_cover",
+    "wind_speed_10m"
+  ],
+  "target": "cluster_risk_tier",
+  "n_clusters": 3,
+  "metrics": {
+    "silhouette": 0.28561989187902104,
+    "davies_bouldin": 1.2131822284741867,
+    "inertia": 19601.148733763912
+  },
+  "all_k_metrics": {
+    "3": {
+      "silhouette": 0.28561989187902104,
+      "davies_bouldin": 1.2131822284741867,
+      "inertia": 19601.148733763912
+    },
+    "4": {
+      "silhouette": 0.23340070040693497,
+      "davies_bouldin": 1.3270780872848023,
+      "inertia": 17319.40277325114
+    },
+    "5": {
+      "silhouette": 0.24145286741233354,
+      "davies_bouldin": 1.1503180602026577,
+      "inertia": 14390.105451959585
+    },
+    "6": {
+      "silhouette": 0.2579647904206775,
+      "davies_bouldin": 1.1245727256359461,
+      "inertia": 12767.633046053488
+    }
+  },
+  "dataset_size": 4368,
+  "cluster_tiers": {
+    "1": "alto",
+    "0": "medio",
+    "2": "bajo"
+  },
+  "cluster_profiles": {
+    "0": {
+      "altitud_estimada": 3887.876092544987,
+      "temperature_2m": 12.435629820051414,
+      "relative_humidity_2m": 27.97275064267352,
+      "apparent_temperature": 9.031002570694087,
+      "dew_point_2m": -6.562879177377892,
+      "precipitation": 0.00046272493573264775,
+      "cloud_cover": 28.21233933161954,
+      "wind_speed_10m": 8.203290488431877,
+      "size": 1945,
+      "tier": "medio"
+    },
+    "1": {
+      "altitud_estimada": 3903.144630071599,
+      "temperature_2m": 3.9616706443914085,
+      "relative_humidity_2m": 55.39474940334129,
+      "apparent_temperature": 0.3310739856801909,
+      "dew_point_2m": -4.783914081145585,
+      "precipitation": 4.7732696897374704e-05,
+      "cloud_cover": 24.848210023866347,
+      "wind_speed_10m": 6.554033412887828,
+      "size": 2095,
+      "tier": "alto"
+    },
+    "2": {
+      "altitud_estimada": 2176.5396341463415,
+      "temperature_2m": 13.817378048780489,
+      "relative_humidity_2m": 80.63719512195122,
+      "apparent_temperature": 13.663719512195122,
+      "dew_point_2m": 10.336890243902438,
+      "precipitation": 0.05457317073170731,
+      "cloud_cover": 63.46951219512195,
+      "wind_speed_10m": 4.1274390243902435,
+      "size": 328,
+      "tier": "bajo"
+    }
+  },
+  "data_sources": [
+    "Open-Meteo Historical/Forecast API",
+    "INEI-compatible curated district seed for Puno MVP",
+    "SENAMHI documented as prioritized official source (no stable public API in MVP)"
+  ],
+  "limitations": [
+    "Modelo no supervisado: los niveles de riesgo se derivan del perfil térmico de cada cluster, no de etiquetas oficiales.",
+    "La semilla de distritos INEI es un MVP y debe reemplazarse por exportes oficiales para producción.",
+    "SENAMHI aún no aporta observaciones de campo como validación cruzada del clustering."
+  ]
+}

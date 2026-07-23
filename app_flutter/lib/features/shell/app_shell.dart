@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api/frost_api_service.dart';
-import '../data_sources/screens/data_sources_screen.dart';
+import '../charts/screens/charts_screen.dart';
+import '../chuno/screens/chuno_screen.dart';
+import '../clusters/screens/clusters_screen.dart';
 import '../history/screens/history_screen.dart';
 import '../home/screens/home_screen.dart';
 
@@ -22,8 +24,10 @@ class _AppShellState extends State<AppShell> {
     final colorScheme = Theme.of(context).colorScheme;
     final screens = [
       HomeScreen(apiService: widget.apiService),
+      ClustersScreen(apiService: widget.apiService),
+      ChunoScreen(apiService: widget.apiService),
+      ChartsScreen(apiService: widget.apiService),
       HistoryScreen(apiService: widget.apiService, showAppBar: false),
-      const DataSourcesScreen(showAppBar: false),
     ];
 
     return Scaffold(
@@ -50,12 +54,14 @@ class _AppShellState extends State<AppShell> {
             selectedIcon: Icon(Icons.home),
             label: 'Inicio',
           ),
-          NavigationDestination(icon: Icon(Icons.history), label: 'Historial'),
           NavigationDestination(
-            icon: Icon(Icons.storage_outlined),
-            selectedIcon: Icon(Icons.storage),
-            label: 'Fuentes',
+            icon: Icon(Icons.map_outlined),
+            selectedIcon: Icon(Icons.map),
+            label: 'Zonas',
           ),
+          NavigationDestination(icon: Icon(Icons.ac_unit), label: 'Chuño'),
+          NavigationDestination(icon: Icon(Icons.show_chart), label: 'Clima'),
+          NavigationDestination(icon: Icon(Icons.history), label: 'Historial'),
         ],
       ),
     );
