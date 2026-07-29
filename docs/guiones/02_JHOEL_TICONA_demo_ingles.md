@@ -1,4 +1,4 @@
-# Guion — YIMMY RONALDO PARI PARI
+# Guion — JHOEL YOVANI TICONA ERQUINIGO
 ## Rol: Demostración de la aplicación **EN INGLÉS**
 
 **Tiempo: ~2.5 min** — Vale **3 puntos** directos de la rúbrica
@@ -11,7 +11,7 @@
 
 ## ANTES DE EMPEZAR (importante)
 
-1. Abre la app **unos minutos antes** (Render Free se duerme y la primera carga tarda).
+1. Abre la app **unos minutos antes** (Render Free se duerme y la primera carga tarda ~30 s).
 2. **Cambia la app a inglés:** Inicio → ícono ⚙ (arriba a la derecha) → **Language → English**.
    Toda la interfaz queda en inglés: pestañas, alertas, niveles de riesgo.
 3. Ten estas pestañas listas: la app y `/docs`.
@@ -23,8 +23,8 @@
 
 ## 1. Switching to English (10 s)
 
-> "Thank you. Let me show the application working. First, I switch the interface language:
-> in Settings, I select **English** — the whole app is now in English."
+> "Thank you, Juan. Let me show the application working. First, I switch the interface
+> language: in Settings, I select **English** — the whole app is now in English."
 
 ## 2. Home and the daily alert (45 s)
 
@@ -93,7 +93,7 @@
 > model actually in production: **K-Means**, version one point zero, with its silhouette score
 > and number of clusters — so the app and the report always reflect the real deployed model.
 >
-> I hand over to [compañero 4] for the deployment and continuous integration."
+> I hand over to Paul for the deployment and continuous integration."
 
 ---
 
@@ -109,12 +109,16 @@
 | agrupamiento | clustering |
 | no supervisado | unsupervised |
 | ventana óptima | optimal window |
-| capa de nubes | cloud cover |
+| nubosidad | cloud cover |
 | aprendizaje automático | machine learning |
 
-## Preguntas probables (puedes responder en español si el jurado pregunta en español)
+## Preguntas probables (puedes responder en español si preguntan en español)
 
 **"¿La app está traducida completa o solo la demo?"**
 > "Está implementada la internacionalización real: hay una tabla de textos español/inglés y
 > el idioma se guarda en las preferencias del usuario. La API responde en español y el cliente
 > rotula según campos estructurados como el nivel de severidad."
+
+**"¿Funciona igual en el APK de Android?"**
+> "Sí, es el mismo código. En Android además se activan las notificaciones nativas, que en la
+> versión web se muestran como aviso dentro de la aplicación."

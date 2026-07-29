@@ -1,8 +1,8 @@
-# Guion — YOEL APAZA LLANOS
+# Guion — JUAN ARTEMIO LIPE MACHACA
 ## Rol: Dataset, modelo de Machine Learning e hiperparámetros
 
-**Tiempo: ~3 min** — Es la sección con más puntaje de la exposición (3 pts de
-"Entrenamiento del modelo"). Hablas después de Joseph.
+**Tiempo: ~3 min** — Es la sección con más puntaje (3 pts de "Entrenamiento del modelo").
+Hablas después de Joseph.
 
 **Repositorio:** https://github.com/JosephElvisMaman1/frost-puno
 
@@ -15,7 +15,7 @@
 
 ## 1. El dataset (35 s)
 
-> "Gracias. Yo voy a explicar el dataset y el modelo.
+> "Gracias Joseph. Yo voy a explicar el dataset y el modelo.
 >
 > Los datos vienen de **Open-Meteo**, una API abierta de clima. Ingestamos series horarias
 > para **13 distritos de Puno**, lo que nos da **4 368 registros**. La información territorial
@@ -36,7 +36,7 @@
 >
 > El resultado fue claro: la métrica de calidad subió de **0.286 a 0.419**, casi un **47 % de
 > mejora**, simplemente quitando variables. Es un buen recordatorio de que más datos no
-> siempre es mejor modelo."
+> siempre significa mejor modelo."
 
 ## 3. El modelo y los hiperparámetros optimizados (60 s)
 
@@ -60,7 +60,7 @@
 > La configuración ganadora fue **k igual a 3, init aleatorio y n_init diez**. Y algo
 > importante para la auditoría: **el grid completo, con las 24 combinaciones y sus métricas,
 > queda guardado** en el archivo de metadata del modelo. No es una afirmación nuestra: está
-> registrado."
+> registrado y se puede revisar."
 
 ## 4. Evaluación (40 s)
 
@@ -94,7 +94,7 @@
 > el conocimiento geográfico de la región. Eso nos da confianza en que el agrupamiento tiene
 > sentido físico.
 >
-> Le paso la palabra a [compañero 3] para el despliegue."
+> Le paso la palabra a Jhoel para la demostración de la aplicación."
 
 ---
 

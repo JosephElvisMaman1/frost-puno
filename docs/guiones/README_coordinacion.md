@@ -3,34 +3,34 @@
 **Duración total: 12 minutos máximo.** Cada integrante tiene su guion individual en esta
 carpeta. Repositorio: https://github.com/JosephElvisMaman1/frost-puno
 
+## Equipo
+
+| Integrante | Guion |
+|---|---|
+| Joseph Elvis Mamani Mendoza | `00_JOSEPH_apertura_y_cierre.md` |
+| Juan Artemio Lipe Machaca | `01_JUAN_LIPE_modelo_ml.md` |
+| Jhoel Yovani Ticona Erquinigo | `02_JHOEL_TICONA_demo_ingles.md` |
+| Paul Renmis Tapara Ccahuana | `03_PAUL_TAPARA_despliegue_y_ci.md` |
+
 ## Orden de intervención
 
 | # | Integrante | Sección | Tiempo | Puntos que defiende |
 |---|---|---|---|---|
-| 1 | **Joseph Mamani** | Apertura: problema + arquitectura | 2:00 | Contexto y explicación técnica |
-| 2 | **Yoel Apaza** | Dataset, modelo K-Means, hiperparámetros | 3:00 | **Entrenamiento (3 pts)** |
-| 3 | **Yimmy Pari** | Demo de la app **en inglés** | 2:30 | **App en inglés (3 pts)** |
-| 4 | **Héctor Flores** | Despliegue y puesta en producción | 2:00 | **Despliegue (2 pts)** |
-| 5 | **Jahan Quispe** | IC, mantenimiento y **pruebas** | 2:30 | **Pipelines (2) + Pruebas (2)** |
-| 6 | **Joseph Mamani** | Cierre: limitaciones + conclusión | 1:00 | Cierre |
+| 1 | **Joseph** | Apertura: problema + arquitectura | 2:00 | Contexto y explicación técnica |
+| 2 | **Juan** | Dataset, modelo K-Means, hiperparámetros | 3:00 | **Entrenamiento (3 pts)** |
+| 3 | **Jhoel** | Demo de la app **en inglés** | 2:30 | **App en inglés (3 pts)** |
+| 4 | **Paul** | Despliegue + IC, mantenimiento y pruebas | 3:30 | **Despliegue (2) + Pipelines (2) + Pruebas (2)** |
+| 5 | **Joseph** | Cierre: limitaciones + conclusión | 1:00 | Cierre |
 
-**Total: 13:00** → recortar ~1 min ensayando (las secciones más comprimibles son la 1 y la 4).
-
-## Archivos
-
-- `00_JOSEPH_apertura_y_cierre.md`
-- `01_APAZA_LLANOS_YOEL_modelo_ml.md`
-- `02_PARI_PARI_YIMMY_demo_ingles.md`
-- `03_FLORES_CURASI_HECTOR_despliegue.md`
-- `04_QUISPE_GALINDO_JAHAN_ci_mantenimiento.md`
+**Total: 12:00** — justo en el límite. Cronometrar en el ensayo.
 
 ## Preparación (30 min antes)
 
 - [ ] **Despertar el backend**: abrir https://frost-puno.onrender.com/health (Render Free
       duerme el servicio; la primera petición tarda ~30 s).
 - [ ] Abrir pestañas: app web, `/docs`, GitHub → Actions, editor con el código.
-- [ ] **Yimmy**: cambiar la app a inglés (Ajustes → Language → English).
-- [ ] **Jahan**: terminal abierta en la carpeta del proyecto, dependencias instaladas.
+- [ ] **Jhoel**: cambiar la app a inglés (Ajustes → Language → English).
+- [ ] **Paul**: terminal abierta en la carpeta del proyecto, dependencias instaladas.
 - [ ] Opcional: un celular con el APK instalado para mostrar la versión Android.
 
 ## Datos que todos deben saber (por si preguntan)
@@ -56,4 +56,5 @@ carpeta. Repositorio: https://github.com/JosephElvisMaman1/frost-puno
 2. **Si algo falla en vivo** (Render dormido, sin internet): hay capturas en `docs/capturas/`.
    Nunca improvisar datos.
 3. **Las limitaciones se dicen**: un informe honesto puntúa mejor que uno que promete de más.
-4. **El video dura 12 minutos máximo**: cronometrar en el ensayo.
+4. **12 minutos máximo**: si van justos, la sección más comprimible es la apertura (1.4) y la
+   parte A.3 de Paul.

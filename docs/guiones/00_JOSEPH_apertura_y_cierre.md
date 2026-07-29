@@ -15,9 +15,12 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 ### 1.1 Presentación (20 s)
 
 > "Buenas tardes. Presentamos **FrostPuno**, un sistema de predicción de heladas para el
-> altiplano de Puno. El equipo somos [nombres]. Yo soy Joseph Mamani y voy a presentar el
-> problema y la arquitectura; luego mis compañeros explicarán el modelo, el despliegue y
-> la automatización."
+> altiplano de Puno. El equipo lo integramos **Juan Lipe Machaca, Jhoel Ticona Erquinigo,
+> Paul Tapara Ccahuana** y yo, **Joseph Mamani Mendoza**.
+>
+> Yo voy a presentar el problema y la arquitectura; luego Juan explicará el modelo, Jhoel
+> hará la demostración de la aplicación, y Paul cerrará con el despliegue y la
+> automatización."
 
 ### 1.2 El problema (40 s) — *esto es lo que engancha al jurado*
 
@@ -56,7 +59,7 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 > el pipeline y el backend: si cambian las variables, el metadata lo declara y el backend se
 > adapta. Con eso, reentrenar no obliga a tocar el código del servidor.
 >
-> Le dejo la palabra a [compañero 2], que va a explicar el modelo."
+> Le dejo la palabra a **Juan**, que va a explicar el dataset y el modelo."
 
 ---
 
@@ -107,7 +110,7 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 **"¿Y si el modelo empeora con el tiempo?"**
 > "Ese fue justo uno de nuestros focos. Hay un quality gate que bloquea cualquier modelo con
 > silhouette por debajo de 0.35, y tenemos una prueba automatizada que verifica que ese
-> bloqueo funciona. [Compañero 4] lo demostró."
+> bloqueo funciona. Paul lo demostró en vivo."
 
 ## Checklist antes de exponer
 - [ ] Abrir el backend unos minutos antes (Render Free se duerme).
