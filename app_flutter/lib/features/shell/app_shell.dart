@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api/frost_api_service.dart';
+import '../../core/i18n/app_strings.dart';
 import '../charts/screens/charts_screen.dart';
 import '../chuno/screens/chuno_screen.dart';
 import '../clusters/screens/clusters_screen.dart';
@@ -22,6 +23,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final s = AppStrings.current;
     final screens = [
       HomeScreen(apiService: widget.apiService),
       ClustersScreen(apiService: widget.apiService),
@@ -48,20 +50,20 @@ class _AppShellState extends State<AppShell> {
                 : colorScheme.onSurface.withValues(alpha: 0.68),
           ),
         ),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Inicio',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: s.tabHome,
           ),
           NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map),
-            label: 'Zonas',
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map),
+            label: s.tabZones,
           ),
-          NavigationDestination(icon: Icon(Icons.ac_unit), label: 'Chuño'),
-          NavigationDestination(icon: Icon(Icons.show_chart), label: 'Clima'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'Historial'),
+          NavigationDestination(icon: const Icon(Icons.ac_unit), label: s.tabChuno),
+          NavigationDestination(icon: const Icon(Icons.show_chart), label: s.tabWeather),
+          NavigationDestination(icon: const Icon(Icons.history), label: s.tabHistory),
         ],
       ),
     );

@@ -36,13 +36,17 @@ Open-Meteo ─▶ ml_pipeline (features) ─▶ registry (.joblib + metadata) �
 - Algoritmo: **K-Means** (aprendizaje no supervisado). Agrupa observaciones climáticas de Puno en **regímenes térmicos**; cada cluster se mapea a riesgo alto/medio/bajo por su temperatura media.
 - Dataset: `data/processed/frost_training_dataset.csv` (~4368 registros horarios, 13 distritos, Open-Meteo).
 - Features (`CLUSTER_FEATURES`): altitud, temperatura, humedad, punto de rocío, nubosidad, viento, precipitación, temp. aparente.
-- Selección de `k` por **silhouette** (probamos k=3..6, gana k=3). Métricas: **silhouette 0.286**, **Davies-Bouldin 1.21**.
+- **Hiperparámetros optimizados**: grid search de **24 combinaciones** (`k` 3–8 × `init` k-means++/random × `n_init` 10/25) maximizando silhouette. Gana `k=3`, `init=random`, `n_init=10`, con `StandardScaler`. El grid completo está guardado en `cluster_metadata.json` → `hyperparameter_search`.
+- Métricas: **silhouette 0.419**, **Davies-Bouldin 0.81** (mejoraron desde 0.286/1.21 al podar features ruidosas).
 - Por qué no accuracy/F1: no hay etiquetas de verdad de terreno → se mide **cohesión y separación** de clusters, no clasificación supervisada.
 - Resultado tangible: `district_clusters.csv` — Macusani (4315 m) y Juliaca = riesgo **alto**; Sandia (2170 m, valle) = **bajo**.
 - **Mostrar código:** `ml_pipeline/clustering/train_clusters.py` (funciones `select_k`, `assign_tiers`), `ml_pipeline/registry/cluster_metadata.json`, `ml_pipeline/registry/check_cluster_quality.py`.
 - **Mostrar en vivo:** correr `python -m ml_pipeline.clustering.train_clusters` (tarda <1 s, imprime silhouette por k).
 
 ## 4. Demo funcional (2.5 min) — **ENGLISH** (3 pts)
+
+> **Antes de empezar:** activar el modo inglés de la app (Ajustes → Language → English).
+> Guión palabra por palabra en **`docs/english_demo_script.md`**.
 
 Open https://frost-puno.vercel.app and walk through:
 

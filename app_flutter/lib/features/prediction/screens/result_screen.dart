@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/page_scaffold.dart';
@@ -24,13 +25,14 @@ class ResultScreen extends StatelessWidget {
     final riskColor = _riskColor(response.riskLevel);
     final riskIcon = _riskIcon(response.riskLevel);
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final s = AppStrings.current;
     return PageScaffold(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
         children: [
-          const SectionHeader(
-            title: 'Resultado',
-            subtitle: 'Lectura clara para decidir acciones en campo.',
+          SectionHeader(
+            title: s.resultTitle,
+            subtitle: s.resultSubtitle,
           ),
           const SizedBox(height: 24),
           GlassCard(
@@ -44,10 +46,10 @@ class ResultScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _Label('RIESGO'),
+                          _Label(s.riskLabel),
                           const SizedBox(height: 8),
                           Text(
-                            _title(response.riskLevel).toUpperCase(),
+                            s.riskWord(response.riskLevel).toUpperCase(),
                             style: Theme.of(context).textTheme.displayLarge
                                 ?.copyWith(color: riskColor, fontSize: 44),
                           ),
@@ -82,7 +84,10 @@ class ResultScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          _shortRecommendation(response.recommendation),
+                          s.recommendation(
+                            response.riskLevel,
+                            _shortRecommendation(response.recommendation),
+                          ),
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
@@ -96,7 +101,7 @@ class ResultScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _MetricBlock(
-                        label: 'CONFIANZA',
+                        label: s.confidence,
                         value: '${(response.confidence * 100).round()}%',
                       ),
                     ),
@@ -104,11 +109,11 @@ class ResultScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _Label('CONDICION PARA CHUNO'),
+                          _Label(s.chunoConditionLabel),
                           const SizedBox(height: 8),
                           StatusChip(
                             icon: Icons.ac_unit,
-                            label: _chuno(response.chunoConditions),
+                            label: s.chunoCondition(response.chunoConditions),
                             color: onSurface,
                             background: onSurface.withValues(alpha: 0.08),
                           ),
@@ -125,17 +130,17 @@ class ResultScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _Label('RESUMEN'),
+                _Label(s.summary),
                 const SizedBox(height: 18),
-                _InfoRow(label: 'Distrito', value: request.district),
+                _InfoRow(label: s.district, value: request.district),
                 const Divider(),
-                _InfoRow(label: 'Modelo', value: response.modelVersion),
+                _InfoRow(label: s.model, value: response.modelVersion),
               ],
             ),
           ),
           const SizedBox(height: 28),
           PrimaryActionButton(
-            label: 'Nueva consulta',
+            label: s.newQuery,
             icon: Icons.add,
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -143,9 +148,6 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
-
-  static String _title(String value) =>
-      value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
 
   static Color _riskColor(String value) {
     return switch (value.toLowerCase()) {
@@ -174,11 +176,6 @@ class ResultScreen extends StatelessWidget {
     return firstSentence.isEmpty ? clean : '$firstSentence.';
   }
 
-  static String _chuno(String value) {
-    if (value == 'favorables') return 'Favorable';
-    if (value == 'posibles') return 'Posible';
-    return 'No favorable';
-  }
 }
 
 class _Label extends StatelessWidget {

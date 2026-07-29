@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/responsive_content.dart';
@@ -52,6 +53,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
               return _Error(message: snapshot.error.toString());
             }
             final days = snapshot.data!.days;
+            final s = AppStrings.current;
             return RefreshIndicator(
               onRefresh: () async {
                 setState(() => _future = _load());
@@ -60,10 +62,9 @@ class _ChartsScreenState extends State<ChartsScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
                 children: [
-                  const SectionHeader(
-                    title: 'Clima historico',
-                    subtitle:
-                        'Temperaturas minimas/maximas y humedad de los ultimos 30 dias (Open-Meteo Archive).',
+                  SectionHeader(
+                    title: s.weatherTitle,
+                    subtitle: s.weatherSubtitle,
                   ),
                   const SizedBox(height: 20),
                   GlassCard(
@@ -71,14 +72,14 @@ class _ChartsScreenState extends State<ChartsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Temperatura (°C)',
+                          s.temperatureC,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
                         _Legend(
-                          items: const [
-                            ('Minima', AppColors.mutedTeal),
-                            ('Maxima', AppColors.warmAmber),
+                          items: [
+                            (s.minLabel, AppColors.mutedTeal),
+                            (s.maxLabel, AppColors.warmAmber),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -95,7 +96,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Humedad relativa (%)',
+                          s.relativeHumidity,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 16),
@@ -236,7 +237,7 @@ class _Error extends StatelessWidget {
         const Icon(Icons.show_chart, size: 48, color: AppColors.warmAmber),
         const SizedBox(height: 16),
         Text(
-          'No se pudo cargar el historico.',
+          AppStrings.current.weatherError,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium,
         ),

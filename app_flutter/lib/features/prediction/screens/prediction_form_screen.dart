@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/models/current_weather.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
@@ -30,28 +31,27 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
   bool _isLocating = false;
   bool _isLoadingWeather = false;
   bool _isPredicting = false;
-  String _locationMessage =
-      'Usa GPS para detectar tu ubicacion. Si falla, FrostPuno conserva Puno como fallback manual.';
-  String _weatherMessage =
-      'El clima se llenara automaticamente desde FastAPI cuando obtengas tu ubicacion o pulses Obtener clima.';
+  // null => se muestra la pista por defecto en el idioma activo.
+  String? _locationMessage;
+  String? _weatherMessage;
 
   @override
   Widget build(BuildContext context) {
     final isBusy = _isLocating || _isLoadingWeather || _isPredicting;
+    final s = AppStrings.current;
     return PageScaffold(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
         children: [
-          const SectionHeader(
-            title: 'Riesgo de helada',
-            subtitle:
-                'Ubicacion y clima se obtienen automaticamente para enviar una prediccion lista para campo.',
+          SectionHeader(
+            title: s.frostRiskTitle,
+            subtitle: s.frostRiskSubtitle,
           ),
           const SizedBox(height: 24),
           _LocationCard(
             request: _request,
             detectedLocation: _detectedLocation,
-            message: _locationMessage,
+            message: _locationMessage ?? s.locationHint,
             locating: _isLocating,
             onUseLocation: isBusy ? null : _useCurrentLocation,
           ),
@@ -59,7 +59,7 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
           _WeatherCard(
             request: _request,
             weather: _weather,
-            message: _weatherMessage,
+            message: _weatherMessage ?? s.weatherHint,
             loading: _isLoadingWeather,
             onRefreshWeather: isBusy ? null : _loadWeatherForCurrentRequest,
           ),
@@ -87,7 +87,7 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo conectar con FastAPI: $error')),
+        SnackBar(content: Text(AppStrings.current.connectError(error))),
       );
     } finally {
       if (mounted) {
@@ -97,10 +97,11 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
   }
 
   Future<void> _useCurrentLocation() async {
+    final s = AppStrings.current;
     setState(() {
       _isLocating = true;
-      _locationMessage = 'Solicitando permiso y leyendo GPS...';
-      _weatherMessage = 'Esperando ubicacion para consultar clima actual.';
+      _locationMessage = s.requestingGps;
+      _weatherMessage = s.waitingLocation;
     });
     try {
       final location = await _locationService.getCurrentLocation();
@@ -114,24 +115,23 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
           latitude: location.latitude,
           longitude: location.longitude,
         );
-        _locationMessage =
-            '${location.fromLastKnownPosition ? 'Ultima ubicacion conocida' : 'GPS detectado'} con precision aprox. ${location.accuracy.toStringAsFixed(0)} m.';
+        _locationMessage = s.gpsAccuracy(
+          location.fromLastKnownPosition,
+          location.accuracy.toStringAsFixed(0),
+        );
       });
       await _loadCurrentWeather();
     } on LocationFailure catch (error) {
       if (!mounted) return;
       setState(() {
-        _locationMessage =
-            '${error.message} Fallback manual activo: Puno demo.';
-        _weatherMessage =
-            'Puedes pulsar Obtener clima para usar el punto demo de Puno.';
+        _locationMessage = s.locationFailed(error.message);
+        _weatherMessage = s.tapGetWeatherDemo;
       });
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _locationMessage =
-            'No se pudo obtener ubicacion. Fallback manual activo: Puno demo.';
-        _weatherMessage = 'Detalle: $error';
+        _locationMessage = s.locationFailedGeneric;
+        _weatherMessage = s.detail(error);
       });
     } finally {
       if (mounted) {
@@ -145,9 +145,10 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
   }
 
   Future<void> _loadCurrentWeather() async {
+    final s = AppStrings.current;
     setState(() {
       _isLoadingWeather = true;
-      _weatherMessage = 'Consultando GET /weather/current...';
+      _weatherMessage = s.queryingWeather;
     });
     try {
       final weather = await widget.apiService.getCurrentWeather(
@@ -158,14 +159,15 @@ class _PredictionFormScreenState extends State<PredictionFormScreen> {
       setState(() {
         _weather = weather;
         _request = _requestWithWeather(_request, weather);
-        _weatherMessage =
-            'Clima actualizado via ${weather.provider}${weather.fallbackUsed ? ' con fallback' : ''}.';
+        _weatherMessage = s.weatherUpdated(
+          weather.provider,
+          weather.fallbackUsed,
+        );
       });
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _weatherMessage =
-            'No se pudo obtener clima actual. Se conservan valores demo internos. Detalle: $error';
+        _weatherMessage = s.weatherFailed(error);
       });
     } finally {
       if (mounted) {
@@ -226,10 +228,12 @@ class _LocationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardTitle(icon: Icons.my_location, label: 'Ubicacion'),
+          _CardTitle(icon: Icons.my_location, label: AppStrings.current.location),
           const SizedBox(height: 16),
           Text(
-            detected ? 'Ubicacion detectada' : 'Puno demo',
+            detected
+                ? AppStrings.current.detectedLocation
+                : AppStrings.current.punoDemo,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 10),
@@ -246,7 +250,9 @@ class _LocationCard extends StatelessWidget {
           _InfoBanner(icon: Icons.location_on_outlined, text: message),
           const SizedBox(height: 16),
           PrimaryActionButton(
-            label: locating ? 'Detectando ubicacion...' : 'Usar mi ubicacion',
+            label: locating
+                ? AppStrings.current.detectingLocation
+                : AppStrings.current.useMyLocation,
             icon: Icons.gps_fixed,
             onPressed: onUseLocation,
           ),
@@ -273,12 +279,13 @@ class _WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.current;
     return GlassCard(
       padding: const EdgeInsets.all(22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardTitle(icon: Icons.cloud_outlined, label: 'Clima actual'),
+          _CardTitle(icon: Icons.cloud_outlined, label: s.currentWeather),
           const SizedBox(height: 18),
           _WeatherHero(request: request, weather: weather),
           const SizedBox(height: 16),
@@ -288,17 +295,17 @@ class _WeatherCard extends StatelessWidget {
             children: [
               _WeatherMetric(
                 icon: Icons.water_drop_outlined,
-                label: 'Humedad',
+                label: s.humidity,
                 value: '${request.humidity.toStringAsFixed(0)}%',
               ),
               _WeatherMetric(
                 icon: Icons.air,
-                label: 'Viento',
+                label: s.wind,
                 value: '${request.windSpeed.toStringAsFixed(1)} km/h',
               ),
               _WeatherMetric(
                 icon: Icons.cloud_queue,
-                label: 'Nubes',
+                label: s.clouds,
                 value: '${request.cloudCover.toStringAsFixed(0)}%',
               ),
             ],
@@ -314,7 +321,7 @@ class _WeatherCard extends StatelessWidget {
           ],
           const SizedBox(height: 16),
           PrimaryActionButton(
-            label: loading ? 'Obteniendo clima...' : 'Obtener clima',
+            label: loading ? s.gettingWeather : s.getWeather,
             icon: Icons.refresh,
             onPressed: onRefreshWeather,
           ),
@@ -337,18 +344,19 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.current;
     return GlassCard(
       padding: const EdgeInsets.all(22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Listo para predecir',
+            s.readyToPredict,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'FrostPuno enviara ubicacion, clima actual y contexto agricola interno al modelo.',
+            s.readyToPredictBody,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
@@ -357,7 +365,7 @@ class _ActionCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           PrimaryActionButton(
-            label: predicting ? 'Prediciendo...' : 'Predecir',
+            label: predicting ? s.predicting : s.predict,
             icon: Icons.analytics_outlined,
             onPressed: canPredict ? onPredict : null,
           ),
@@ -407,8 +415,10 @@ class _WeatherHero extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 weather == null
-                    ? 'Valor demo interno'
-                    : 'Sensacion ${request.feelsLike.toStringAsFixed(1)} C',
+                    ? AppStrings.current.internalDemoValue
+                    : AppStrings.current.feelsLike(
+                        request.feelsLike.toStringAsFixed(1),
+                      ),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

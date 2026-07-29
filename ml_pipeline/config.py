@@ -114,7 +114,16 @@ CLUSTER_METADATA_PATH = REGISTRY_DIR / "cluster_metadata.json"
 CLUSTER_PROFILES_PATH = EVALUATION_DIR / "cluster_profiles.csv"
 DISTRICT_CLUSTERS_PATH = PROCESSED_DIR / "district_clusters.csv"
 CLUSTER_VERSION = "v1.0.0-clustering"
-CLUSTER_K_RANGE = (3, 4, 5, 6)
+CLUSTER_K_RANGE = (3, 4, 5, 6, 7, 8)
+
+# Historial de reentrenamientos (evidencia de que el modelo mejora con más datos).
+TRAINING_HISTORY_PATH = REGISTRY_DIR / "training_history.json"
+
+# Grid de hiperparámetros de K-Means explorado en el entrenamiento (además de k).
+# Se maximiza silhouette; el grid completo se guarda en cluster_metadata.json
+# bajo "hyperparameter_search" como evidencia de optimización.
+CLUSTER_INIT_OPTIONS = ("k-means++", "random")
+CLUSTER_N_INIT_OPTIONS = (10, 25)
 # Orden ordinal de riesgo: clusters más fríos → mayor riesgo de helada.
 RISK_TIERS = ("alto", "medio", "bajo")
 

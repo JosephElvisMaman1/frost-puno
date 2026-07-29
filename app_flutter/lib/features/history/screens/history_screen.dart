@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/page_scaffold.dart';
@@ -29,6 +30,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.current;
     final body = RefreshIndicator(
       onRefresh: () async {
         setState(() => _future = widget.apiService.getPredictionHistory());
@@ -37,9 +39,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
         children: [
-          const SectionHeader(
-            title: 'Historial',
-            subtitle: 'Consultas guardadas con distrito, riesgo y confianza.',
+          SectionHeader(
+            title: s.historyTitle,
+            subtitle: s.historySubtitle,
           ),
           const SizedBox(height: 26),
           FutureBuilder<List<PredictionHistoryItem>>(
@@ -54,16 +56,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 );
               }
               if (snapshot.hasError) {
-                return _EmptyHistory(
-                  message: 'No se pudo cargar el historial desde FastAPI.',
-                );
+                return _EmptyHistory(message: s.historyError);
               }
               final items = snapshot.data ?? const [];
               if (items.isEmpty) {
-                return const _EmptyHistory(
-                  message:
-                      'Aun no hay predicciones guardadas. Con Supabase apagado, FastAPI devuelve una lista vacia.',
-                );
+                return _EmptyHistory(message: s.historyEmpty);
               }
               return Column(
                 children: items
@@ -112,7 +109,7 @@ class _HistoryCard extends StatelessWidget {
                 ),
                 StatusChip(
                   icon: icon,
-                  label: 'Riesgo ${_title(item.riskLevel)}',
+                  label: AppStrings.current.riskChip(item.riskLevel),
                   color: color,
                   background: color.withValues(alpha: 0.14),
                 ),
@@ -133,10 +130,13 @@ class _HistoryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _SmallMetric(
-                  label: 'CONFIANZA',
+                  label: AppStrings.current.confidence,
                   value: '${(item.confidence * 100).round()}%',
                 ),
-                _SmallMetric(label: 'FECHA', value: _shortDate(item.createdAt)),
+                _SmallMetric(
+                  label: AppStrings.current.date,
+                  value: _shortDate(item.createdAt),
+                ),
               ],
             ),
           ],
@@ -144,9 +144,6 @@ class _HistoryCard extends StatelessWidget {
       ),
     );
   }
-
-  static String _title(String value) =>
-      value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
 
   static Color _riskColor(String value) {
     return switch (value.toLowerCase()) {
