@@ -13,7 +13,8 @@ supervisado previo (ver `docs/model_comparison_v1_vs_v2.md`, hoy legacy).
 
 - Script: `ml_pipeline/clustering/train_clusters.py`
 - Algoritmo: `KMeans` (scikit-learn) sobre features escaladas (`StandardScaler`), envuelto en un `Pipeline`.
-- Selección de `k` (3–6) por **silhouette score**; se reportan además **Davies-Bouldin** e **inercia** (codo).
+- **Grid search de 24 combinaciones** (`k` 3–8 × `init` k-means++/random × `n_init` 10/25) maximizando **silhouette**; se reportan además **Davies-Bouldin** e **inercia** (codo). El grid completo queda en `cluster_metadata.json` → `hyperparameter_search`.
+- Configuración ganadora: `k=3`, `init=random`, `n_init=10`, `StandardScaler`, `random_state=42`.
 - Perfilado post-hoc: los clusters se ordenan por temperatura media; el más frío → riesgo `alto`, el más cálido → `bajo`. Esto es descripción del clustering, no reintroduce etiquetas supervisadas.
 
 ## Features (`CLUSTER_FEATURES` en `ml_pipeline/config.py`)

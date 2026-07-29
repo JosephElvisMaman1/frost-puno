@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../i18n/app_language.dart';
+
 /// Perfil del usuario: filtra qué alertas se priorizan en Inicio.
 enum UserProfile { general, agricultor, ganadero, chunero }
 
@@ -22,10 +24,12 @@ class UserSettings extends ChangeNotifier {
   static const _kAlertsEnabled = 'alerts_enabled';
   static const _kThreshold = 'alert_threshold';
   static const _kProfile = 'user_profile';
+  static const _kLanguage = 'app_language';
 
   bool alertsEnabled = true;
   double alertThreshold = -4;
   UserProfile profile = UserProfile.general;
+  AppLanguage language = AppLanguage.es;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,7 +37,16 @@ class UserSettings extends ChangeNotifier {
     alertThreshold = prefs.getDouble(_kThreshold) ?? -4;
     final profileIndex = prefs.getInt(_kProfile) ?? 0;
     profile = UserProfile.values[profileIndex.clamp(0, UserProfile.values.length - 1)];
+    final langIndex = prefs.getInt(_kLanguage) ?? 0;
+    language = AppLanguage.values[langIndex.clamp(0, AppLanguage.values.length - 1)];
     notifyListeners();
+  }
+
+  Future<void> setLanguage(AppLanguage value) async {
+    language = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kLanguage, value.index);
   }
 
   Future<void> setAlertsEnabled(bool value) async {

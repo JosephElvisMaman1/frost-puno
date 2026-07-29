@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/page_scaffold.dart';
@@ -22,20 +23,18 @@ class ModelInfoScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+          final s = AppStrings.current;
           if (snapshot.hasError) {
-            return const Center(
-              child: Text('No se pudo cargar informacion del modelo.'),
-            );
+            return Center(child: Text(s.modelInfoError));
           }
           final info = snapshot.data!;
           final silhouette = info.metrics['silhouette'] ?? 0;
           return ListView(
             padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
             children: [
-              const SectionHeader(
-                title: 'Informacion del modelo',
-                subtitle:
-                    'Especificaciones tecnicas y metricas del modelo no supervisado (clustering) en produccion.',
+              SectionHeader(
+                title: s.modelInfoTitle,
+                subtitle: s.modelInfoSubtitle,
               ),
               const SizedBox(height: 30),
               GlassCard(
@@ -46,20 +45,20 @@ class ModelInfoScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _MonoLabel('ARQUITECTURA BASE'),
+                          _MonoLabel(s.baseArchitecture),
                           const SizedBox(height: 12),
                           Text(
                             info.modelName,
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           const SizedBox(height: 20),
-                          const Wrap(
+                          Wrap(
                             spacing: 10,
                             runSpacing: 10,
                             children: [
-                              StatusChip(label: 'Clustering'),
-                              StatusChip(label: 'No supervisado'),
-                              StatusChip(label: 'Scikit-Learn'),
+                              StatusChip(label: s.chipClustering),
+                              StatusChip(label: s.chipUnsupervised),
+                              const StatusChip(label: 'Scikit-Learn'),
                             ],
                           ),
                         ],
@@ -80,29 +79,26 @@ class ModelInfoScreen extends StatelessWidget {
               const SizedBox(height: 18),
               _MetricPanel(
                 icon: Icons.analytics_outlined,
-                label: 'METRICA PRINCIPAL',
+                label: s.mainMetric,
                 value: silhouette.toStringAsFixed(3),
                 suffix: 'silhouette',
-                description:
-                    'Cohesion y separacion de los grupos climaticos (0 a 1, mas alto es mejor).',
+                description: s.silhouetteDesc,
               ),
               const SizedBox(height: 18),
               _MetricPanel(
                 icon: Icons.hub_outlined,
-                label: 'GRUPOS DE RIESGO',
+                label: s.riskGroups,
                 value: (info.nClusters ?? 0).toString(),
-                suffix: 'clusters',
-                description:
-                    'Regimenes climaticos agrupados por K-Means y mapeados a alto/medio/bajo.',
+                suffix: s.clustersUnit,
+                description: s.clustersDesc,
               ),
               const SizedBox(height: 18),
               _MetricPanel(
                 icon: Icons.dataset_outlined,
-                label: 'DATASET SIZE',
+                label: s.datasetSize,
                 value: info.datasetSize.toString(),
-                suffix: 'muestras',
-                description:
-                    'Registros generados desde Open-Meteo y contexto territorial inicial.',
+                suffix: s.samples,
+                description: s.datasetDesc,
               ),
               const SizedBox(height: 18),
               GlassCard(
@@ -110,7 +106,7 @@ class ModelInfoScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const _MonoLabel('VERSION Y ESTADO'),
+                    _MonoLabel(s.versionStatus),
                     const SizedBox(height: 14),
                     Text(
                       info.version,
@@ -130,17 +126,17 @@ class ModelInfoScreen extends StatelessWidget {
                           color: AppColors.success.withValues(alpha: 0.24),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.check_circle_outline,
                             color: AppColors.success,
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Quality Gate: Aprobado',
-                              style: TextStyle(
+                              s.qualityGateApproved,
+                              style: const TextStyle(
                                 color: AppColors.success,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/responsive_content.dart';
@@ -44,14 +45,14 @@ class _ClustersScreenState extends State<ClustersScreen> {
               if (snapshot.hasError) {
                 return _ErrorView(message: snapshot.error.toString());
               }
+              final s = AppStrings.current;
               final data = snapshot.data!;
               return ListView(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
                 children: [
-                  const SectionHeader(
-                    title: 'Zonas de riesgo',
-                    subtitle:
-                        'Distritos de Puno agrupados por K-Means segun su regimen termico.',
+                  SectionHeader(
+                    title: s.zonesTitle,
+                    subtitle: s.zonesSubtitle,
                   ),
                   const SizedBox(height: 20),
                   GlassCard(
@@ -59,19 +60,19 @@ class _ClustersScreenState extends State<ClustersScreen> {
                       children: [
                         Expanded(
                           child: _Metric(
-                            label: 'Clusters',
+                            label: s.clusters,
                             value: '${data.nClusters}',
                           ),
                         ),
                         Expanded(
                           child: _Metric(
-                            label: 'Silhouette',
+                            label: s.silhouette,
                             value: data.silhouette.toStringAsFixed(3),
                           ),
                         ),
                         Expanded(
                           child: _Metric(
-                            label: 'Modelo',
+                            label: s.model,
                             value: data.modelName,
                           ),
                         ),
@@ -80,7 +81,7 @@ class _ClustersScreenState extends State<ClustersScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Distritos por nivel',
+                    s.districtsByLevel,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -128,7 +129,7 @@ class _DistrictTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${district.altitude.toStringAsFixed(0)} m · media ${district.temperatureMean.toStringAsFixed(1)} °C',
+                    '${district.altitude.toStringAsFixed(0)} m · ⌀ ${district.temperatureMean.toStringAsFixed(1)} °C',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -141,10 +142,15 @@ class _DistrictTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                StatusChip(label: district.tier.toUpperCase(), color: color),
+                StatusChip(
+                  label: AppStrings.current.tierWord(district.tier),
+                  color: color,
+                ),
                 const SizedBox(height: 6),
                 Text(
-                  'frio ${(district.coldShare * 100).toStringAsFixed(0)}%',
+                  AppStrings.current.coldShare(
+                    '${(district.coldShare * 100).toStringAsFixed(0)}%',
+                  ),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -188,7 +194,7 @@ class _ErrorView extends StatelessWidget {
         const Icon(Icons.cloud_off, size: 48, color: AppColors.warmAmber),
         const SizedBox(height: 16),
         Text(
-          'No se pudieron cargar las zonas.',
+          AppStrings.current.zonesError,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium,
         ),

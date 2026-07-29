@@ -37,10 +37,15 @@ pytest backend_fastapi/tests -q
 # Un solo test
 pytest backend_fastapi/tests/test_api.py::<nombre_del_test> -q
 
-# ML: entrenar clustering (path nuevo)
+# ML: entrenar clustering (path nuevo). Hace grid search k x init x n_init por silhouette.
 python -m ml_pipeline.clustering.train_clusters
 # Quality gate no supervisado
 python -m ml_pipeline.registry.check_cluster_quality --metadata ml_pipeline/registry/cluster_metadata.json --min-silhouette 0.35
+# Pruebas de mantenimiento e IC (incluye que el gate bloquee un modelo degradado)
+python -m pytest ml_pipeline/tests/test_maintenance_ci.py -v
+# Reentrenamiento adaptativo: amplia la ventana de datos hasta alcanzar el objetivo
+python -m ml_pipeline.clustering.adaptive_retrain --target 0.45 --max-iters 3
+python -m ml_pipeline.clustering.adaptive_retrain --skip-ingest   # sin volver a descargar clima
 
 # Levantar backend
 $env:PYTHONPATH = "$PWD\backend_fastapi"; $env:ENABLE_SUPABASE = "false"
@@ -67,6 +72,8 @@ flutter build apk --release --dart-define=API_BASE_URL=https://frost-puno.onrend
 **Clima.** `services/weather_providers.py` → `HybridWeatherProvider` intenta SENAMHI primero y cae a Open-Meteo. **SENAMHI es un stub conceptual** (`SenamhiProvider.get_current_weather` siempre retorna `None`: no hay API pública estable); Open-Meteo es la fuente operativa real. La respuesta expone `source_priority` y `fallback_used` para que la app muestre la degradación. Hay caché en memoria por (lat,lon) con TTL. Bounding box de Puno validado en la ruta (`lat -18.5..-13.0`, `lon -71.5..-68.0`).
 
 **Persistencia.** Supabase es **opcional**: `ENABLE_SUPABASE=false` usa repositorio en memoria; `true` requiere `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend, nunca en Flutter). El service-role key nunca se commitea.
+
+**i18n (ES/EN).** La app tiene modo inglés para la exposición: `core/i18n/app_strings.dart` (tabla ES/EN, acceso vía `AppStrings.current`), idioma persistido en `UserSettings.language` y toggle en Ajustes. `app.dart` envuelve `MaterialApp` en `AnimatedBuilder(UserSettings.instance)` para reconstruir al cambiar idioma. **Los textos nuevos de UI van a `AppStrings`, no hardcodeados.** La API responde en español; el cliente rotula por campos estructurados (`severity`, `level`, `tier`).
 
 **Flutter (feature-first).** `lib/main.dart` → `app.dart` → `features/shell/app_shell.dart` (NavigationBar por tabs). Cada feature bajo `lib/features/<x>/{screens,models,services}`. Toda llamada HTTP pasa por `lib/core/api/frost_api_service.dart` (sobre `api_client.dart`); los modelos usan `fromJson`. `API_BASE_URL` se inyecta por `--dart-define` (ver `core/config/app_config.dart`), no se hardcodea. Widgets compartidos reutilizables en `lib/shared/widgets/` (`glass_card`, `section_header`, `status_chip`, `page_scaffold`). Tema con `ThemeMode.system` vía `core/theme/theme_mode_scope.dart`.
 

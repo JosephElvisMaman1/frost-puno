@@ -25,7 +25,9 @@ from sklearn.preprocessing import StandardScaler
 
 from ml_pipeline.config import (
     CLUSTER_FEATURES,
+    CLUSTER_INIT_OPTIONS,
     CLUSTER_K_RANGE,
+    CLUSTER_N_INIT_OPTIONS,
     CLUSTER_METADATA_PATH,
     CLUSTER_MODEL_PATH,
     CLUSTER_PROFILES_PATH,
@@ -54,35 +56,69 @@ def load_dataset(path: Path) -> pd.DataFrame:
     return dataset.dropna(subset=CLUSTER_FEATURES)
 
 
-def build_pipeline(k: int) -> Pipeline:
+def build_pipeline(k: int, init: str = "k-means++", n_init: int = 10) -> Pipeline:
     return Pipeline(
         steps=[
             ("scaler", StandardScaler()),
-            ("kmeans", KMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=10)),
+            (
+                "kmeans",
+                KMeans(
+                    n_clusters=k,
+                    init=init,
+                    n_init=n_init,
+                    random_state=RANDOM_STATE,
+                ),
+            ),
         ]
     )
 
 
-def select_k(features: pd.DataFrame, k_range: tuple[int, ...]) -> tuple[int, dict[int, dict[str, float]]]:
-    """Elige k maximizando silhouette; guarda métricas por cada k evaluado."""
-    scores: dict[int, dict[str, float]] = {}
+def search_hyperparameters(
+    features: pd.DataFrame,
+    k_range: tuple[int, ...],
+    init_options: tuple[str, ...] = CLUSTER_INIT_OPTIONS,
+    n_init_options: tuple[int, ...] = CLUSTER_N_INIT_OPTIONS,
+) -> tuple[dict[str, Any], list[dict[str, Any]], dict[int, dict[str, float]]]:
+    """Grid search sobre k x init x n_init maximizando silhouette.
+
+    Devuelve (mejores_params, grid_completo, metricas_por_k). El grid completo se
+    persiste en el metadata como evidencia de hiperparámetros optimizados.
+    """
+    grid: list[dict[str, Any]] = []
+    best_by_k: dict[int, dict[str, float]] = {}
+
     for k in k_range:
         if k >= len(features):
             LOGGER.warning("Skipping k=%d (>= n_samples=%d)", k, len(features))
             continue
-        pipeline = build_pipeline(k)
-        labels = pipeline.fit_predict(features)
-        scaled = pipeline.named_steps["scaler"].transform(features)
-        scores[k] = {
-            "silhouette": float(silhouette_score(scaled, labels)),
-            "davies_bouldin": float(davies_bouldin_score(scaled, labels)),
-            "inertia": float(pipeline.named_steps["kmeans"].inertia_),
-        }
-        LOGGER.info("k=%d -> %s", k, scores[k])
-    if not scores:
-        raise ValueError("No valid k evaluated; dataset too small.")
-    best_k = max(scores, key=lambda k: scores[k]["silhouette"])
-    return best_k, scores
+        for init in init_options:
+            for n_init in n_init_options:
+                pipeline = build_pipeline(k, init=init, n_init=n_init)
+                labels = pipeline.fit_predict(features)
+                scaled = pipeline.named_steps["scaler"].transform(features)
+                metrics = {
+                    "silhouette": float(silhouette_score(scaled, labels)),
+                    "davies_bouldin": float(davies_bouldin_score(scaled, labels)),
+                    "inertia": float(pipeline.named_steps["kmeans"].inertia_),
+                }
+                grid.append({"k": k, "init": init, "n_init": n_init, **metrics})
+                LOGGER.info(
+                    "k=%d init=%s n_init=%d -> silhouette=%.4f db=%.4f",
+                    k,
+                    init,
+                    n_init,
+                    metrics["silhouette"],
+                    metrics["davies_bouldin"],
+                )
+                # Mejor configuración observada para cada k (curva del codo/silhouette).
+                if k not in best_by_k or metrics["silhouette"] > best_by_k[k]["silhouette"]:
+                    best_by_k[k] = metrics
+
+    if not grid:
+        raise ValueError("No valid hyperparameter combination evaluated; dataset too small.")
+
+    best = max(grid, key=lambda row: row["silhouette"])
+    return best, grid, best_by_k
 
 
 def assign_tiers(profiles: pd.DataFrame) -> dict[int, str]:
@@ -140,10 +176,22 @@ def run(dataset_path: Path, k_range: tuple[int, ...], version: str) -> None:
     dataset = load_dataset(dataset_path)
     features = dataset[CLUSTER_FEATURES]
 
-    best_k, k_scores = select_k(features, k_range)
-    LOGGER.info("Selected k=%d by silhouette.", best_k)
+    best_params, grid, k_scores = search_hyperparameters(features, k_range)
+    best_k = int(best_params["k"])
+    LOGGER.info(
+        "Selected k=%d init=%s n_init=%d by silhouette=%.4f (grid of %d combos).",
+        best_k,
+        best_params["init"],
+        best_params["n_init"],
+        best_params["silhouette"],
+        len(grid),
+    )
 
-    pipeline = build_pipeline(best_k)
+    pipeline = build_pipeline(
+        best_k,
+        init=str(best_params["init"]),
+        n_init=int(best_params["n_init"]),
+    )
     labels = pd.Series(pipeline.fit_predict(features), index=features.index, name="cluster")
 
     profiles = profile_clusters(features, labels)
@@ -167,7 +215,29 @@ def run(dataset_path: Path, k_range: tuple[int, ...], version: str) -> None:
         "features": CLUSTER_FEATURES,
         "target": "cluster_risk_tier",
         "n_clusters": int(best_k),
-        "metrics": k_scores[best_k],
+        "metrics": {
+            "silhouette": float(best_params["silhouette"]),
+            "davies_bouldin": float(best_params["davies_bouldin"]),
+            "inertia": float(best_params["inertia"]),
+        },
+        # Hiperparámetros optimizados por grid search (evidencia para el informe).
+        "best_params": {
+            "n_clusters": best_k,
+            "init": best_params["init"],
+            "n_init": int(best_params["n_init"]),
+            "scaler": "StandardScaler",
+            "random_state": RANDOM_STATE,
+        },
+        "hyperparameter_search": {
+            "criterion": "silhouette",
+            "grid": {
+                "k": list(k_range),
+                "init": list(CLUSTER_INIT_OPTIONS),
+                "n_init": list(CLUSTER_N_INIT_OPTIONS),
+            },
+            "combinations_evaluated": len(grid),
+            "results": grid,
+        },
         "all_k_metrics": {str(k): v for k, v in k_scores.items()},
         "dataset_size": int(len(dataset)),
         "cluster_tiers": {str(cid): tier for cid, tier in tier_map.items()},

@@ -71,8 +71,19 @@ jobs:
       - name: Validate dataset
         run: python -m ml_pipeline.preprocessing.validate_dataset
 
+      # Corrida manual: entrenamiento simple sobre la ventana indicada.
       - name: Train unsupervised K-Means model
+        if: github.event_name != 'schedule'
         run: python -m ml_pipeline.clustering.train_clusters --version "$MODEL_VERSION"
+
+      # Mantenimiento programado: reentrenamiento ADAPTATIVO. Si la silhouette no
+      # alcanza el objetivo, amplía la ventana de datos y reintenta; registra cada
+      # corrida en training_history.json.
+      - name: Adaptive retraining (scheduled maintenance)
+        if: github.event_name == 'schedule'
+        run: >
+          python -m ml_pipeline.clustering.adaptive_retrain
+          --target 0.45 --max-iters 3 --initial-days 14 --step-days 15 --max-workers 4
 
       - name: Cluster quality gate (silhouette)
         run: >
@@ -87,6 +98,7 @@ jobs:
           path: |
             ml_pipeline/registry/frost_cluster_model.joblib
             ml_pipeline/registry/cluster_metadata.json
+            ml_pipeline/registry/training_history.json
             ml_pipeline/evaluation/cluster_profiles.csv
             data/processed/district_clusters.csv
             data/processed/frost_training_dataset.csv

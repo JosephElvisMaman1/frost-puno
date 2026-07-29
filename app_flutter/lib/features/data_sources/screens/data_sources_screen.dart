@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/page_scaffold.dart';
@@ -13,46 +14,43 @@ class DataSourcesScreen extends StatelessWidget {
 
   final bool showAppBar;
 
-  static const sources = [
+  static List<DataSourceInfo> sourcesFor(AppStrings s) => [
     DataSourceInfo(
       name: 'Open-Meteo',
       tag: 'FALLBACK',
-      description:
-          'Fuente climatica global usada como respaldo operativo cuando SENAMHI no entrega datos disponibles para el MVP.',
+      description: s.sourceOpenMeteo,
       icon: Icons.cloud_outlined,
     ),
     DataSourceInfo(
       name: 'INEI',
       tag: 'TERRITORIO',
-      description:
-          'Fuente territorial, censal y agropecuaria para ubigeos, distritos, ruralidad y contexto local.',
+      description: s.sourceInei,
       icon: Icons.map_outlined,
     ),
     DataSourceInfo(
       name: 'SENAMHI',
       tag: 'OFICIAL',
-      description:
-          'Fuente oficial peruana prioritaria para estaciones, avisos, validacion y futura calibracion climatica.',
+      description: s.sourceSenamhi,
       icon: Icons.device_thermostat,
     ),
     DataSourceInfo(
       name: 'MIDAGRI/SIEA',
       tag: 'AGRO',
-      description:
-          'Fuente agricola complementaria para produccion, cultivos relevantes e impacto productivo.',
+      description: s.sourceMidagri,
       icon: Icons.agriculture_outlined,
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final s = AppStrings.current;
+    final sources = sourcesFor(s);
     final body = ListView(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
       children: [
-        const SectionHeader(
-          title: 'Fuentes de datos',
-          subtitle:
-              'Referencias y origenes de la informacion analizada por el sistema.',
+        SectionHeader(
+          title: s.sourcesTitle,
+          subtitle: s.sourcesSubtitle,
         ),
         const SizedBox(height: 28),
         for (final source in sources) ...[
@@ -71,7 +69,7 @@ class DataSourcesScreen extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  'SENAMHI se prioriza como fuente oficial; si no hay datos operativos disponibles, FrostPuno usa Open-Meteo como fallback.',
+                  s.sourcesFooter,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(
                       context,
@@ -102,12 +100,8 @@ class _ValidationPipelineCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    final steps = [
-      ('1', 'Clima actual', 'Open-Meteo alimenta la app en tiempo real.'),
-      ('2', 'SENAMHI', 'Observaciones oficiales validan eventos reales.'),
-      ('3', 'Feedback', 'Supabase guarda correcciones y evidencia de campo.'),
-      ('4', 'Nuevo modelo', 'ML compara versiones antes de promover.'),
-    ];
+    final s = AppStrings.current;
+    final steps = s.pipelineSteps;
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +112,7 @@ class _ValidationPipelineCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ciclo de mejora del modelo',
+                  s.improvementCycle,
                   style: textTheme.headlineMedium,
                 ),
               ),
@@ -135,7 +129,7 @@ class _ValidationPipelineCard extends StatelessWidget {
           ],
           const SizedBox(height: 16),
           Text(
-            'Este flujo evita entrenar automaticamente con datos dudosos y mantiene trazabilidad academica.',
+            s.pipelineFooter,
             style: textTheme.bodyMedium?.copyWith(
               color: onSurface.withValues(alpha: 0.66),
               fontStyle: FontStyle.italic,

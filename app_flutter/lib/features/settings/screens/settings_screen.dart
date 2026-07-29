@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_language.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/settings/user_settings.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/page_scaffold.dart';
@@ -14,13 +16,14 @@ class SettingsScreen extends StatelessWidget {
     return PageScaffold(
       child: AnimatedBuilder(
         animation: settings,
-        builder: (context, _) => ListView(
+        builder: (context, _) {
+          final s = AppStrings.current;
+          return ListView(
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
           children: [
-            const SectionHeader(
-              title: 'Ajustes',
-              subtitle:
-                  'Configura tus alarmas de helada y el perfil con el que usas la app.',
+            SectionHeader(
+              title: s.settings,
+              subtitle: s.settingsSubtitle,
             ),
             const SizedBox(height: 24),
             GlassCard(
@@ -29,16 +32,16 @@ class SettingsScreen extends StatelessWidget {
                 children: [
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Activar alertas de helada'),
-                    subtitle: const Text(
-                      'Muestra el aviso en Inicio y envía notificación en el celular.',
-                    ),
+                    title: Text(s.enableAlerts),
+                    subtitle: Text(s.enableAlertsSub),
                     value: settings.alertsEnabled,
                     onChanged: settings.setAlertsEnabled,
                   ),
                   const Divider(height: 24),
                   Text(
-                    'Avisarme si la mínima baja de ${settings.alertThreshold.toStringAsFixed(0)} °C',
+                    s.alertThresholdLabel(
+                      settings.alertThreshold.toStringAsFixed(0),
+                    ),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   Slider(
@@ -59,10 +62,10 @@ class SettingsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Perfil', style: Theme.of(context).textTheme.titleMedium),
+                  Text(s.profile, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 6),
                   Text(
-                    'Prioriza qué alertas ves en Inicio.',
+                    s.profileHint,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
@@ -76,7 +79,7 @@ class SettingsScreen extends StatelessWidget {
                     children: UserProfile.values.map((p) {
                       final selected = settings.profile == p;
                       return ChoiceChip(
-                        label: Text(p.label),
+                        label: Text(s.profileName(p.name)),
                         selected: selected,
                         onSelected: (_) => settings.setProfile(p),
                       );
@@ -85,8 +88,33 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 18),
+            GlassCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s.languageLabel,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: AppLanguage.values.map((l) {
+                      return ChoiceChip(
+                        label: Text(l.label),
+                        selected: settings.language == l,
+                        onSelected: (_) => settings.setLanguage(l),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
           ],
-        ),
+        );
+        },
       ),
     );
   }

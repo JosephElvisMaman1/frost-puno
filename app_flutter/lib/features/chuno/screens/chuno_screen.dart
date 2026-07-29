@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/responsive_content.dart';
@@ -50,6 +51,7 @@ class _ChunoScreenState extends State<ChunoScreen> {
               return _Error(message: snapshot.error.toString());
             }
             final data = snapshot.data!;
+            final s = AppStrings.current;
             return RefreshIndicator(
               onRefresh: () async {
                 setState(() => _future = _load());
@@ -58,16 +60,15 @@ class _ChunoScreenState extends State<ChunoScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
                 children: [
-                  const SectionHeader(
-                    title: 'Modulo chuño',
-                    subtitle:
-                        'Ventanas de congelamiento nocturno y secado diurno para elaborar chuño.',
+                  SectionHeader(
+                    title: s.chunoTitle,
+                    subtitle: s.chunoSubtitle,
                   ),
                   const SizedBox(height: 20),
                   _SeasonCard(data: data),
                   const SizedBox(height: 24),
                   Text(
-                    'Pronostico diario',
+                    s.dailyForecast,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -90,6 +91,7 @@ class _SeasonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final s = AppStrings.current;
     final color = data.optimalWindow
         ? AppColors.deepTeal
         : (data.inSeason ? AppColors.mediumRisk : AppColors.mutedTeal);
@@ -105,15 +107,15 @@ class _SeasonCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   data.optimalWindow
-                      ? 'Ventana optima'
+                      ? s.optimalWindow
                       : data.inSeason
-                      ? 'En temporada'
-                      : 'Fuera de temporada',
+                      ? s.inSeason
+                      : s.offSeason,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               StatusChip(
-                label: 'Racha ${data.bestStreak}d',
+                label: s.streak(data.bestStreak),
                 color: color,
               ),
             ],
@@ -157,13 +159,20 @@ class _DayTile extends StatelessWidget {
                   Text(day.date, style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 2),
                   Text(
-                    'min ${day.temperatureMin?.toStringAsFixed(1) ?? '—'} °C · nubes ${day.cloudCover?.toStringAsFixed(0) ?? '—'}% · hum ${day.humidityMax?.toStringAsFixed(0) ?? '—'}%',
+                    AppStrings.current.chunoDayMetrics(
+                      day.temperatureMin?.toStringAsFixed(1) ?? '—',
+                      day.cloudCover?.toStringAsFixed(0) ?? '—',
+                      day.humidityMax?.toStringAsFixed(0) ?? '—',
+                    ),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
               ),
             ),
-            StatusChip(label: day.tier, color: color),
+            StatusChip(
+              label: AppStrings.current.tierWord(day.tier),
+              color: color,
+            ),
           ],
         ),
       ),
@@ -185,7 +194,7 @@ class _Error extends StatelessWidget {
         const Icon(Icons.cloud_off, size: 48, color: AppColors.warmAmber),
         const SizedBox(height: 16),
         Text(
-          'No se pudo cargar el modulo de chuño.',
+          AppStrings.current.chunoError,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium,
         ),

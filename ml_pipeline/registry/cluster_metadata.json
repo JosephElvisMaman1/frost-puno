@@ -1,7 +1,7 @@
 {
   "model_name": "KMeans",
   "version": "v1.0.0-clustering",
-  "created_at": "2026-07-23T20:22:42+00:00",
+  "created_at": "2026-07-29T13:21:25+00:00",
   "features": [
     "altitud_estimada",
     "temperature_2m",
@@ -11,62 +11,295 @@
   "target": "cluster_risk_tier",
   "n_clusters": 3,
   "metrics": {
-    "silhouette": 0.4192953651358329,
-    "davies_bouldin": 0.8133953295503512,
-    "inertia": 5783.223029126809
+    "silhouette": 0.41945640134981044,
+    "davies_bouldin": 0.8133278834456036,
+    "inertia": 5783.236023192061
+  },
+  "best_params": {
+    "n_clusters": 3,
+    "init": "random",
+    "n_init": 10,
+    "scaler": "StandardScaler",
+    "random_state": 42
+  },
+  "hyperparameter_search": {
+    "criterion": "silhouette",
+    "grid": {
+      "k": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "init": [
+        "k-means++",
+        "random"
+      ],
+      "n_init": [
+        10,
+        25
+      ]
+    },
+    "combinations_evaluated": 24,
+    "results": [
+      {
+        "k": 3,
+        "init": "k-means++",
+        "n_init": 10,
+        "silhouette": 0.4192953651358329,
+        "davies_bouldin": 0.8133953295503512,
+        "inertia": 5783.223029126809
+      },
+      {
+        "k": 3,
+        "init": "k-means++",
+        "n_init": 25,
+        "silhouette": 0.4192953651358329,
+        "davies_bouldin": 0.8133953295503512,
+        "inertia": 5783.223029126809
+      },
+      {
+        "k": 3,
+        "init": "random",
+        "n_init": 10,
+        "silhouette": 0.41945640134981044,
+        "davies_bouldin": 0.8133278834456036,
+        "inertia": 5783.236023192061
+      },
+      {
+        "k": 3,
+        "init": "random",
+        "n_init": 25,
+        "silhouette": 0.4192953651358329,
+        "davies_bouldin": 0.8133953295503512,
+        "inertia": 5783.220208222943
+      },
+      {
+        "k": 4,
+        "init": "k-means++",
+        "n_init": 10,
+        "silhouette": 0.38929726171124257,
+        "davies_bouldin": 0.9055842825574971,
+        "inertia": 4472.81830765338
+      },
+      {
+        "k": 4,
+        "init": "k-means++",
+        "n_init": 25,
+        "silhouette": 0.3894160238497854,
+        "davies_bouldin": 0.9058912899623344,
+        "inertia": 4472.774685197232
+      },
+      {
+        "k": 4,
+        "init": "random",
+        "n_init": 10,
+        "silhouette": 0.389344442836552,
+        "davies_bouldin": 0.905584269671607,
+        "inertia": 4472.823721675826
+      },
+      {
+        "k": 4,
+        "init": "random",
+        "n_init": 25,
+        "silhouette": 0.389344442836552,
+        "davies_bouldin": 0.905584269671607,
+        "inertia": 4472.823721675826
+      },
+      {
+        "k": 5,
+        "init": "k-means++",
+        "n_init": 10,
+        "silhouette": 0.37585539081556574,
+        "davies_bouldin": 0.820991151423655,
+        "inertia": 3458.94321140209
+      },
+      {
+        "k": 5,
+        "init": "k-means++",
+        "n_init": 25,
+        "silhouette": 0.37585539081556574,
+        "davies_bouldin": 0.820991151423655,
+        "inertia": 3458.94321140209
+      },
+      {
+        "k": 5,
+        "init": "random",
+        "n_init": 10,
+        "silhouette": 0.37603520032990795,
+        "davies_bouldin": 0.8204614062861998,
+        "inertia": 3459.056844358874
+      },
+      {
+        "k": 5,
+        "init": "random",
+        "n_init": 25,
+        "silhouette": 0.3757141709601934,
+        "davies_bouldin": 0.8214396855446058,
+        "inertia": 3458.9605913527726
+      },
+      {
+        "k": 6,
+        "init": "k-means++",
+        "n_init": 10,
+        "silhouette": 0.3697264185257649,
+        "davies_bouldin": 0.8698989303144101,
+        "inertia": 3024.093637204584
+      },
+      {
+        "k": 6,
+        "init": "k-means++",
+        "n_init": 25,
+        "silhouette": 0.36970324715658986,
+        "davies_bouldin": 0.8702325963417258,
+        "inertia": 3024.0197454414897
+      },
+      {
+        "k": 6,
+        "init": "random",
+        "n_init": 10,
+        "silhouette": 0.36969044047776806,
+        "davies_bouldin": 0.8701522953514415,
+        "inertia": 3024.03198350255
+      },
+      {
+        "k": 6,
+        "init": "random",
+        "n_init": 25,
+        "silhouette": 0.36969044047776806,
+        "davies_bouldin": 0.8701522953514415,
+        "inertia": 3024.0319835025502
+      },
+      {
+        "k": 7,
+        "init": "k-means++",
+        "n_init": 10,
+        "silhouette": 0.36448596466864847,
+        "davies_bouldin": 0.865293577913078,
+        "inertia": 2653.1981540540783
+      },
+      {
+        "k": 7,
+        "init": "k-means++",
+        "n_init": 25,
+        "silhouette": 0.36448596466864847,
+        "davies_bouldin": 0.865293577913078,
+        "inertia": 2653.1981540540783
+      },
+      {
+        "k": 7,
+        "init": "random",
+        "n_init": 10,
+        "silhouette": 0.34288897617129016,
+        "davies_bouldin": 0.8881533087595416,
+        "inertia": 2665.742692593246
+      },
+      {
+        "k": 7,
+        "init": "random",
+        "n_init": 25,
+        "silhouette": 0.3644566095009053,
+        "davies_bouldin": 0.8654217518449855,
+        "inertia": 2653.130899579932
+      },
+      {
+        "k": 8,
+        "init": "k-means++",
+        "n_init": 10,
+        "silhouette": 0.33913612696904716,
+        "davies_bouldin": 0.8825744976101153,
+        "inertia": 2294.2747337436826
+      },
+      {
+        "k": 8,
+        "init": "k-means++",
+        "n_init": 25,
+        "silhouette": 0.3387429498079709,
+        "davies_bouldin": 0.8861856279912022,
+        "inertia": 2294.1952879315777
+      },
+      {
+        "k": 8,
+        "init": "random",
+        "n_init": 10,
+        "silhouette": 0.3381170775625843,
+        "davies_bouldin": 0.8883645916281588,
+        "inertia": 2294.979359478122
+      },
+      {
+        "k": 8,
+        "init": "random",
+        "n_init": 25,
+        "silhouette": 0.33913612696904716,
+        "davies_bouldin": 0.8825744976101154,
+        "inertia": 2294.274733743683
+      }
+    ]
   },
   "all_k_metrics": {
     "3": {
-      "silhouette": 0.4192953651358329,
-      "davies_bouldin": 0.8133953295503512,
-      "inertia": 5783.223029126809
+      "silhouette": 0.41945640134981044,
+      "davies_bouldin": 0.8133278834456036,
+      "inertia": 5783.236023192061
     },
     "4": {
-      "silhouette": 0.38929726171124257,
-      "davies_bouldin": 0.9055842825574971,
-      "inertia": 4472.81830765338
+      "silhouette": 0.3894160238497854,
+      "davies_bouldin": 0.9058912899623344,
+      "inertia": 4472.774685197232
     },
     "5": {
-      "silhouette": 0.37585539081556574,
-      "davies_bouldin": 0.820991151423655,
-      "inertia": 3458.94321140209
+      "silhouette": 0.37603520032990795,
+      "davies_bouldin": 0.8204614062861998,
+      "inertia": 3459.056844358874
     },
     "6": {
       "silhouette": 0.3697264185257649,
       "davies_bouldin": 0.8698989303144101,
       "inertia": 3024.093637204584
+    },
+    "7": {
+      "silhouette": 0.36448596466864847,
+      "davies_bouldin": 0.865293577913078,
+      "inertia": 2653.1981540540783
+    },
+    "8": {
+      "silhouette": 0.33913612696904716,
+      "davies_bouldin": 0.8825744976101153,
+      "inertia": 2294.2747337436826
     }
   },
   "dataset_size": 4368,
   "cluster_tiers": {
-    "1": "alto",
-    "0": "medio",
-    "2": "bajo"
+    "0": "alto",
+    "2": "medio",
+    "1": "bajo"
   },
   "cluster_profiles": {
     "0": {
-      "altitud_estimada": 3893.3155680224404,
-      "temperature_2m": 11.625245441795233,
-      "dew_point_2m": -7.332491818606826,
-      "relative_humidity_2m": 27.481065918653577,
-      "size": 2139,
-      "tier": "medio"
-    },
-    "1": {
-      "altitud_estimada": 3905.1873350923483,
-      "temperature_2m": 4.008759894459103,
-      "dew_point_2m": -3.7306068601583116,
-      "relative_humidity_2m": 58.77255936675462,
-      "size": 1895,
+      "altitud_estimada": 3905.2959237691903,
+      "temperature_2m": 3.993276866066702,
+      "dew_point_2m": -3.7338274219163576,
+      "relative_humidity_2m": 58.820010587612494,
+      "size": 1889,
       "tier": "alto"
     },
-    "2": {
+    "1": {
       "altitud_estimada": 2170.0,
       "temperature_2m": 13.641017964071857,
       "dew_point_2m": 10.051197604790419,
       "relative_humidity_2m": 80.09580838323353,
       "size": 334,
       "tier": "bajo"
+    },
+    "2": {
+      "altitud_estimada": 3893.253146853147,
+      "temperature_2m": 11.617575757575757,
+      "dew_point_2m": -7.3195804195804195,
+      "relative_humidity_2m": 27.526806526806528,
+      "size": 2145,
+      "tier": "medio"
     }
   },
   "data_sources": [

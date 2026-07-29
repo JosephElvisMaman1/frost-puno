@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/frost_api_service.dart';
+import '../../../core/i18n/app_strings.dart';
 import '../../../core/models/health_status.dart';
 import '../../../core/notifications/notification_service.dart';
 import '../../../core/settings/user_settings.dart';
@@ -41,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final textTheme = Theme.of(context).textTheme;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final themeScope = ThemeModeScope.maybeOf(context);
+    final s = AppStrings.current;
     return SafeArea(
       child: ResponsiveContent(
         child: ListView(
@@ -55,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final active = snapshot.data?.modelAvailable ?? false;
                       return StatusChip(
                         icon: Icons.circle,
-                        label: active ? 'Sistema activo' : 'Modo demo',
+                        label: active ? s.systemActive : s.demoMode,
                         color: active
                             ? AppColors.mutedTeal
                             : AppColors.warmAmber,
@@ -64,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Cambiar tema',
+                  tooltip: s.changeTheme,
                   icon: Icon(_themeIcon(themeScope?.themeMode)),
                   onPressed: themeScope == null
                       ? null
@@ -73,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                 ),
                 IconButton(
-                  tooltip: 'Ajustes',
+                  tooltip: s.settings,
                   icon: const Icon(Icons.tune),
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -85,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('FrostPuno', style: textTheme.displayLarge),
             const SizedBox(height: 16),
             Text(
-              'Prediccion inteligente de heladas para comunidades altoandinas.',
+              s.appTagline,
               style: textTheme.headlineMedium?.copyWith(
                 color: onSurface.withValues(alpha: 0.68),
                 fontSize: 22,
@@ -98,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const _CurrentRiskCard(),
             const SizedBox(height: 32),
             PrimaryActionButton(
-              label: 'Consultar riesgo',
+              label: s.checkRisk,
               icon: Icons.arrow_forward,
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -113,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _QuickTile(
                     icon: Icons.history,
-                    label: 'Ver historial',
+                    label: s.viewHistory,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) =>
@@ -126,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: _QuickTile(
                     icon: Icons.storage_outlined,
-                    label: 'Fuentes de datos',
+                    label: s.dataSources,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const DataSourcesScreen(),
@@ -139,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             _QuickTile(
               icon: Icons.account_tree_outlined,
-              label: 'Informacion del modelo',
+              label: s.modelInfo,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) =>
@@ -209,10 +211,14 @@ class _AlertSectionState extends State<_AlertSection> {
           animation: settings,
           builder: (context, _) {
             final active = _shouldAlert(alert, settings);
+            final s = AppStrings.current;
             if (active && !_notified) {
               _notified = true;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                NotificationService.showFrostAlert(alert.title, alert.message);
+                NotificationService.showFrostAlert(
+                  s.frostTitle(alert.severity),
+                  s.frostMessage(alert.severity),
+                );
               });
             }
 
@@ -278,14 +284,17 @@ class _FrostBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  alert.title,
+                  AppStrings.current.frostTitle(alert.severity),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: color,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(alert.message, style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  AppStrings.current.frostMessage(alert.severity),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ],
             ),
           ),
@@ -316,7 +325,7 @@ class _LivestockCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ganado · riesgo ${livestock.level}',
+                  AppStrings.current.livestockTitle(livestock.level),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: color,
                     fontWeight: FontWeight.w700,
@@ -324,7 +333,7 @@ class _LivestockCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  livestock.message,
+                  AppStrings.current.livestockMessage(livestock.level),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -356,7 +365,7 @@ class _AnomalyCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Riesgo inusual',
+                  AppStrings.current.anomalyTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: AppColors.deepTeal,
                     fontWeight: FontWeight.w700,
@@ -364,7 +373,7 @@ class _AnomalyCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  anomaly.message,
+                  AppStrings.current.anomalyMessage(anomaly.delta),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -392,7 +401,7 @@ class _CurrentRiskCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Riesgo actual de helada',
+                  AppStrings.current.currentFrostRisk,
                   style: textTheme.headlineMedium,
                 ),
               ),
@@ -423,9 +432,12 @@ class _CurrentRiskCard extends StatelessWidget {
           Wrap(
             spacing: 14,
             runSpacing: 10,
-            children: const [
-              StatusChip(icon: Icons.water_drop_outlined, label: 'Hum 42%'),
-              StatusChip(icon: Icons.air, label: '12 km/h'),
+            children: [
+              StatusChip(
+                icon: Icons.water_drop_outlined,
+                label: AppStrings.current.humShort('42%'),
+              ),
+              const StatusChip(icon: Icons.air, label: '12 km/h'),
             ],
           ),
         ],
@@ -452,16 +464,16 @@ class _LearningCycleCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Mejora supervisada',
+                  AppStrings.current.maintenanceTitle,
                   style: textTheme.titleMedium,
                 ),
               ),
-              const StatusChip(label: 'ML v0.2'),
+              const StatusChip(label: 'K-Means'),
             ],
           ),
           const SizedBox(height: 14),
           Text(
-            'El modelo no se actualiza solo: registra evidencia, compara contra observaciones oficiales y versiona una nueva evaluacion antes de promover cambios.',
+            AppStrings.current.maintenanceBody,
             style: textTheme.bodyMedium?.copyWith(
               color: onSurface.withValues(alpha: 0.72),
             ),

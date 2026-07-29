@@ -1,0 +1,21 @@
+[
+  {
+    "trained_at": "2026-07-29T13:21:25+00:00",
+    "iteration": 1,
+    "window_days": 14,
+    "start_date": "2026-07-11",
+    "end_date": "2026-07-24",
+    "target": 0.4,
+    "silhouette": 0.41945640134981044,
+    "davies_bouldin": 0.8133278834456036,
+    "n_clusters": 3,
+    "dataset_size": 4368,
+    "best_params": {
+      "n_clusters": 3,
+      "init": "random",
+      "n_init": 10,
+      "scaler": "StandardScaler",
+      "random_state": 42
+    }
+  }
+]
