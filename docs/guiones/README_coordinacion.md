@@ -8,7 +8,7 @@ carpeta. Repositorio: https://github.com/JosephElvisMaman1/frost-puno
 | Integrante | Guion |
 |---|---|
 | Joseph Elvis Mamani Mendoza | `00_JOSEPH_apertura_y_cierre.md` |
-| Juan Artemio Lipe Machaca | `01_JUAN_LIPE_modelo_ml.md` |
+| Juan Artemio Lipe Machaca | `01_JUAN_LIPE_dataset.md` |
 | Jhoel Yovani Ticona Erquinigo | `02_JHOEL_TICONA_demo_ingles.md` |
 | Paul Renmis Tapara Ccahuana | `03_PAUL_TAPARA_despliegue_y_ci.md` |
 
@@ -17,12 +17,26 @@ carpeta. Repositorio: https://github.com/JosephElvisMaman1/frost-puno
 | # | Integrante | Sección | Tiempo | Puntos que defiende |
 |---|---|---|---|---|
 | 1 | **Joseph** | Apertura: problema + arquitectura | 2:00 | Contexto y explicación técnica |
-| 2 | **Juan** | Dataset, modelo K-Means, hiperparámetros | 3:00 | **Entrenamiento (3 pts)** |
-| 3 | **Jhoel** | Demo de la app **en inglés** | 2:30 | **App en inglés (3 pts)** |
-| 4 | **Paul** | Despliegue + IC, mantenimiento y pruebas | 3:30 | **Despliegue (2) + Pipelines (2) + Pruebas (2)** |
-| 5 | **Joseph** | Cierre: limitaciones + conclusión | 1:00 | Cierre |
+| 2 | **Juan** | Dataset y fuentes de datos | 1:30 | Dataset |
+| 3 | **Joseph** | **Modelo: entrenamiento, hiperparámetros y evaluación** | 2:30 | **Entrenamiento (3 pts)** |
+| 4 | **Jhoel** | Demo de la app **en inglés** | 2:30 | **App en inglés (3 pts)** |
+| 5 | **Paul** | Despliegue + IC, mantenimiento y pruebas | 3:00 | **Despliegue (2) + Pipelines (2) + Pruebas (2)** |
+| 6 | **Joseph** | Cierre: limitaciones + conclusión | 1:00 | Cierre |
 
-**Total: 12:00** — justo en el límite. Cronometrar en el ensayo.
+**Total: 12:30** → recortar 30 s en el ensayo (lo más comprimible: §1.4 de Joseph y la
+anécdota A.3 de Paul). **El límite son 12 minutos.**
+
+> **Joseph desarrolló el sistema** (los 30 commits del repositorio son suyos), por eso
+> presenta la arquitectura y el modelo, y **responde todas las preguntas técnicas**. Si una
+> pregunta baja al código o al modelo, la toma él aunque sea de la sección de otro.
+
+## Evidencia de autoría (acordado con el equipo)
+
+- Durante la sección de **integración continua**, Paul abre la pestaña **Actions** de
+  GitHub. Ahí mismo, con un clic en **Insights → Contributors**, se ve el historial real de
+  contribuciones del repositorio. No hay que decir nada: se ve.
+- Todas las **preguntas técnicas** las responde Joseph.
+- El repositorio queda proyectado o disponible por si el jurado quiere revisarlo.
 
 ## Preparación (30 min antes)
 

@@ -377,7 +377,95 @@ function stripe(slide, label) {
   );
 }
 
-/* ------------------------------------------------------ 6. LIMITACIONES */
+/* ------------------------------- 6. HIPERPARAMETROS Y EVALUACION (Joseph) */
+{
+  const s = pptx.addSlide();
+  s.background = { color: LIGHT_BG };
+  stripe(s, 'ENTRENAMIENTO');
+
+  s.addText('Hiperparametros optimizados', {
+    x: LEFT, y: 0.5, w: CONTENT_W, h: 0.8,
+    fontFace: TITLE_FONT, fontSize: 36, bold: true, color: NAVY,
+  });
+  s.addText('Grid search de 24 combinaciones, maximizando silhouette.', {
+    x: LEFT, y: 1.28, w: CONTENT_W, h: 0.45,
+    fontFace: BODY_FONT, fontSize: 16, italic: true, color: TEAL,
+  });
+
+  // Tabla del grid
+  s.addTable(
+    [
+      [
+        { text: 'Hiperparametro', options: { bold: true, color: 'FFFFFF', fill: { color: NAVY } } },
+        { text: 'Valores explorados', options: { bold: true, color: 'FFFFFF', fill: { color: NAVY } } },
+        { text: 'Elegido', options: { bold: true, color: 'FFFFFF', fill: { color: NAVY } } },
+      ],
+      ['n_clusters (k)', '3, 4, 5, 6, 7, 8', '3'],
+      ['init', 'k-means++, random', 'random'],
+      ['n_init', '10, 25', '10'],
+      ['escalado', 'StandardScaler', 'si'],
+    ],
+    {
+      x: LEFT, y: 1.9, w: 7.15, h: 2.3,
+      colW: [2.35, 3.3, 1.5],
+      fontFace: BODY_FONT, fontSize: 13, color: TEXT,
+      border: { type: 'solid', color: 'E1E5E8', pt: 1 },
+      fill: { color: CARD },
+      valign: 'middle',
+    },
+  );
+
+  // Metricas de evaluacion
+  const metrics = [
+    ['0.419', 'Silhouette', 'cohesion y separacion (mas alto, mejor)'],
+    ['0.813', 'Davies-Bouldin', 'dispersion entre grupos (mas bajo, mejor)'],
+  ];
+  metrics.forEach(([value, name, desc], i) => {
+    const y = 1.9 + i * 1.2;
+    s.addShape(pptx.ShapeType.roundRect, {
+      x: 8.7, y, w: 3.4, h: 1.05, rectRadius: 0.06, fill: { color: NAVY },
+    });
+    s.addText(value, {
+      x: 8.85, y: y + 0.12, w: 1.35, h: 0.8,
+      align: 'center', valign: 'middle',
+      fontFace: TITLE_FONT, fontSize: 24, bold: true, color: ICE,
+    });
+    s.addText(name, {
+      x: 10.2, y: y + 0.15, w: 1.75, h: 0.35,
+      fontFace: BODY_FONT, fontSize: 13, bold: true, color: 'FFFFFF',
+    });
+    s.addText(desc, {
+      x: 10.2, y: y + 0.5, w: 1.8, h: 0.45,
+      fontFace: BODY_FONT, fontSize: 9, color: 'A9BCC6',
+    });
+  });
+
+  s.addShape(pptx.ShapeType.roundRect, {
+    x: LEFT, y: 4.5, w: CONTENT_W, h: 1.75, rectRadius: 0.06,
+    fill: { color: 'EDF3F5' },
+  });
+  s.addText(
+    [
+      { text: 'Por que no accuracy ni F1:  ', options: { bold: true, color: NAVY } },
+      {
+        text: 'no existe una verdad de terreno de "aqui hubo helada" para estos distritos. ' +
+              'Al ser no supervisado, se mide la calidad de la estructura descubierta, no el acierto contra una etiqueta.',
+        options: { color: TEXT },
+      },
+    ],
+    {
+      x: LEFT + 0.4, y: 4.7, w: CONTENT_W - 0.8, h: 1.35,
+      fontFace: BODY_FONT, fontSize: 15, valign: 'middle', lineSpacing: 26,
+    },
+  );
+
+  s.addText('El grid completo queda registrado en cluster_metadata.json', {
+    x: LEFT, y: 6.45, w: CONTENT_W, h: 0.4,
+    fontFace: BODY_FONT, fontSize: 13, color: TEXT_SOFT,
+  });
+}
+
+/* ------------------------------------------------------ 7. LIMITACIONES */
 {
   const s = pptx.addSlide();
   s.background = { color: LIGHT_BG };
@@ -430,7 +518,7 @@ function stripe(slide, label) {
   });
 }
 
-/* -------------------------------------------------------- 7. CONCLUSION */
+/* -------------------------------------------------------- 8. CONCLUSION */
 {
   const s = pptx.addSlide();
   s.background = { color: NAVY };
@@ -508,5 +596,5 @@ function stripe(slide, label) {
   });
 }
 
-const out = path.join(__dirname, 'FrostPuno_Joseph.pptx');
+const out = path.join(__dirname, process.env.OUT_NAME || 'FrostPuno_Joseph.pptx');
 pptx.writeFile({ fileName: out }).then(() => console.log('OK ->', out));

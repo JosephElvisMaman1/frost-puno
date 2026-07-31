@@ -62,7 +62,9 @@ del proyecto.
 
 ## B.1 Los cinco pipelines (25 s)
 
-*Muestra la pestaña Actions.*
+*Muestra la pestaña **Actions** del repositorio. Si el jurado pregunta por el trabajo del
+equipo, ahí mismo tienes **Insights → Contributors**, que muestra el historial real de
+contribuciones; no hace falta comentarlo, basta con tenerlo a un clic.*
 
 > "Pasando a la automatización: tenemos **cinco workflows** en GitHub Actions que corren **en
 > paralelo** ante cada push:

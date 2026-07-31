@@ -1,12 +1,16 @@
 # Guion — JOSEPH ELVIS MAMANI MENDOZA
-## Rol: Autor y presentador principal — Apertura, arquitectura y cierre
+## Rol: Autor del sistema — Apertura, arquitectura, **modelo ML** y cierre
 
-**Tiempo total: ~3 min** (abres los primeros 2 min y cierras el último 1 min).
-Eres quien abre y cierra: presentas el problema, el producto y la arquitectura, y al final
-recoges todo. Es la parte más visible y la más fácil de defender: **no tienes que explicar
-fórmulas**, tú cuentas el *qué* y el *porqué*.
+**Tiempo total: ~5:30 de 12 min.** Intervienes **tres veces**: abres, explicas el
+**modelo** (la sección de mayor puntaje: 3 pts) y cierras. Eres quien desarrolló el
+sistema, así que también eres quien **responde las preguntas técnicas**.
 
 **Repositorio:** https://github.com/JosephElvisMaman1/frost-puno
+
+> **Tus tres apariciones**
+> 1. Apertura: problema + arquitectura (2:00)
+> 2. **El modelo: entrenamiento, hiperparámetros y evaluación (2:30)** ← tu parte fuerte
+> 3. Cierre: limitaciones + conclusión (1:00)
 
 ---
 
@@ -18,9 +22,9 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 > altiplano de Puno. El equipo lo integramos **Juan Lipe Machaca, Jhoel Ticona Erquinigo,
 > Paul Tapara Ccahuana** y yo, **Joseph Mamani Mendoza**.
 >
-> Yo voy a presentar el problema y la arquitectura; luego Juan explicará el modelo, Jhoel
-> hará la demostración de la aplicación, y Paul cerrará con el despliegue y la
-> automatización."
+> Yo presento el problema, la arquitectura y el modelo de aprendizaje; Juan explicará el
+> dataset, Jhoel hará la demostración de la aplicación y Paul cerrará con el despliegue y
+> la automatización."
 
 ### 1.2 El problema (40 s) — *esto es lo que engancha al jurado*
 
@@ -59,13 +63,92 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 > el pipeline y el backend: si cambian las variables, el metadata lo declara y el backend se
 > adapta. Con eso, reentrenar no obliga a tocar el código del servidor.
 >
-> Le dejo la palabra a **Juan**, que va a explicar el dataset y el modelo."
+> Le dejo la palabra a **Juan**, que va a explicar el dataset con el que entrenamos."
 
 ---
 
-## PARTE 2 — Cierre (al final, ~1 min)
+## PARTE 2 — El modelo (después de Juan, ~2:30) ⭐ TU PARTE FUERTE
 
-### 2.1 Limitaciones — *decirlas suma, no resta* (30 s)
+*Vale 3 puntos: "entrenamiento del modelo, características e hiperparámetros optimizados,
+evaluación sobre métricas". Ten abiertos `ml_pipeline/clustering/train_clusters.py` y
+`ml_pipeline/registry/cluster_metadata.json`.*
+
+### 2.1 Qué algoritmo y por qué (35 s)
+
+> "Gracias Juan. Yo desarrollé el modelo, así que les explico cómo se entrena.
+>
+> El algoritmo es **K-Means**, aprendizaje **no supervisado**: no le damos etiquetas, él
+> descubre solo la estructura de los datos.
+>
+> Va dentro de un *pipeline* con **StandardScaler**, y eso no es un detalle menor: las
+> variables tienen escalas muy distintas —metros de altitud contra grados centígrados
+> contra porcentaje de humedad—. Sin escalar, la altitud dominaría todo el cálculo de
+> distancias y el modelo agruparía solo por altura."
+
+### 2.2 Selección de características (40 s) — *el hallazgo*
+
+> "Empezamos con **ocho variables** climáticas. Pero al medir la calidad del agrupamiento
+> encontramos algo interesante: la **precipitación**, el **viento**, la **nubosidad** y la
+> **temperatura aparente** eran ruidosas o estaban correlacionadas entre sí, y en lugar de
+> ayudar, **degradaban la separación** de los grupos.
+>
+> Hice un experimento de subconjuntos y me quedé con las **cuatro variables con sentido
+> físico** para una helada: **altitud, temperatura, punto de rocío y humedad relativa**.
+>
+> El resultado: la métrica subió de **0.286 a 0.419**, casi **47 % de mejora**, quitando
+> variables. *(pausa)* Más datos no siempre significa mejor modelo."
+
+### 2.3 Hiperparámetros optimizados (40 s)
+
+*Muestra `train_clusters.py`, función `search_hyperparameters`.*
+
+> "Para los hiperparámetros no elegí valores a mano: implementé un **grid search de 24
+> combinaciones**, maximizando la métrica de silhouette:
+>
+> - **k**, el número de grupos: de 3 a 8.
+> - **init**, el método de inicialización: k-means++ y aleatorio.
+> - **n_init**, cuántas veces reinicia: 10 y 25.
+> - Con `random_state` fijo en 42, para que sea **reproducible**.
+>
+> Ganó **k igual a 3, init aleatorio y n_init diez**. Y algo importante para la auditoría:
+> **el grid completo queda guardado** en el archivo de metadata del modelo. No es una
+> afirmación nuestra, está registrado y se puede revisar."
+
+### 2.4 Evaluación (35 s)
+
+> "¿Cómo se evalúa un modelo que no tiene etiquetas? No se puede usar accuracy ni F1,
+> porque **no existe una verdad de terreno** de 'aquí hubo helada' para estos distritos.
+>
+> Se mide la calidad de la estructura descubierta:
+>
+> - **Silhouette 0.419**: qué tan cohesionado está cada grupo y qué tan separado de los demás.
+> - **Davies-Bouldin 0.813**: dispersión dentro del grupo contra distancia entre grupos.
+>
+> Elegí k igual a 3 porque **gana en ambas métricas**, y además coincide con los tres
+> niveles de riesgo que necesita la aplicación."
+
+### 2.5 El resultado es interpretable (30 s)
+
+*Diapositiva con la pantalla "Zonas".*
+
+> "Y esto es lo que más me gustó del resultado. El modelo encontró tres regímenes: uno frío
+> a 4 grados y 3 900 metros, uno intermedio a 11 grados, y uno templado a 13 grados y solo
+> 2 170 metros.
+>
+> Al mapear los distritos: **Macusani**, a 4 315 metros, cae en riesgo alto. **Sandia**, que
+> está en valle a 2 170 metros, cae en riesgo bajo.
+>
+> **Nadie escribió esa regla.** El algoritmo la descubrió solo a partir del clima, y coincide
+> con la geografía de la región. Eso nos da confianza en que el agrupamiento tiene sentido
+> físico.
+>
+> Le paso la palabra a **Jhoel**, que va a mostrar la aplicación funcionando."
+
+---
+
+## PARTE 3 — Cierre (al final, ~1 min)
+
+### 3.1 Limitaciones — *decirlas suma, no resta* (30 s)
 
 > "Antes de cerrar, queremos ser explícitos con las limitaciones, porque un informe técnico
 > honesto vale más que uno perfecto:
@@ -80,7 +163,7 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 >
 > Ninguna de estas limitaciones invalida la arquitectura ni el ciclo de vida que mostramos."
 
-### 2.2 Conclusión (30 s)
+### 3.2 Conclusión (30 s)
 
 > "En resumen, FrostPuno cumple lo que pedía la unidad:
 >
@@ -90,12 +173,43 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 >   registra su historial de calidad y está protegido por un quality gate que **probamos que
 >   bloquea** un modelo degradado.
 >
+> Todo esto está documentado en el **informe técnico** que entregamos, pensado para un
+> equipo de TI que reciba el mantenimiento del sistema.
+>
 > Y, sobre todo, resuelve un problema real de nuestra región. Muchas gracias — quedamos
 > atentos a sus preguntas."
 
 ---
 
-## Preguntas probables (tú las respondes)
+## Preguntas probables (LAS RESPONDES TÚ)
+
+> El equipo acordó que **todas las preguntas técnicas las tomas tú**, porque desarrollaste
+> el sistema. Si preguntan algo de la parte de un compañero y él puede responder, que
+> responda; si la pregunta baja al código o al modelo, la tomas tú sin dudar.
+
+### Sobre el modelo (tu parte)
+
+**"¿Por qué K-Means y no DBSCAN o clustering jerárquico?"**
+> "Por tres razones: es interpretable —cada grupo tiene un centroide que se lee como un
+> perfil climático—, la inferencia en producción es O(k), muy barata, y produce un número
+> fijo de grupos, que es lo que necesita la app para mapear a tres niveles de riesgo."
+
+**"¿Por qué silhouette 0.419 y no más alto?"**
+> "Con datos reales y ruidosos, por encima de 0.4 se considera una estructura razonable.
+> Partimos de 0.286 y llegamos a 0.419 podando variables. El quality gate exige mínimo
+> 0.35, así que hay margen de seguridad."
+
+**"¿Cómo asignan alto/medio/bajo si no hay etiquetas?"**
+> "Es un paso posterior al entrenamiento: ordeno los grupos por su temperatura media y el
+> más frío es el de mayor riesgo. Es *describir* los grupos que el algoritmo encontró, no
+> supervisarlo. El entrenamiento nunca ve esas etiquetas."
+
+**"¿Por qué escalar las variables?"**
+> "Porque K-Means usa distancias euclidianas y las variables tienen escalas muy distintas:
+> la altitud está en miles de metros y la temperatura en decenas de grados. Sin
+> StandardScaler, la altitud dominaría el agrupamiento por completo."
+
+### Generales
 
 **"¿Por qué no usaron aprendizaje supervisado?"**
 > "El enunciado de la unidad pide no supervisado o refuerzo. Además, en nuestro caso no

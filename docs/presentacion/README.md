@@ -1,6 +1,6 @@
 # Diapositivas de la exposición
 
-`FrostPuno_Joseph.pptx` — 7 diapositivas para la parte de Joseph (apertura y cierre).
+`FrostPuno_Joseph.pptx` — 8 diapositivas para la parte de Joseph (apertura y cierre).
 Se acompaña de `FrostPuno_Joseph.pdf` como **respaldo** para la exposición presencial.
 
 | # | Diapositiva | Momento |
@@ -9,9 +9,10 @@ Se acompaña de `FrostPuno_Joseph.pdf` como **respaldo** para la exposición pre
 | 2 | Una helada, dos caras (el problema) | apertura |
 | 3 | En produccion, no una maqueta | apertura |
 | 4 | Cuatro piezas conectadas (arquitectura) | apertura |
-| 5 | Nadie escribio la regla (el modelo) | transición a Juan |
-| 6 | Lo que el sistema todavia no hace | cierre |
-| 7 | Lo que entregamos + Gracias | cierre |
+| 5 | Nadie escribio la regla (el modelo) | Joseph — modelo |
+| 6 | Hiperparametros optimizados y evaluacion | Joseph — modelo |
+| 7 | Lo que el sistema todavia no hace | cierre |
+| 8 | Lo que entregamos + Gracias | cierre |
 
 Guion hablado: [`../guiones/00_JOSEPH_apertura_y_cierre.md`](../guiones/00_JOSEPH_apertura_y_cierre.md).
 
