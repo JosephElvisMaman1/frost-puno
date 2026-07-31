@@ -116,3 +116,68 @@ fórmulas**, tú cuentas el *qué* y el *porqué*.
 - [ ] Abrir el backend unos minutos antes (Render Free se duerme).
 - [ ] Tener listas las pestañas: web, `/docs`, GitHub Actions.
 - [ ] Repositorio a mano por si piden ver el código.
+- [ ] **Diapositivas**: `docs/presentacion/FrostPuno_Joseph.pptx` (y el PDF de respaldo).
+- [ ] **Hoja de inglés impresa**: `docs/guiones/JOSEPH_hoja_ingles.md`.
+
+---
+
+# CÓMO EXPONER PRESENCIALMENTE
+
+## Antes de entrar (30 min)
+
+- **Despierta el backend.** Abre https://frost-puno.onrender.com/health desde el celular.
+  Render Free duerme el servicio y la primera carga tarda ~30 s: si lo despiertas antes,
+  en vivo responde al instante.
+- **Lleva todo por duplicado**: el `.pptx` y el **PDF** en una USB, y una copia en tu
+  correo o Drive. Si la laptop del aula no tiene PowerPoint, el PDF siempre abre.
+- **Prueba el proyector antes** si te dejan. Conecta, verifica que se vea el 16:9 completo
+  (que no corte los bordes) y que los colores oscuros no se vean lavados.
+- **Pantalla extendida, no espejada**, si usas modo presentador: tú ves tus notas, el
+  jurado ve solo la diapositiva. Si el aula complica, usa **espejada** y no dependas de
+  las notas: por eso tu guion está memorizado en 5 ideas, no en párrafos.
+- **Cierra notificaciones** (WhatsApp de escritorio, correo). Modo avión en el celular si
+  lo usas para mostrar el APK.
+- **Ten el APK instalado en un celular** por si piden ver la app Android.
+
+## Durante tu intervención
+
+- **Dónde pararte**: a un costado de la pantalla, no delante. Si el proyector te da en la
+  cara, un paso adelante y hacia el lado.
+- **No leas la diapositiva.** El jurado ya la lee solo. Tú cuentas lo que **no** está
+  escrito. Tus slides tienen poco texto justamente para eso.
+- **No des la espalda.** Mira la pantalla máximo 2 segundos para ubicarte, y vuelve al
+  jurado. Señala con la mano abierta, no con el dedo.
+- **Reparte la mirada**: elige tres puntos (izquierda, centro, derecha) y ve rotando. No te
+  quedes mirando solo al docente.
+- **Pausa después de cada cifra.** Cuando digas "3 800 metros" o "0.419", **calla un
+  segundo**. Ese silencio hace que el número se registre; si sigues de largo, se pierde.
+- **Manos**: sueltas o sosteniendo el clicker/hoja. No en los bolsillos, no cruzadas, no
+  jugando con el lapicero.
+- **Ritmo**: tienes 2 minutos de apertura. Es poco. Si notas que vas lento, salta el
+  detalle de la arquitectura y quédate con las cuatro piezas y el contrato de features.
+- **Al pasar la palabra**, di el nombre y qué viene: *"Le dejo la palabra a Juan, que va a
+  explicar el modelo."* Y **da un paso al costado**. El relevo se nota tanto como el
+  contenido.
+
+## Plan B
+
+| Si falla… | Qué haces |
+|---|---|
+| No hay internet | No abras la app en vivo. Usa las **capturas de las diapositivas** — ya muestran el modelo real (0.419, K-Means). Dilo con naturalidad: "lo mostramos con capturas del sistema en producción". |
+| El proyector no conecta | Abre el **PDF en el celular** y, si el jurado es cercano, expón con el equipo alrededor. Nunca improvises sin apoyo visual. |
+| Render está dormido y la demo tarda | Sigue hablando mientras carga. Nunca te quedes en silencio mirando la pantalla: "mientras el servicio despierta —es plan gratuito, se suspende por inactividad— les comento que…". |
+| Se te olvida una parte | Salta a la siguiente diapositiva. Nadie sabe lo que ibas a decir. Si lo recuerdas después, lo agregas al cierre. |
+| Una diapositiva no se ve bien | No pidas disculpas dos veces. Una frase y sigues. |
+
+## Manejo de preguntas
+
+- **Repite la pregunta antes de responder.** Ganas 3 segundos para pensar, confirmas que
+  entendiste y el resto del jurado la escucha. *"La pregunta es por qué elegimos K-Means y
+  no otro algoritmo…"*
+- **Responde lo que te preguntaron**, no todo lo que sabes. Frase corta, y si quieren más,
+  preguntan.
+- **Si no sabes**: *"Eso lo documentamos como limitación en el informe"* o *"Esa parte la
+  trabajó mi compañero, ¿puede responder él?"*. **Nunca inventes un dato.** Un número
+  inventado que el jurado detecta cuesta más que un "no lo medimos".
+- **Si te corrigen y tienen razón**: *"Tiene razón, lo anotamos"*. Se acabó. No discutas.
+- Las preguntas más probables ya están respondidas al final de este guion.
