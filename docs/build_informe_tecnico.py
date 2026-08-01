@@ -15,7 +15,8 @@ from pathlib import Path
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Inches, Pt
+from docx.oxml.ns import qn
+from docx.shared import Inches, Pt, RGBColor
 
 ROOT = Path(r"D:\Dev\02_UNIVERSIDAD\FrostPuno\.claude\worktrees\flutter-frost-prediction-puno-d1a1d7")
 IMG = ROOT / "docs" / "presentacion" / "img"
@@ -32,12 +33,39 @@ style.font.name = "Arial"
 style.font.size = Pt(11)
 style.paragraph_format.space_after = Pt(8)
 
+BLACK = RGBColor(0, 0, 0)
+
+# Los estilos de titulo de Word son azules por defecto. Se fuerzan a negro para
+# que el documento completo quede en un solo color.
+for style_name, size in [("Title", 22), ("Heading 1", 15), ("Heading 2", 12.5),
+                         ("Heading 3", 11.5)]:
+    try:
+        st = doc.styles[style_name]
+    except KeyError:
+        continue
+    st.font.color.rgb = BLACK
+    st.font.name = "Arial"
+    st.font.size = Pt(size)
+    st.font.bold = True
+    rpr = st.element.get_or_add_rPr()
+    for tag in ("w:color",):
+        for node in rpr.findall(qn(tag)):
+            rpr.remove(node)
+    color = rpr.makeelement(qn("w:color"), {qn("w:val"): "000000"})
+    rpr.append(color)
+
 fig_counter = {"n": 0}
 tab_counter = {"n": 0}
 
 
 def h(text, level=1):
-    return doc.add_heading(text, level=level)
+    par = doc.add_heading(text, level=level)
+    for run in par.runs:
+        run.font.color.rgb = BLACK
+        run.font.name = "Arial"
+    par.paragraph_format.space_before = Pt(14)
+    par.paragraph_format.space_after = Pt(6)
+    return par
 
 
 def p(text, bold=False, size=None, center=False, space_after=8):
@@ -153,8 +181,9 @@ _cover.style = "Table Grid"
 _cover.alignment = WD_TABLE_ALIGNMENT.CENTER
 for label, value in [
     ("Curso", "Aprendizaje de Maquina"),
+    ("Carrera", "Ingenieria de Sistemas, noveno ciclo"),
     ("Proyecto", "Segunda Unidad"),
-    ("Docente", "Ing. FERNANDEZ CHAMBI MAYENKA"),
+    ("Docente", "Ing. Fernandez Chambi, Mayenka"),
     ("Integrantes",
      "Mamani Mendoza, Joseph Elvis\n"
      "Lipe Machaca, Juan Artemio\n"
@@ -169,6 +198,55 @@ for label, value in [
     cells[1].paragraphs[0].add_run(value).font.size = Pt(10)
     cells[0].width = Inches(1.6)
     cells[1].width = Inches(4.4)
+
+doc.add_page_break()
+
+# =========================================================== INDICE
+h("Indice general", 1)
+_toc = [
+    ("Enlaces del producto y del entregable", 4),
+    ("1. Introduccion", 6),
+    ("2. Herramientas, plataformas y aplicaciones necesarias", 7),
+    ("3. Organizacion del codigo fuente", 9),
+    ("4. Consideraciones de despliegue inicial", 11),
+    ("5. Flujos de mantenimiento e integracion continua", 14),
+    ("6. Componente inteligente del sistema", 18),
+    ("7. Funcionamiento de la aplicacion", 20),
+    ("8. Limitaciones", 23),
+    ("9. Conclusiones", 23),
+    ("10. Video de la exposicion", 24),
+    ("Anexo. Comandos de verificacion", 24),
+]
+_toc_table = doc.add_table(rows=0, cols=2)
+_toc_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+for titulo, pagina in _toc:
+    cells = _toc_table.add_row().cells
+    cells[0].paragraphs[0].add_run(titulo).font.size = Pt(11)
+    par_num = cells[1].paragraphs[0]
+    par_num.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    par_num.add_run(str(pagina)).font.size = Pt(11)
+    cells[0].width = Inches(5.4)
+    cells[1].width = Inches(0.7)
+    for cell in cells:
+        cell.paragraphs[0].paragraph_format.space_after = Pt(2)
+
+doc.add_paragraph()
+h("Indice de figuras", 1)
+_figs = [
+    "Figura 1. Verificacion de integridad del APK Android mediante Play Protect.",
+    "Figura 2. Documentacion interactiva de la interfaz de programacion.",
+    "Figura 3. Respuesta del punto de acceso de verificacion de salud.",
+    "Figura 4. Ejecuciones de los flujos de integracion continua.",
+    "Figura 5. Detalle de las ejecuciones de los flujos de trabajo.",
+    "Figura 6. Pantalla de zonas de riesgo con las metricas del modelo.",
+    "Figura 7. Pantalla principal con la alerta del dia.",
+    "Figura 8. Modulo estacional de chuno.",
+    "Figura 9. Pantalla de ajustes con umbral y perfil de usuario.",
+]
+for texto in _figs:
+    par = doc.add_paragraph()
+    par.paragraph_format.space_after = Pt(3)
+    par.add_run(texto).font.size = Pt(11)
 
 doc.add_page_break()
 
@@ -487,6 +565,10 @@ table(
 img("actions_verde.png",
     "Ejecuciones de los flujos de integracion continua en estado satisfactorio.", 5.6)
 
+img("actions_detalle.png",
+    "Detalle de las ejecuciones: cada incorporacion de cambios dispara los flujos "
+    "de forma simultanea.", 5.6)
+
 h("5.2 Mantenimiento del modelo", 2)
 p("El modelo se reentrena de forma automatica sin intervencion humana. El flujo de "
   "entrenamiento cuenta con una programacion semanal mediante expresion de tiempo, de "
@@ -648,6 +730,9 @@ bullet("Perfil de usuario que prioriza las alertas mostradas segun la actividad.
 
 img("home_claro.png", "Pantalla principal con la alerta del dia y el riesgo actual.", 2.6)
 img("chuno.png", "Modulo estacional de chuno con la evaluacion del pronostico diario.", 2.6)
+img("ajustes.png",
+    "Pantalla de ajustes: activacion de alertas, umbral de temperatura configurable "
+    "y seleccion de perfil de usuario.", 2.6)
 
 doc.add_page_break()
 
