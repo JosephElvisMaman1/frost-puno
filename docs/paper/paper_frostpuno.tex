@@ -1,0 +1,510 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=false, pdfborder={0 0 0}}
+
+\graphicspath{{fig/}}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  framesep=3pt,
+  numbers=none,
+  showstringspaces=false,
+  keywordstyle=\bfseries,
+  language=Python,
+}
+
+\begin{document}
+
+\title{FrostPuno: arquitectura distribuida y c\'omputo paralelo para la
+predicci\'on de heladas mediante aprendizaje no supervisado en el altiplano
+de Puno}
+
+\author{
+\IEEEauthorblockN{Joseph Elvis Mamani Mendoza, Juan Artemio Lipe Machaca,\\
+Jhoel Yovani Ticona Erquinigo, Paul Renmis Tapara Ccahuana}
+\IEEEauthorblockA{Escuela Profesional de Ingenier\'ia de Sistemas\\
+Universidad Nacional del Altiplano\\
+Puno, Per\'u\\
+\{joemamanim\}@est.unap.edu.pe}
+}
+
+\maketitle
+
+\begin{abstract}
+Las heladas del altiplano peruano afectan cultivos y ganado, pero tambi\'en
+constituyen el insumo del chu\~no, alimento deshidratado por congelamiento
+nocturno. Las decisiones productivas se toman por experiencia emp\'irica, sin
+informaci\'on clim\'atica integrada. Este trabajo presenta FrostPuno, un sistema
+distribuido que agrupa los reg\'imenes t\'ermicos de trece distritos de Puno
+mediante K-Means y expone el resultado como servicio en producci\'on. El aporte
+se concentra en tres decisiones de c\'omputo paralelo y distribuido: la ingesta
+clim\'atica se paraleliza con un conjunto de hilos que a\'isla los fallos por
+distrito; la arquitectura se descompone en cuatro servicios aut\'onomos alojados
+en proveedores distintos y acoplados solo por contratos REST; y el mantenimiento
+del componente inteligente se automatiza como trabajos concurrentes de
+integraci\'on continua con una barrera de calidad. La selecci\'on de
+caracter\'isticas elev\'o el coeficiente de silueta de 0.286 a 0.419 y el
+\'indice de Davies-Bouldin descendi\'o a 0.813. El sistema se encuentra
+desplegado y accesible como aplicaci\'on web, interfaz de programaci\'on y
+aplicaci\'on Android.
+\end{abstract}
+
+\begin{IEEEkeywords}
+c\'omputo paralelo, sistemas distribuidos, aprendizaje no supervisado, K-Means,
+integraci\'on continua, heladas, altiplano
+\end{IEEEkeywords}
+
+\section{Introducci\'on}
+
+En la regi\'on Puno, por encima de los 3800 metros sobre el nivel del mar, las
+heladas presentan una doble condici\'on. Da\~nan los cultivos y provocan
+mortalidad neonatal en cr\'ias de alpaca y ovino, patrimonio productivo de las
+familias altoandinas. Al mismo tiempo, constituyen el insumo indispensable del
+chu\~no, papa deshidratada mediante congelamiento nocturno y secado diurno que
+se conserva durante a\~nos y forma parte de la seguridad alimentaria regional.
+
+La decisi\'on de proteger un cultivo, resguardar el ganado o tender la papa se
+toma habitualmente por experiencia emp\'irica. No existe una herramienta que
+integre informaci\'on clim\'atica abierta y la traduzca en recomendaciones
+territoriales. El problema no se limita al modelado: exige recolectar datos de
+m\'ultiples ubicaciones, servirlos con baja latencia a usuarios dispersos y
+mantener el sistema operativo sin intervenci\'on constante.
+
+Este art\'iculo describe FrostPuno desde la perspectiva del c\'omputo paralelo y
+distribuido. Las contribuciones son las siguientes:
+
+\begin{enumerate}
+\item Una estrategia de ingesta paralela por hilos con aislamiento de fallos por
+ubicaci\'on, adecuada a una carga dominada por latencia de red.
+\item Una arquitectura distribuida en cuatro servicios aut\'onomos, desplegados
+en proveedores distintos y acoplados \'unicamente por contratos expl\'icitos.
+\item Un esquema de mantenimiento automatizado del componente inteligente,
+ejecutado como trabajos concurrentes de integraci\'on continua y protegido por
+una barrera de calidad verificada mediante pruebas.
+\end{enumerate}
+
+\section{Trabajos relacionados}
+
+La predicci\'on de heladas se ha abordado tradicionalmente con modelos
+supervisados que requieren registros hist\'oricos etiquetados de eventos
+ocurridos. En territorios donde esos registros no existen o no son accesibles de
+forma program\'atica, el agrupamiento ofrece una alternativa: permite descubrir
+reg\'imenes clim\'aticos sin necesidad de etiquetas.
+
+En cuanto a la operaci\'on de sistemas con componentes de aprendizaje, la
+pr\'actica de separar el entrenamiento por lotes de la inferencia en l\'inea, y
+de intermediar ambos mediante un registro de modelos, se ha consolidado como
+patr\'on de referencia. FrostPuno adopta ese patr\'on y lo complementa con una
+barrera de calidad que impide promover modelos degradados, aspecto que suele
+quedar fuera de los trabajos acad\'emicos de alcance similar.
+
+\section{Arquitectura distribuida}
+
+El sistema se descompone en cuatro servicios aut\'onomos que se comunican por
+HTTP siguiendo contratos REST estables. Cada uno reside en una plataforma
+distinta, de modo que la distribuci\'on es efectiva y no una separaci\'on
+l\'ogica dentro de un mismo proceso.
+
+\begin{table}[htbp]
+\caption{Distribuci\'on de los componentes del sistema}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Componente} & \textbf{Plataforma} & \textbf{Responsabilidad} \\
+\midrule
+Cliente Flutter & Vercel, APK & Presentaci\'on, ubicaci\'on \\
+Servicio FastAPI & Render & Inferencia y reglas \\
+Base de datos & Supabase & Persistencia \\
+Fuente clim\'atica & Open-Meteo & Datos externos \\
+\bottomrule
+\end{tabular}
+\label{tab:arquitectura}
+\end{center}
+\end{table}
+
+El desacoplamiento se sostiene en dos decisiones. La primera es que el cliente
+conoce \'unicamente la direcci\'on del servicio, inyectada en tiempo de
+compilaci\'on, por lo que el mismo c\'odigo fuente produce la versi\'on web, la
+versi\'on de desarrollo y la aplicaci\'on Android. La segunda es que el servicio
+organiza su c\'odigo en capas sucesivas de rutas, servicios y repositorios, lo
+que permite sustituir la persistencia sin alterar los controladores.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.47\textwidth]{swagger_api}}
+\caption{Contrato REST publicado por el servicio en producci\'on.}
+\label{fig:swagger}
+\end{figure}
+
+\section{Paralelismo en la ingesta de datos}
+
+La construcci\'on del conjunto de datos requiere recolectar series clim\'aticas
+horarias para trece distritos. Cada solicitud es independiente y su costo
+est\'a dominado por la latencia de red, no por el procesador, de modo que la
+carga es adecuada para paralelismo por hilos.
+
+El listado \ref{lst:ingesta} muestra la implementaci\'on. Se lanzan tantas
+tareas como distritos y se recolectan conforme finalizan, sin respetar el orden
+de emisi\'on.
+
+\begin{lstlisting}[caption={Ingesta paralela con aislamiento de fallos},label={lst:ingesta}]
+with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    futures = {
+        executor.submit(fetch_weather_for_location,
+                        record, start_date, end_date): record
+        for record in records
+    }
+    for future in as_completed(futures):
+        record = futures[future]
+        try:
+            frames.append(future.result())
+        except Exception as exc:
+            failures.append(
+                f"{record['ubigeo']} {record['distrito']}: {exc}")
+\end{lstlisting}
+
+Se destacan cuatro propiedades. La primera es el patr\'on de dispersi\'on y
+recolecci\'on: la construcci\'on del diccionario de tareas dispersa el trabajo y
+la iteraci\'on sobre las tareas completadas lo recolecta a medida que concluye.
+La segunda es el aislamiento de fallos: la captura de excepciones se realiza por
+tarea, de manera que la indisponibilidad de un distrito no interrumpe la
+recolecci\'on de los restantes y queda registrada de forma individual. La tercera
+es que el grado de paralelismo es configurable mediante un par\'ametro,
+ajustable seg\'un el ancho de banda disponible y las restricciones del proveedor
+de datos. La cuarta se refiere al rendimiento: siendo la carga dependiente de
+entrada y salida, el tiempo total tiende al de una sola solicitud en lugar del
+producto del n\'umero de distritos por ese tiempo, comportamiento consistente
+con la fracci\'on paralelizable descrita por la ley de Amdahl.
+
+\section{Distribuci\'on del c\'omputo de aprendizaje}
+
+El sistema separa el c\'omputo intensivo del c\'omputo sensible a la latencia,
+siguiendo el patr\'on habitual en sistemas distribuidos de aprendizaje
+autom\'atico.
+
+El entrenamiento se ejecuta por lotes y fuera de l\'inea. Recorre una
+b\'usqueda exhaustiva de veinticuatro combinaciones de hiperpar\'ametros y
+serializa el resultado en un registro de modelos junto con sus metadatos. La
+inferencia, en cambio, ocurre en l\'inea: el servicio carga ese mismo artefacto
+una \'unica vez por proceso y, ante cada solicitud, asigna el vector clim\'atico
+al centroide m\'as pr\'oximo, operaci\'on de costo proporcional al n\'umero de
+grupos y por tanto muy econ\'omica.
+
+La pieza que articula ambos extremos es la lista de caracter\'isticas declarada
+en los metadatos. El servicio construye el vector de entrada siguiendo ese
+orden, por lo que un reentrenamiento no obliga a modificar el c\'odigo del
+servidor. Este contrato constituye la frontera entre el subsistema de
+aprendizaje y el subsistema de servicio.
+
+Adicionalmente, el servicio incorpora tres mecanismos de eficiencia. Emplea un
+servidor concurrente que atiende m\'ultiples solicitudes simult\'aneas; mantiene
+una cach\'e en memoria indexada por coordenada con tiempo de expiraci\'on, lo
+que evita consultar la fuente externa de forma repetida; e instancia una sola
+vez por proceso el registro de modelos, el servicio de predicci\'on y el
+proveedor clim\'atico, evitando recargar el artefacto serializado en cada
+solicitud.
+
+\section{Modelo de agrupamiento}
+
+\subsection{Conjunto de datos y caracter\'isticas}
+
+La fuente clim\'atica es Open-Meteo, de la que se obtienen series horarias para
+trece distritos, resultando un conjunto de 4368 registros. La informaci\'on
+territorial procede de una semilla compatible con el Instituto Nacional de
+Estad\'istica e Inform\'atica.
+
+Se parti\'o de ocho variables clim\'aticas. Un experimento de subconjuntos
+evidenci\'o que la precipitaci\'on, la velocidad del viento, la nubosidad y la
+temperatura aparente introduc\'ian ruido o resultaban colineales, degradando la
+separaci\'on entre grupos. Al retirarlas, el coeficiente de silueta ascendi\'o
+de 0.286 a 0.419, una mejora cercana al 47 por ciento obtenida mediante
+reducci\'on y no mediante incorporaci\'on de informaci\'on. Las cuatro
+caracter\'isticas conservadas son la altitud estimada, la temperatura, el punto
+de roc\'io y la humedad relativa.
+
+\subsection{Optimizaci\'on de hiperpar\'ametros}
+
+El algoritmo es K-Means, precedido por un escalado estandarizado necesario dado
+que las variables presentan magnitudes heterog\'eneas. La configuraci\'on se
+determin\'o mediante b\'usqueda exhaustiva que maximiza el coeficiente de
+silueta.
+
+\begin{table}[htbp]
+\caption{Espacio de b\'usqueda y configuraci\'on seleccionada}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Hiperpar\'ametro} & \textbf{Valores} & \textbf{Elegido} \\
+\midrule
+N\'umero de grupos & 3 a 8 & 3 \\
+Inicializaci\'on & k-means++, aleatoria & aleatoria \\
+Reinicios & 10, 25 & 10 \\
+Semilla & fija & 42 \\
+\bottomrule
+\end{tabular}
+\label{tab:hiperparametros}
+\end{center}
+\end{table}
+
+\subsection{Evaluaci\'on}
+
+Al tratarse de aprendizaje no supervisado no se dispone de etiquetas de
+referencia, por lo que no procede el uso de exactitud ni de la medida F1. La
+evaluaci\'on cuantifica la calidad de la estructura descubierta.
+
+\begin{table}[htbp]
+\caption{Selecci\'on del n\'umero de grupos}
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Grupos} & \textbf{Silueta} & \textbf{Davies-Bouldin} \\
+\midrule
+3 (elegido) & 0.4195 & 0.813 \\
+4 & 0.3894 & 0.906 \\
+5 & 0.3760 & 0.820 \\
+6 & 0.3697 & 0.870 \\
+7 & 0.3645 & 0.865 \\
+8 & 0.3391 & 0.883 \\
+\bottomrule
+\end{tabular}
+\label{tab:seleccion}
+\end{center}
+\end{table}
+
+La configuraci\'on de tres grupos resulta superior en ambas medidas y coincide
+con los tres niveles de riesgo que requiere la aplicaci\'on. La asignaci\'on de
+niveles se realiza con posterioridad al entrenamiento, ordenando los grupos por
+su temperatura media: el m\'as fr\'io corresponde al riesgo alto. Se trata de
+una descripci\'on de los grupos hallados y no de una supervisi\'on, dado que el
+entrenamiento no accede a esas etiquetas.
+
+El resultado admite interpretaci\'on geogr\'afica. El distrito de Macusani,
+situado a 4315 metros, queda clasificado en riesgo alto, mientras que Sandia,
+ubicado en valle a 2170 metros, corresponde al riesgo bajo. Esta
+correspondencia con la geograf\'ia regional emerge del agrupamiento y no fue
+codificada mediante reglas.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.24\textwidth]{zonas_kmeans}}
+\caption{Agrupamiento de distritos con las m\'etricas del modelo en producci\'on.}
+\label{fig:zonas}
+\end{figure}
+
+\section{Mantenimiento e integraci\'on continua}
+
+El mantenimiento de un sistema con componentes de aprendizaje no se limita al
+c\'odigo. Comprende el reentrenamiento, el registro de versiones, el
+almacenamiento de caracter\'isticas y el control de calidad previo a la
+promoci\'on de un modelo.
+
+\subsection{Trabajos concurrentes}
+
+Se implementaron cinco flujos independientes que se ejecutan de forma
+simult\'anea en entornos aislados ante cada incorporaci\'on de cambios. El
+primero entrena el modelo y publica los artefactos; el segundo aplica la barrera
+de calidad y ejecuta las pruebas de mantenimiento; el tercero verifica el
+servicio; el cuarto valida los conjuntos de datos; y el quinto analiza y compila
+el cliente. Al no existir dependencias entre ellos, el tiempo total corresponde
+al del flujo m\'as lento y no a la suma de todos.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.47\textwidth]{actions_detalle}}
+\caption{Ejecuciones concurrentes de los flujos de integraci\'on continua.}
+\label{fig:actions}
+\end{figure}
+
+\subsection{Reentrenamiento adaptativo}
+
+El flujo de entrenamiento cuenta con una programaci\'on semanal, por lo que el
+modelo incorpora datos recientes sin intervenci\'on humana. El procedimiento no
+se limita a repetir el entrenamiento: si la calidad obtenida no alcanza el
+objetivo definido, ampl\'ia la ventana de datos hist\'oricos de catorce a
+veintinueve y luego a cuarenta y cuatro d\'ias, y reintenta. Cada ejecuci\'on se
+registra en un historial que documenta la evoluci\'on de la calidad frente al
+volumen de datos disponible.
+
+\subsection{Barrera de calidad}
+
+El reentrenamiento autom\'atico introduce el riesgo de promover un modelo
+inferior al vigente. Para evitarlo se verifica el coeficiente de silueta antes
+de cualquier promoci\'on; si el valor se sit\'ua por debajo de 0.35, el proceso
+finaliza con c\'odigo de error y la integraci\'on se detiene.
+
+La existencia de la barrera no demuestra por s\'i sola su funcionamiento. Se
+implementaron seis pruebas automatizadas que se ejecutan dentro de la
+integraci\'on continua y verifican el ciclo completo: la generaci\'on de
+artefactos, la capacidad de carga e inferencia del modelo serializado, la
+cobertura territorial, la documentaci\'on de la b\'usqueda de hiperpar\'ametros,
+la aprobaci\'on del modelo vigente y, de manera particular, el rechazo de un
+modelo deliberadamente degradado. Esta \'ultima prueba construye un conjunto de
+metadatos con una medida insuficiente y comprueba que el control lo bloquea.
+
+\section{Resultados}
+
+El sistema se encuentra desplegado y operativo. La tabla \ref{tab:resultados}
+resume las verificaciones realizadas.
+
+\begin{table}[htbp]
+\caption{Verificaciones sobre el sistema desplegado}
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Verificaci\'on} & \textbf{Resultado} \\
+\midrule
+Pruebas del servicio & 12 satisfactorias \\
+Pruebas de mantenimiento & 6 satisfactorias \\
+Barrera de calidad & Aprobada, 0.419 \\
+Compilaci\'on del cliente web & Satisfactoria \\
+Aplicaci\'on Android & 47.3 MB \\
+Modelo en producci\'on & K-Means v1.0.0 \\
+\bottomrule
+\end{tabular}
+\label{tab:resultados}
+\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.22\textwidth]{home_oscuro}
+\hfil
+\includegraphics[width=0.22\textwidth]{chuno}}
+\caption{Cliente en operaci\'on: alerta diaria y m\'odulo estacional de chu\~no.}
+\label{fig:app}
+\end{figure}
+
+La aplicaci\'on entrega alerta diaria de helada con umbral configurable, aviso
+diferenciado para ganado, detecci\'on de eventos inusuales por comparaci\'on con
+la climatolog\'ia reciente, agrupamiento territorial, m\'odulo estacional de
+chu\~no e hist\'orico clim\'atico. Incorpora adem\'as selecci\'on de idioma
+entre espa\~nol e ingl\'es.
+
+\section{Limitaciones}
+
+Los niveles de riesgo se derivan del perfil t\'ermico de cada grupo y no de un
+registro oficial de heladas observadas, dado que no existe un conjunto
+etiquetado disponible para estos distritos. El Servicio Nacional de
+Meteorolog\'ia e Hidrolog\'ia se declara como fuente oficial prioritaria en el
+sistema, si bien no expone una interfaz p\'ublica estable, por lo que Open-Meteo
+constituye la fuente operativa. La semilla territorial corresponde a una
+versi\'on reducida. Los umbrales aplicados al chu\~no y al ganado responden a un
+dise\~no documentado con fuentes, sin constituir cifras oficiales. La detecci\'on
+de eventos inusuales emplea climatolog\'ia de treinta d\'ias y no una serie
+multianual. Finalmente, el plan gratuito de la plataforma de alojamiento
+suspende la instancia tras un periodo de inactividad, lo que introduce demora en
+la primera solicitud.
+
+\section{Conclusiones}
+
+Se present\'o un sistema distribuido para la predicci\'on de heladas en el
+altiplano de Puno, desplegado en producci\'on y accesible como aplicaci\'on web,
+interfaz de programaci\'on y aplicaci\'on Android.
+
+Desde la perspectiva del c\'omputo paralelo y distribuido, el trabajo aporta tres
+elementos. La ingesta clim\'atica se paraleliza mediante un conjunto de hilos con
+aislamiento de fallos por ubicaci\'on, aprovechando que la carga depende de la
+latencia de red. La arquitectura se distribuye en cuatro servicios aut\'onomos
+alojados en proveedores distintos, acoplados \'unicamente por contratos
+expl\'icitos, entre los que destaca la lista de caracter\'isticas que separa el
+subsistema de aprendizaje del de servicio. El mantenimiento se automatiza como
+trabajos concurrentes de integraci\'on continua, con reentrenamiento programado
+de ventana adaptativa y una barrera de calidad cuyo funcionamiento se verifica
+mediante pruebas.
+
+El modelo de agrupamiento alcanza un coeficiente de silueta de 0.419 y un
+\'indice de Davies-Bouldin de 0.813, y produce una clasificaci\'on territorial
+coherente con la geograf\'ia regional sin haber sido programada expl\'icitamente.
+
+Como trabajo futuro se plantea la incorporaci\'on de observaciones oficiales
+como validaci\'on cruzada del agrupamiento, la ampliaci\'on de la cobertura
+territorial mediante la exportaci\'on completa de distritos y la evoluci\'on de
+la ingesta paralela hacia un esquema distribuido en varios nodos.
+
+\section*{Disponibilidad del c\'odigo}
+
+El c\'odigo fuente completo se encuentra disponible de forma p\'ublica en
+\url{https://github.com/JosephElvisMaman1/frost-puno}. La aplicaci\'on web
+opera en \url{https://frost-puno.vercel.app} y el servicio en
+\url{https://frost-puno.onrender.com}, cuya documentaci\'on interactiva reside
+en la ruta \texttt{/docs}. La aplicaci\'on Android se distribuye como archivo
+\texttt{app-release.apk} generado desde el repositorio.
+
+\appendices
+
+\section{Fragmentos representativos del c\'odigo}
+
+Se incluyen los fragmentos centrales de los aportes descritos. El listado
+\ref{lst:entrenamiento} corresponde a la b\'usqueda de hiperpar\'ametros del
+modelo de agrupamiento.
+
+\begin{lstlisting}[caption={B\'usqueda exhaustiva de hiperpar\'ametros},label={lst:entrenamiento}]
+for k in k_range:
+    for init in init_options:
+        for n_init in n_init_options:
+            pipeline = build_pipeline(k, init=init, n_init=n_init)
+            labels = pipeline.fit_predict(features)
+            scaled = pipeline.named_steps["scaler"].transform(features)
+            metrics = {
+                "silhouette": float(silhouette_score(scaled, labels)),
+                "davies_bouldin": float(davies_bouldin_score(scaled, labels)),
+                "inertia": float(pipeline.named_steps["kmeans"].inertia_),
+            }
+            grid.append({"k": k, "init": init,
+                         "n_init": n_init, **metrics})
+
+best = max(grid, key=lambda row: row["silhouette"])
+\end{lstlisting}
+
+El listado \ref{lst:gate} presenta la barrera de calidad que detiene la
+integraci\'on ante una regresi\'on del modelo.
+
+\begin{lstlisting}[caption={Barrera de calidad del modelo},label={lst:gate}]
+def run(metadata_path, min_silhouette):
+    silhouette = load_silhouette(metadata_path)
+    print(f"Cluster quality gate: silhouette={silhouette:.6f}, "
+          f"minimum={min_silhouette:.6f}")
+    if silhouette < min_silhouette:
+        print("QUALITY GATE FAILED")
+        return 1
+    print("QUALITY GATE PASSED")
+    return 0
+\end{lstlisting}
+
+El listado \ref{lst:prueba} corresponde a la prueba que verifica el
+funcionamiento de dicha barrera.
+
+\begin{lstlisting}[caption={Verificaci\'on del bloqueo de un modelo degradado},label={lst:prueba}]
+def test_quality_gate_blocks_degraded_model(tmp_path, metadata):
+    degraded = dict(metadata)
+    degraded["metrics"] = {"silhouette": 0.10,
+                           "davies_bouldin": 3.0, "inertia": 1.0}
+    bad_path = tmp_path / "cluster_metadata.json"
+    bad_path.write_text(json.dumps(degraded), encoding="utf-8")
+
+    assert run_gate(bad_path, min_silhouette=0.35) == 1
+\end{lstlisting}
+
+\section{Reproducci\'on de los resultados}
+
+Los siguientes comandos permiten reproducir el entrenamiento, la barrera de
+calidad y las pruebas descritas.
+
+\begin{lstlisting}[language=bash,caption={Comandos de reproducci\'on}]
+python -m ml_pipeline.clustering.train_clusters
+python -m ml_pipeline.registry.check_cluster_quality --min-silhouette 0.35
+python -m pytest ml_pipeline/tests/test_maintenance_ci.py -v
+python -m ml_pipeline.clustering.adaptive_retrain --target 0.45 --max-iters 3
+pytest backend_fastapi/tests -q
+\end{lstlisting}
+
+\end{document}
