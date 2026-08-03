@@ -74,8 +74,9 @@ PREAMBULO = r"""\documentclass[10pt,a4paper]{article}
 \title{\vspace{-1.5cm}\textbf{FrostPuno}\\[0.3cm]
 \large Codigo fuente de la aplicacion\\[0.2cm]
 \normalsize Sistema distribuido de prediccion de heladas para el altiplano de Puno}
-\author{Mamani Mendoza, Joseph Elvis \and Lipe Machaca, Juan Artemio \and
-Ticona Erquinigo, Jhoel Yovani \and Tapara Ccahuana, Paul Renmis}
+\author{Mamani Mendoza, Joseph Elvis \and Pari Pari, Yimmy Ronaldo \and
+Quispe Galindo, Jahan Kevin \and Flores Curasi, Hector Luis \and
+Apaza Llanos, Yoel}
 \date{Universidad Nacional del Altiplano, Puno\\
 Escuela Profesional de Ingenieria de Sistemas\\[0.3cm]
 Repositorio: \url{https://github.com/JosephElvisMaman1/frost-puno}}
