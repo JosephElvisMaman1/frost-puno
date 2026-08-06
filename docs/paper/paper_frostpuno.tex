@@ -1,6 +1,6 @@
 \documentclass[conference]{IEEEtran}
 
-\usepackage[spanish,es-noquoting]{babel}
+\usepackage[english,spanish,es-noquoting]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -43,29 +43,50 @@ Puno, Per\'u}
 
 \maketitle
 
+\renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-Las heladas del altiplano peruano afectan cultivos y ganado, pero tambi\'en
-constituyen el insumo del chu\~no, alimento deshidratado por congelamiento
-nocturno. Las decisiones productivas se toman por experiencia emp\'irica, sin
-informaci\'on clim\'atica integrada. Este trabajo presenta FrostPuno, un sistema
-distribuido que agrupa los reg\'imenes t\'ermicos de trece distritos de Puno
-mediante K-Means y expone el resultado como servicio en producci\'on. El aporte
-se concentra en tres decisiones de c\'omputo paralelo y distribuido: la ingesta
-clim\'atica se paraleliza con un conjunto de hilos que a\'isla los fallos por
-distrito; la arquitectura se descompone en cuatro servicios aut\'onomos alojados
-en proveedores distintos y acoplados solo por contratos REST; y el mantenimiento
-del componente inteligente se automatiza como trabajos concurrentes de
-integraci\'on continua con una barrera de calidad. La selecci\'on de
-caracter\'isticas elev\'o el coeficiente de silueta de 0.286 a 0.419 y el
-\'indice de Davies-Bouldin descendi\'o a 0.813. El sistema se encuentra
-desplegado y accesible como aplicaci\'on web, interfaz de programaci\'on y
-aplicaci\'on Android.
+\begin{otherlanguage}{english}
+Frost events in the Peruvian highlands damage crops and cause neonatal mortality
+in alpaca and sheep herds, yet the same frost is the essential input for
+\emph{chu\~no}, a freeze-dried potato that sustains regional food security.
+Producers currently decide when to protect crops or lay out potatoes based on
+personal experience, without integrated climate information. This work presents
+FrostPuno, a distributed system that groups the thermal regimes of thirteen
+districts in Puno using K-Means and delivers the result as a live production
+service. Three results are reported. First, the deployed system classifies all
+thirteen districts into three risk levels with a silhouette coefficient of 0.419
+and a Davies-Bouldin index of 0.813, and the resulting territorial ranking
+matches regional geography without any hand-coded rule. Second, the system runs
+in production at zero infrastructure cost, reachable as a web application, a
+programming interface and an Android application, with automated retraining and
+a quality gate whose blocking behaviour is verified by tests. Third, an economic
+sustainability model is proposed, based on institutional licensing to local
+governments and cooperatives, showing that the operation reaches break-even with
+a small number of institutional subscribers. The parallel and distributed design
+decisions that make this operating cost possible are described: thread-pool
+ingestion with per-district fault isolation, four autonomous services coupled
+only through explicit contracts, and concurrent continuous-integration jobs.
+\end{otherlanguage}
 \end{abstract}
 
 \begin{IEEEkeywords}
-c\'omputo paralelo, sistemas distribuidos, aprendizaje no supervisado, K-Means,
-integraci\'on continua, heladas, altiplano
+parallel computing, distributed systems, unsupervised learning, K-Means,
+continuous integration, frost prediction, economic sustainability, high-Andean
+agriculture
 \end{IEEEkeywords}
+
+\renewcommand{\abstractname}{Resumen}
+\begin{abstract}
+FrostPuno agrupa los reg\'imenes t\'ermicos de trece distritos de Puno mediante
+aprendizaje no supervisado y entrega el resultado como servicio en producci\'on,
+accesible desde la web, una interfaz de programaci\'on y una aplicaci\'on
+Android. El sistema clasifica los trece distritos en tres niveles de riesgo con
+un coeficiente de silueta de 0.419, opera con costo de infraestructura nulo y se
+mantiene solo mediante reentrenamiento programado con una barrera de calidad
+verificada por pruebas. Se propone adem\'as un modelo de sostenibilidad
+econ\'omica basado en licenciamiento institucional que alcanza el punto de
+equilibrio con pocos suscriptores.
+\end{abstract}
 
 \section{Introducci\'on}
 
@@ -353,8 +374,35 @@ metadatos con una medida insuficiente y comprueba que el control lo bloquea.
 
 \section{Resultados}
 
-El sistema se encuentra desplegado y operativo. La tabla \ref{tab:resultados}
-resume las verificaciones realizadas.
+\subsection{Resultado territorial}
+
+El sistema clasifica los trece distritos evaluados en tres niveles de riesgo. El
+ordenamiento coincide con la geograf\'ia regional sin haber sido codificado:
+Macusani, a 4315 metros, resulta de riesgo alto, mientras que Sandia, ubicado en
+valle a 2170 metros, resulta de riesgo bajo. Esa correspondencia es el resultado
+m\'as relevante del trabajo, porque indica que la estructura descubierta por el
+agrupamiento tiene sentido f\'isico y no es un artefacto del procedimiento.
+
+\begin{table}[htbp]
+\caption{Clasificaci\'on territorial obtenida}
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Nivel} & \textbf{Distritos} & \textbf{Temp. media} & \textbf{Altitud media} \\
+\midrule
+Alto & 6 & 4.0 $^\circ$C & 3905 m \\
+Medio & 6 & 11.6 $^\circ$C & 3893 m \\
+Bajo & 1 & 13.6 $^\circ$C & 2170 m \\
+\bottomrule
+\end{tabular}
+\label{tab:territorio}
+\end{center}
+\end{table}
+
+\subsection{Producto en operaci\'on}
+
+El sistema no es un prototipo de laboratorio: opera de forma p\'ublica y
+continua. La tabla \ref{tab:resultados} resume las verificaciones.
 
 \begin{table}[htbp]
 \caption{Verificaciones sobre el sistema desplegado}
@@ -363,17 +411,26 @@ resume las verificaciones realizadas.
 \toprule
 \textbf{Verificaci\'on} & \textbf{Resultado} \\
 \midrule
+Canales de acceso & Web, API y Android \\
+Costo de infraestructura & 0 USD mensuales \\
 Pruebas del servicio & 12 satisfactorias \\
 Pruebas de mantenimiento & 6 satisfactorias \\
 Barrera de calidad & Aprobada, 0.419 \\
-Compilaci\'on del cliente web & Satisfactoria \\
-Aplicaci\'on Android & 47.3 MB \\
+Intervenci\'on humana requerida & Ninguna \\
 Modelo en producci\'on & K-Means v1.0.0 \\
 \bottomrule
 \end{tabular}
 \label{tab:resultados}
 \end{center}
 \end{table}
+
+Dos cifras de esa tabla concentran el valor pr\'actico del dise\~no. La primera
+es el \textbf{costo cero} de operaci\'on, consecuencia directa de haber distribuido el
+sistema en servicios que caben en los planes gratuitos de cada proveedor. La
+segunda es que el sistema \textbf{no requiere intervenci\'on humana}: el
+reentrenamiento ocurre por programaci\'on y la barrera de calidad decide si el
+modelo nuevo se promueve. Ambas condiciones son las que hacen viable el modelo
+econ\'omico que se describe en la secci\'on siguiente.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=0.22\textwidth]{home_oscuro}
@@ -383,11 +440,128 @@ Modelo en producci\'on & K-Means v1.0.0 \\
 \label{fig:app}
 \end{figure}
 
-La aplicaci\'on entrega alerta diaria de helada con umbral configurable, aviso
-diferenciado para ganado, detecci\'on de eventos inusuales por comparaci\'on con
-la climatolog\'ia reciente, agrupamiento territorial, m\'odulo estacional de
-chu\~no e hist\'orico clim\'atico. Incorpora adem\'as selecci\'on de idioma
-entre espa\~nol e ingl\'es.
+\subsection{Funcionalidad entregada al usuario}
+
+La aplicaci\'on traduce la salida del modelo en decisiones concretas: alerta
+diaria de helada con umbral configurable por el propio usuario, aviso
+diferenciado para ganado orientado a la protecci\'on de cr\'ias, detecci\'on de
+eventos inusuales frente a la climatolog\'ia reciente, agrupamiento territorial,
+m\'odulo estacional de chu\~no e hist\'orico clim\'atico. Incorpora selecci\'on
+de idioma entre espa\~nol e ingl\'es.
+
+\section{Sostenibilidad econ\'omica}
+
+Un sistema desplegado solo permanece \'util si puede sostenerse en el tiempo.
+Esta secci\'on presenta la estructura de costos verificada y un modelo de
+ingresos proyectado. Se distingue expl\'icitamente entre ambos: los costos
+corresponden a la operaci\'on actual y son verificables; los ingresos son una
+proyecci\'on sujeta a las suposiciones que se declaran.
+
+\subsection{Estructura de costos verificada}
+
+La decisi\'on de distribuir el sistema en servicios peque\~nos y aut\'onomos
+tiene una consecuencia econ\'omica directa: cada componente cabe en el plan
+gratuito de su proveedor. El costo operativo actual es nulo.
+
+\begin{table}[htbp]
+\caption{Costo mensual de operaci\'on (USD aproximados)}
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Componente} & \textbf{Actual} & \textbf{Plan pagado} \\
+\midrule
+Servicio backend & 0 & 7 \\
+Cliente web & 0 & 20 \\
+Base de datos & 0 & 25 \\
+Integraci\'on continua & 0 & 0 \\
+Fuente clim\'atica & 0 & 0 \\
+\midrule
+\textbf{Total} & \textbf{0} & \textbf{52} \\
+\bottomrule
+\end{tabular}
+\label{tab:costos}
+\end{center}
+\end{table}
+
+El escenario de plan pagado corresponde a precios p\'ublicos aproximados de los
+proveedores y ser\'ia necesario \'unicamente al superar los l\'imites del nivel
+gratuito, principalmente por volumen de usuarios concurrentes. La ausencia de
+servidores propios elimina adem\'as el costo de administraci\'on de
+infraestructura, que en un despliegue tradicional suele superar al costo del
+propio servicio.
+
+\subsection{Modelo de ingresos propuesto}
+
+El usuario final directo es el productor altoandino, para quien el pago
+individual no es viable ni deseable. El modelo propuesto mantiene la aplicaci\'on
+gratuita para el productor y traslada el ingreso a las instituciones que se
+benefician de la informaci\'on agregada.
+
+\begin{table}[htbp]
+\caption{L\'ineas de ingreso propuestas}
+\begin{center}
+\begin{tabular}{@{}p{2.1cm}p{2.6cm}p{2.4cm}@{}}
+\toprule
+\textbf{L\'inea} & \textbf{Cliente} & \textbf{Propuesta de valor} \\
+\midrule
+Licencia institucional &
+Municipalidades y gobierno regional &
+Panel de riesgo por distrito para dirigir campa\~nas de prevenci\'on \\
+\addlinespace
+Suscripci\'on asociativa &
+Cooperativas y asociaciones de productores &
+Alertas y ventanas de chu\~no para sus asociados \\
+\addlinespace
+Servicio de datos &
+Aseguradoras agrarias &
+Historial de riesgo territorial para tarificaci\'on \\
+\addlinespace
+Convenio &
+Entidades p\'ublicas del sector &
+Cobertura ampliada y validaci\'on de campo \\
+\bottomrule
+\end{tabular}
+\label{tab:ingresos}
+\end{center}
+\end{table}
+
+\subsection{Punto de equilibrio}
+
+Bajo el escenario de plan pagado de la tabla \ref{tab:costos}, el costo
+operativo anual asciende a unos 624 d\'olares. Suponiendo una licencia
+institucional anual de 500 d\'olares por municipalidad, cifra deliberadamente
+conservadora frente al presupuesto de una campa\~na de prevenci\'on de heladas,
+el punto de equilibrio se alcanza con \textbf{dos} entidades suscritas. La provincia
+de Puno agrupa m\'as de una decena de municipalidades distritales, de modo que
+el umbral se sit\'ua muy por debajo del mercado potencial inmediato.
+
+El costo marginal de incorporar una entidad adicional es pr\'acticamente nulo,
+porque el sistema ya calcula el agrupamiento de todos los distritos en la misma
+ejecuci\'on. Esa asimetr\'ia entre costo fijo bajo y costo marginal nulo es la
+que otorga viabilidad al modelo.
+
+\subsection{Condiciones para la rentabilidad}
+
+Tres decisiones t\'ecnicas del trabajo son las que sostienen esta viabilidad y
+conviene se\~nalarlas de forma expl\'icita:
+
+\begin{itemize}
+\item La \textbf{arquitectura distribuida} permite que cada componente permanezca
+dentro de un plan gratuito, lo que reduce el costo fijo a cero durante la etapa
+de validaci\'on.
+\item El \textbf{mantenimiento automatizado} elimina el costo recurrente de personal
+dedicado a reentrenar y verificar el modelo, que en un sistema de aprendizaje
+suele ser el gasto dominante.
+\item La \textbf{ingesta paralela} mantiene el tiempo de actualizaci\'on acotado al
+incorporar nuevos distritos, de modo que ampliar la cobertura territorial no
+incrementa proporcionalmente el costo de c\'omputo.
+\end{itemize}
+
+Debe se\~nalarse que este modelo no ha sido validado comercialmente: no existen
+contratos firmados ni ingresos percibidos. Constituye una proyecci\'on
+fundamentada en la estructura de costos real del sistema y en la identificaci\'on
+de actores con capacidad de pago, y su verificaci\'on es parte del trabajo
+futuro.
 
 \section{Limitaciones}
 
