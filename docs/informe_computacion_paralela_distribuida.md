@@ -4,11 +4,10 @@
 **Sistema distribuido para predicción de heladas y apoyo a la producción de chuño en el altiplano de Puno.**
 
 ### Integrantes
-- Apaza Llanos, Yoel
-- Pari Pari, Yimmy Ronaldo
-- Flores Curasi, Héctor Luis
 - Mamani Mendoza, Joseph Elvis
-- Quispe Galindo, Jahan Kevin
+- Lipe Machaca, Juan Artemio
+- Ticona Erquinigo, Jhoel Yovani
+- Tapara Ccahuana, Paul Renmis
 
 **Producto en producción:**
 - App web (Flutter): https://frost-puno.vercel.app

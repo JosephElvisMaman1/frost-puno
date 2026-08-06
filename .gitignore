@@ -23,3 +23,9 @@ titulo.pdf
 stitch_frost_puno_predictor/
 	itulo.pdf
 titulo.pdf
+docs/presentacion/slide-*.jpg
+docs/paper/*.aux
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/*.toc
+docs/paper/codigo_fuente.tex

@@ -5,7 +5,11 @@
 desplegada en producción, con mantenimiento e integración continua automatizados.**
 
 - **Universidad:** Universidad Nacional del Altiplano — Ingeniería de Sistemas
-- **Integrantes:** _[Integrantes]_
+- **Integrantes:**
+  - Mamani Mendoza, Joseph Elvis
+  - Lipe Machaca, Juan Artemio
+  - Ticona Erquinigo, Jhoel Yovani
+  - Tapara Ccahuana, Paul Renmis
 - **Docente:** _[Completar]_
 - **Lugar y año:** Puno, Perú — 2026
 
